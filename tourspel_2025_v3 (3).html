@@ -357,20 +357,31 @@ canvas{display:block;}
 
 <!-- KAMELENRACE / VERLOOP -->
 <div class="pg" id="pg-race">
-  <div class="sec">Verloop totaalstand — kamelenrace</div>
-  <div class="notice ni">De grafiek toont het puntverloop per team over alle etappes. Gebruik de legende om teams aan/uit te zetten. Top-10 momenten worden bijgehouden.</div>
-  <div class="fr no-print">
-    <label style="font-size:11px;color:var(--mu)">Toon:</label>
+  <div class="sec no-print">Verloop totaalstand</div>
+  <div class="notice ni no-print">Gebruik de legende om teams aan/uit te zetten. Bij klassementsverloop kun je de zichtbare plaatsen beperken met de schuifregelaar.</div>
+
+  <div class="fr no-print" style="gap:12px;flex-wrap:wrap;margin-bottom:10px">
+    <label style="font-size:11px;color:var(--mu)">Weergave:</label>
     <select class="inp" id="race-mode" onchange="renderRace()" style="font-size:11px">
-      <option value="total">Cumulatieve totaalstand</option>
-      <option value="rank">Klassementsverloop (rank)</option>
+      <option value="total">Cumulatieve punten</option>
+      <option value="rank">Klassementsverloop (rang)</option>
     </select>
     <button class="btn btn-s btn-sm" onclick="toggleAllTeams()">Alle aan/uit</button>
+    <label style="font-size:11px;color:var(--mu)">Filter top:</label>
+    <input type="range" id="rank-filter" min="1" max="77" value="20" oninput="document.getElementById('rank-filter-val').textContent=this.value;renderRace()" style="width:120px">
+    <span id="rank-filter-val" style="font-family:'DM Mono',monospace;font-size:11px;min-width:20px">20</span>
+    <span style="font-size:11px;color:var(--mu)">plaatsen zichtbaar</span>
   </div>
-  <div id="race-legend" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
-  <div class="race-wrap"><canvas id="race-canvas" height="380"></canvas></div>
-  <div style="margin-top:16px">
-    <div style="font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Top-10 momenten per etappe</div>
+
+  <div id="race-legend" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+  <div class="race-wrap" style="position:relative">
+    <canvas id="race-canvas"></canvas>
+    <canvas id="race-canvas-hover" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+  </div>
+  <div id="race-tooltip" style="display:none;position:fixed;background:white;border:1px solid var(--bo);border-radius:6px;padding:8px 12px;font-size:11px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:500;pointer-events:none"></div>
+
+  <div style="margin-top:16px" class="no-print">
+    <div style="font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Top-10 per etappe</div>
     <div id="top10-log" style="overflow-x:auto"></div>
   </div>
 </div>
@@ -391,7 +402,67 @@ const SL={1:"POGACAR Tadej",2:"ALMEIDA Joao",3:"NARVAEZ Jhonatan",4:"POLITT Nils
 
 const NIT={bardet:1,carapaz:1,bernal:1,jakobsen:1,hindley:1,pidcock:1,gaudu:1,welsford:1,pedersen:1,ciccone:1,"del toro":1,landa:1,pinot:1,lafay:1,küng:1,kung:1,uijtdebroeks:1,"geoghegan hart":1,kooij:1,bilbao:1};
 
-const AL={"vingegard":11,"vinegaard":11,"vinegard":11,"pocagar":1,"pogačar":1,"pogatsja":1,"evanepoel":21,"evenpoel":21,"roglic":71,"rohlic":71,"roglič":71,"toglic":71,"almeide":2,"jörgenson":15,"jorgensen":15,"lipowitsj":72,"sjkelmose":81,"skelmose":81,"skjelmise":81,"vd poel":101,"v/d poel":101,"v aert":17,"ghirmay":41,"phillipsen":105,"melier":24,"mealier":24,"allaphilippe":111,"alaphillipe":111,"tobias johannessen":221,"tobias halland johannessen":221,"t.h. johannessen":221,"anders johannessen":226,"de lie":214,"magnus cort":223,"cort nielsen":223,"o'conner":121,"oconnor":121,"o'connor":121,"b. o'connor":121,"o. connor":121,"geraint thomas":67,"thomas geraint":67,"thomas g":67,"thomas b":167,"l. martinez":55,"l.martinez":55,"lenny martinez":55,"l martinez":55,"guillaume martin":91,"g. martin":91,"s. yates":18,"s yates":18,"simon yates":18,"a. yates":8,"a yates":8,"adam yates":8,"carlos rodriguez":61,"c. rodriguez":61,"carlos rodiguez":61,"carlos rodriquez":61,"ca rodriquez":61,"carlos rodrigues":61,"cristian rodriguez":137,"groenwegen":124,"nijs":84,"wærenskjold":228,"jeannierre":186,"tobias lund andresen":192,"tobias andresen":192,"primoz":71,"r.primoz":71,"van wilder":28,"storen":117,"meeuws":73,"sweeny":36,"garcia cortina":144,"garcia r":144,"touze":168,"touzé":168,"teuns":166,"renard":165,"van den berg":38,"van dijke":77,"benoot":14,"wellens":7,"cras":183,"fedorov":175,"russo":98,"thymen arensman":62,"arendsman":62,"barguil":193,"van poppel":78,"magnus cort nielsen":223,"cort":223,"schachmann":26,"aranburu":161,"politt":4,"izagirre":164,"foss":63,"scotson":157,"moscon":74,"verstrynge":108,"rickaert":106,"le berre":136,"meurisse":104,"muhlberger":145,"barta":142,"naberman":197,"zimmermann":48,"rutsch":46,"markl":196,"märkl":196,"van lerberghe":27,"delettre":184,"burgaudeau":182,"stannard":57,"sepulveda":217,"grignard":216,"van moer":218,"costiou":133,"boivin":204,"lienhard":115,"reinders":127,"swift":66,"rubio":148,"valgren":37,"barthe":93,"durbridge":123,"groves":103,"campenaerts":12,"laurance":65,"turgis":181,"lutsenko":206,"tejada":171,"teunissen":177,"velasco":178,"champoussin":174,"haller":113,"trentin":118,"van den broek":198,"frank van den broek":198,"jake stewart":208,"stewart":208,"ackermann":202,"demare":134,"dainese":112,"ballerini":172,"penhoet":97,"bittner":194,"hirschi":114,"fredheim":224,"romeo":147,"barré":42,"barre":42,"soler":6,"bol":173,"armirail":152,"castrillo":143,"healy":34,"haig":54,"sivakov":5,"mohoric":56,"vlasov":76,"gregoire":94,"vauquelin":131,"ganna":64,"stuyven":87,"van eetvelt":211,"lennert":211,"philipsen":105};
+const AL={"b. o'connor":121,"b.o'connor":121,"b o'connor":121,"bo'connor":121,
+  "o.onley":191,"o. onley":191,"o onley":191,"oscar onley":191,
+  "tobias johannesen":221,"t.h. johannesen":221,"th johannesen":221,"tobias h johannessen":221,
+  "tobias halland johannesen":221,
+  "mathieu van de poel":101,"mathieu van der poel":101,
+  "wout van der poel":17,"wout v aert":17,"wout van aerts":17,
+  "jan linders":121,"richard carapaz":null,"carapaz":null,
+  "laurens de plus":null,"de plus":null,
+  "niniam girmay":41,"benian girmay":41,"beniam girmay":41,
+  "roglic primoz":71,"r.primoz":71,"r. primoz":71,"primoz roglic":71,
+  "toglic":71,"primos roglic":71,
+  "carlos rodrivuez":61,"ca rodriquez":61,"rodiguez carlos":61,
+  "carlos rodriquez ineos":61,"ca rodrigues":61,
+  "mattias skjelmise":81,
+  "jonathan milanl":83,
+  "matteo van der poel":101,"wout van der poel":101,
+  "lenny martinez bahrein":55,"thijmen arendsman":62,"thymen arensman":62,
+  "santiago buitrago bahrain":51,
+  "ben o conner":121,"b. o.conner":121,"b. o.connor":121,
+  "sjolkemeister carlos":61,
+  "only":191,"oscar only":191,
+  "tobias halland johannessen":221,"tobias halland johannesen":221,
+  "t. halland johannessen":221,
+  "tobias johannessen":221,
+  "j. johannessen":221,"johannessen tobias":221,
+  "anders halland johannessen":226,
+  "pedaleur toglic":71,
+  "enrico mas":141,"enric mass":141,
+  "florian lipowitz redbull":72,
+  "joao almeida uae":2,
+  "isaac del torro":null,"del torro":null,
+  "geoghegan hart":null,"uijtdebroeks":null,
+  "egan bernal":null,"richard carapaz":null,
+  "mikel landa":null,"thibaut pinot":null,"victor lafay":null,
+  "jai hindley":null,"giulio ciccone":null,"giuolo ciccone":null,
+  "david gaudu":null,"tom pidcock":null,"mads pedersen":null,
+  "fabio jakobsen":null,"fabio jacobsen":null,
+  "romain bardet":null,"valentin maduas":null,
+  "welsford":null,"kooij":null,"bilbao":null,"p. billbao":null,
+  "cort nielsen":223,"magnus cort nielsen":223,
+  "c. nielsen":223,
+  "m. landa":null,"p. billbao":null,
+  "bralt v":43,"braet v":43,
+  "harig j":54,
+  "garcía r":144,"garcia r":144,
+  "dilleur s":102,"silvan dilleur":102,
+  "tourze":168,"tourze d":168,
+  "teuns d":166,"renard a":165,"sweeny h":36,
+  "v d berg m":38,"swift c":66,"rubio e":148,"valgren m":37,
+  "thomas b":167,"thomas g":67,"gall f":151,
+  "rex l":45,"page h":44,"meeuws j":73,"storer m":117,
+  "wout van aerts":17,"wout van der poel":101,
+  "arnoud de lie":214,"arnaud de lie":214,
+  "oscar only":191,"oscar onley":191,
+  "rwmco evenepoel":21,"rwmco":21,
+  "joao almeida":2,"jaoa almeida":2,"joa almeida":2,
+  "lenny martinez":55,"l.martinez":55,
+  "thijmen arendsman":62,"thymen arensman":62,
+  "frank van de broek":198,"frank van den broek":198,
+  "geraint":67,"thomas geraint":67,
+  "vingegard":11,"vinegaard":11,"vinegard":11,"pocagar":1,"pogačar":1,"pogatsja":1,"evanepoel":21,"evenpoel":21,"roglic":71,"rohlic":71,"roglič":71,"toglic":71,"almeide":2,"jörgenson":15,"jorgensen":15,"lipowitsj":72,"sjkelmose":81,"skelmose":81,"skjelmise":81,"vd poel":101,"v/d poel":101,"v aert":17,"ghirmay":41,"phillipsen":105,"melier":24,"mealier":24,"allaphilippe":111,"alaphillipe":111,"tobias johannessen":221,"tobias halland johannessen":221,"t.h. johannessen":221,"anders johannessen":226,"de lie":214,"magnus cort":223,"cort nielsen":223,"o'conner":121,"oconnor":121,"o'connor":121,"b. o'connor":121,"o. connor":121,"geraint thomas":67,"thomas geraint":67,"thomas g":67,"thomas b":167,"l. martinez":55,"l.martinez":55,"lenny martinez":55,"l martinez":55,"guillaume martin":91,"g. martin":91,"s. yates":18,"s yates":18,"simon yates":18,"a. yates":8,"a yates":8,"adam yates":8,"carlos rodriguez":61,"c. rodriguez":61,"carlos rodiguez":61,"carlos rodriquez":61,"ca rodriquez":61,"carlos rodrigues":61,"cristian rodriguez":137,"groenwegen":124,"nijs":84,"wærenskjold":228,"jeannierre":186,"tobias lund andresen":192,"tobias andresen":192,"primoz":71,"r.primoz":71,"van wilder":28,"storen":117,"meeuws":73,"sweeny":36,"garcia cortina":144,"garcia r":144,"touze":168,"touzé":168,"teuns":166,"renard":165,"van den berg":38,"van dijke":77,"benoot":14,"wellens":7,"cras":183,"fedorov":175,"russo":98,"thymen arensman":62,"arendsman":62,"barguil":193,"van poppel":78,"magnus cort nielsen":223,"cort":223,"schachmann":26,"aranburu":161,"politt":4,"izagirre":164,"foss":63,"scotson":157,"moscon":74,"verstrynge":108,"rickaert":106,"le berre":136,"meurisse":104,"muhlberger":145,"barta":142,"naberman":197,"zimmermann":48,"rutsch":46,"markl":196,"märkl":196,"van lerberghe":27,"delettre":184,"burgaudeau":182,"stannard":57,"sepulveda":217,"grignard":216,"van moer":218,"costiou":133,"boivin":204,"lienhard":115,"reinders":127,"swift":66,"rubio":148,"valgren":37,"barthe":93,"durbridge":123,"groves":103,"campenaerts":12,"laurance":65,"turgis":181,"lutsenko":206,"tejada":171,"teunissen":177,"velasco":178,"champoussin":174,"haller":113,"trentin":118,"van den broek":198,"frank van den broek":198,"jake stewart":208,"stewart":208,"ackermann":202,"demare":134,"dainese":112,"ballerini":172,"penhoet":97,"bittner":194,"hirschi":114,"fredheim":224,"romeo":147,"barré":42,"barre":42,"soler":6,"bol":173,"armirail":152,"castrillo":143,"healy":34,"haig":54,"sivakov":5,"mohoric":56,"vlasov":76,"gregoire":94,"vauquelin":131,"ganna":64,"stuyven":87,"van eetvelt":211,"lennert":211,"philipsen":105};
 
 const NM={};Object.entries(SL).forEach(([num,name])=>{const n=parseInt(num),p=name.toLowerCase().split(' ');p.forEach(w=>{if(!NM[w])NM[w]=[];if(!NM[w].includes(n))NM[w].push(n);});NM[name.toLowerCase()]=[n];if(!NM[p[0]])NM[p[0]]=[];if(!NM[p[0]].includes(n))NM[p[0]].push(n);});
 
@@ -401,18 +472,50 @@ function res(raw){
   const pm=raw.match(/^\d+$/);if(pm){const n=parseInt(raw);if(SL[n])return{num:n,st:'ok'};return{num:null,st:'nf',raw};}
   const nm=raw.match(/^(\d+)[\.\s]/);if(nm){const n=parseInt(nm[1]);if(SL[n])return{num:n,st:'ok'};}
   const ni=raw.match(/\b(\d{1,3})\b/);if(ni){const n=parseInt(ni[1]);if(SL[n]&&n>0&&n<250)return{num:n,st:'ok'};}
-  const low=raw.toLowerCase().replace(/[éèêëě]/g,'e').replace(/[àâä]/g,'a').replace(/[üùûú]/g,'u').replace(/[ïî]/g,'i').replace(/[čć]/g,'c').replace(/[žźż]/g,'z').replace(/[š]/g,'s').replace(/[ñ]/g,'n').replace(/[ą]/g,'a').replace(/[ő]/g,'o').trim();
+  const low=raw.toLowerCase()
+    .replace(/[`\u2018\u2019]/g,"'")
+    .replace(/[éèêëě]/g,'e').replace(/[àâãä]/g,'a').replace(/[üùûú]/g,'u')
+    .replace(/[ïîì]/g,'i').replace(/[čć]/g,'c').replace(/[žźż]/g,'z')
+    .replace(/[š]/g,'s').replace(/[ñ]/g,'n').replace(/[ą]/g,'a')
+    .replace(/[ő]/g,'o').replace(/[ç]/g,'c').replace(/[ø]/g,'o')
+    .replace(/  +/g,' ').trim();
   for(const k of Object.keys(NIT))if(low.includes(k))return{num:null,st:'nt',raw};
   const ak=Object.keys(AL).sort((a,b)=>b.length-a.length);
-  for(const k of ak)if(low===k||low.includes(k))return{num:AL[k],st:'alias'};
+  for(const k of ak){
+    if(low===k||low.includes(k)){
+      const v=AL[k];
+      if(v===null)return{num:null,st:'nt',raw}; // expliciet niet in Tour
+      return{num:v,st:'alias'};
+    }
+  }
   const words=low.replace(/[^a-z\s]/g,'').split(/\s+/).filter(w=>w.length>2);
   for(const w of words)if(NM[w]&&NM[w].length===1)return{num:NM[w][0],st:'ok'};
   for(const w of words)if(NM[w]&&NM[w].length>0)return{num:NM[w][0],st:'amb'};
   return{num:null,st:'nf',raw};
 }
 
-function rn(n){if(!SL[n])return'#'+n;const p=SL[n].split(' ');return p.slice(1).join(' ')+' '+p[0][0]+p[0].slice(1).toLowerCase();}
-function rs(n){if(!SL[n])return'#'+n;const p=SL[n].split(' ');return p.slice(1).map(w=>w[0]).join('')+'. '+p[0][0]+p[0].slice(1).toLowerCase();}
+function parseName(n){
+  // SL format: "VAN DER POEL Mathieu" or "POGACAR Tadej"
+  // All-caps words at start = lastname, rest = firstname
+  if(!SL[n])return{first:'',last:'#'+n,full:'#'+n};
+  const words=SL[n].split(' ');
+  const lastParts=[],firstParts=[];
+  let inFirst=false;
+  for(const w of words){
+    if(!inFirst&&w===w.toUpperCase()&&w.length>1)lastParts.push(w);
+    else{inFirst=true;firstParts.push(w);}
+  }
+  const last=lastParts.map(w=>w[0]+w.slice(1).toLowerCase()).join(' ');
+  const first=firstParts.join(' ');
+  return{first,last,full:first?first+' '+last:last};
+}
+function rn(n){if(!SL[n])return'#'+n;const {full}=parseName(n);return full;}
+function rs(n){
+  if(!SL[n])return'#'+n;
+  const {first,last}=parseName(n);
+  const initials=first.split(' ').map(w=>w[0]+'.').join('');
+  return initials?initials+' '+last:last;
+}
 function ss(q,mx=10){if(!q)return[];const lo=q.toLowerCase();return Object.entries(SL).filter(([n,nm])=>nm.toLowerCase().includes(lo)||n.startsWith(q)).slice(0,mx).map(([n,nm])=>({num:parseInt(n),name:nm}));}
 
 // ══════════════════════════════════════════
@@ -513,7 +616,10 @@ const S={ok:false,cs:1,ov:{},sel:{},rv:{},wd:{},rs:{},pts:{},gcR:null,gcP:{},gcO
 function bBase(ti){
   const t=TMS[ti];const nums=[];
   for(let i=0;i<15;i++){const k=`${ti}_${i}`;nums.push(k in S.ov?S.ov[k]:res(t.riders[i]).num);}
-  const rv=t.res.map(r=>res(r).num);S.rv[ti]=rv;
+  const rv=t.res.map((r,idx)=>{
+    const k=`${ti}_r${idx}`;
+    return k in S.ov?S.ov[k]:res(r).num;
+  });S.rv[ti]=rv;
   // Dedup: als een renner 2x voorkomt, verwijder de lagere plek
   const seen=new Set();
   for(let i=0;i<15;i++){
@@ -812,7 +918,16 @@ function rChkList(){
       for(let s=0;s<t.res.length;s++){
         const raw=t.res[s],r=res(raw),n=r.num;
         const sc=r.st==='ok'?'<span class="sok">✓</span>':r.st==='alias'?'<span class="swarn">~</span>':r.st==='nf'?'<span class="serr">✕</span>':r.st==='nt'?'<span style="color:#A04000;font-size:10px">✕</span>':'';
-        h+=`<tr style="background:rgba(26,82,118,.02)"><td style="color:var(--mu);font-size:10px">R${s+1}</td><td style="color:var(--mu);font-size:11px">${raw.length>18?raw.slice(0,17)+'…':raw}</td><td style="font-size:12px">${n?rn(n):'—'}</td><td>${n?`<span class="p pb-">${n}</span>`:'<span class="p pgr">?</span>'}</td><td>${sc}</td></tr>`;
+        const rk2=`${i}_r${s}`;const rov=rk2 in S.ov;
+        const rr=ov?{num:S.ov[rk2],st:'manual'}:res(raw);const rn2=rr.num;
+        let rsc='';
+        if(rr.st==='ok')rsc='<span class="sok">✓</span>';
+        else if(rr.st==='alias')rsc='<span class="swarn">~ spelfout ok</span>';
+        else if(rr.st==='amb')rsc='<span class="swarn">? ambigu</span>';
+        else if(rr.st==='nf')rsc='<span class="serr">✕ onbekend</span>';
+        else if(rr.st==='nt')rsc='<span style="color:#A04000;font-size:10px">✕ niet in Tour</span>';
+        else if(rr.st==='manual')rsc='<span class="smut">✎</span>';
+        h+=`<tr style="background:rgba(26,82,118,.02)"><td style="color:var(--mu);font-size:10px">R${s+1}</td><td style="color:var(--mu);font-size:11px">${raw.length>18?raw.slice(0,17)+'…':raw}</td><td style="font-size:12px">${rn2?rn(rn2):'<span style="color:var(--mu)">—</span>'}</td><td>${rn2?`<span class="p ${rov?'pp-':'pb-'}">${rn2}</span>`:'<span class="p pgr">?</span>'}</td><td style="display:flex;align-items:center;gap:5px">${rsc}<button class="btn btn-s btn-sm" onclick="doEditRes(event,${i},${s})">✎</button></td></tr>`;
       }
       h+=`</table></div>`;
     }
@@ -821,6 +936,19 @@ function rChkList(){
   document.getElementById('chk-list').innerHTML=h;
 }
 function togChk(i){chkOpen.has(i)?chkOpen.delete(i):chkOpen.add(i);rChkList();}
+
+function doEditRes(evt,ti,si){
+  evt.stopPropagation();
+  const raw=TMS[ti].res[si];
+  const q=prompt(`Corrigeer reserve ${si+1} voor "${TMS[ti].team}"\nInzending: "${raw}"\nVoer rugnummer in (leeg = wissen):`);
+  if(q===null)return;
+  const k=`${ti}_r${si}`;
+  if(q===''){delete S.ov[k];}
+  else{const n=parseInt(q);if(SL[n])S.ov[k]=n;else{alert('Ongeldig rugnummer.');return;}}
+  // Rebuild reserves
+  S.rv[ti]=TMS[ti].res.map((r,idx)=>{const rk=`${ti}_r${idx}`;return rk in S.ov?S.ov[rk]:res(r).num;});
+  rChkList();rChkSum();saveState();
+}
 function doEdit(evt,ti,si){
   evt.stopPropagation();const raw=TMS[ti].riders[si];
   const q=prompt(`Corrigeer positie ${si+1} voor "${TMS[ti].team}"\nInzending: "${raw}"\nVoer rugnummer in:`);
@@ -1082,6 +1210,24 @@ function saveUit(){
 }
 
 
+
+// Slimme percentage invoer: 5→5.0, 50→50.0, 505→50.5
+function onPctInput(e,idx){
+  const raw=e.target.value.replace(/[^0-9]/g,'');
+  e.target.value=raw; // allow typing
+}
+function onPctBlur(e,idx){
+  const raw=e.target.value.replace(/[^0-9]/g,'');
+  if(!raw){GVK[idx].pct=0;GVK[idx].manual=true;e.target.value='0.0';rGeld();return;}
+  let pct;
+  if(raw.length<=2) pct=parseFloat(raw);          // 1→1.0, 50→50.0
+  else pct=parseFloat(raw.slice(0,-1)+'.'+raw.slice(-1)); // 505→50.5
+  pct=Math.min(100,Math.max(0,pct));
+  GVK[idx].pct=parseFloat(pct.toFixed(1));
+  GVK[idx].manual=true;
+  e.target.value=pct.toFixed(1);
+  rGeld();
+}
 function onUitTypeChange(){
   const type=document.getElementById('uit-type').value;
   const notice=document.getElementById('ttt-notice');
@@ -1414,7 +1560,7 @@ function rGeld(){
     const rk=v.pos;const rc=rk===1?'color:var(--gold)':rk===2?'color:var(--silver)':rk===3?'color:var(--bronze)':'';
     vk+=`<div class="pct-row" style="gap:5px">
       <div style="min-width:28px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;${rc}">${rk}</div>
-      <input type="number" class="inp btn-sm" value="${v.pct.toFixed(1)}" min="0" max="100" step="0.1" style="width:70px;text-align:right" oninput="GVK[${idx}].pct=parseFloat(this.value)||0;GVK[${idx}].manual=true;rGeld()">
+      <input type="text" inputmode="numeric" class="inp btn-sm" value="${v.pct.toFixed(1)}" style="width:72px;text-align:right;font-family:'DM Mono',monospace" oninput="onPctInput(event,${idx})" onblur="onPctBlur(event,${idx})">
       <span style="font-size:10px;color:var(--mu)">%</span>
       <span style="font-size:10px;color:${v.manual?'var(--pur)':'var(--mu)'};min-width:60px;text-align:right">€ ${e.toLocaleString('nl-NL',{minimumFractionDigits:2})}</span>
     </div>`;
@@ -1543,9 +1689,9 @@ function renderRaw(){
 }
 
 // ══════════════════════════════════════════
-// KAMELENRACE — canvas chart
+// KAMELENRACE — verbeterd
 // ══════════════════════════════════════════
-let raceVisible=new Set(TMS.map((_,i)=>i));
+let raceVisible=new Set(Array.from({length:77},(_,i)=>i));
 
 function toggleAllTeams(){
   if(raceVisible.size===TMS.length)raceVisible=new Set();
@@ -1555,124 +1701,139 @@ function toggleAllTeams(){
 
 function renderRace(){
   const mode=(document.getElementById('race-mode')||{}).value||'total';
+  const rankLimit=parseInt((document.getElementById('rank-filter')||{}).value||20);
   const stages=Object.keys(S.pts).map(Number).sort((a,b)=>a-b);
 
   // Legend
   let lg='';
   TMS.forEach((t,i)=>{
     const on=raceVisible.has(i);
-    lg+=`<span onclick="toggleTeam(${i})" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;border:1px solid ${on?COLORS[i%COLORS.length]:'var(--b2)'};background:${on?COLORS[i%COLORS.length]+'18':'transparent'};font-size:11px;color:${on?COLORS[i%COLORS.length]:'var(--mu)'}">
-      <span style="width:10px;height:10px;border-radius:50%;background:${on?COLORS[i%COLORS.length]:'#ccc'};display:inline-block"></span>
-      ${t.team}
-    </span>`;
+    const col=COLORS[i%COLORS.length];
+    lg+=`<span onclick="toggleTeam(${i})" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;border:1px solid ${on?col:'var(--b2)'};background:${on?col+'18':'transparent'};font-size:10px;color:${on?col:'var(--mu)'}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${on?col:'#ccc'};flex-shrink:0;display:inline-block"></span>${t.team}</span>`;
   });
   document.getElementById('race-legend').innerHTML=lg;
 
   if(!stages.length){
-    document.getElementById('race-canvas').getContext('2d').clearRect(0,0,1200,380);
     document.getElementById('top10-log').innerHTML='<div class="notice ni">Nog geen etappe-uitslagen ingevoerd.</div>';
     return;
   }
 
   const canvas=document.getElementById('race-canvas');
-  const W=Math.max(canvas.parentElement.offsetWidth-4,400);canvas.width=W;canvas.height=380;
-  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,380);
+  const W=Math.max((canvas.parentElement||document.body).offsetWidth-4,500);
+  const H=mode==='rank'?Math.max(rankLimit*22+80,300):420;
+  canvas.width=W;canvas.height=H;
+  const hover=document.getElementById('race-canvas-hover');
+  hover.width=W;hover.height=H;
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
 
-  const PAD={l:50,r:20,t:20,b:40};
-  const cw=W-PAD.l-PAD.r,ch=380-PAD.t-PAD.b;
+  const PAD={l:52,r:160,t:20,b:36};
+  const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
 
-  // Compute data
-  const teamData=TMS.map((_,ti)=>{
-    const pts=[0];stages.forEach(s=>pts.push(totPts(ti,s)));
-    return pts;
-  });
+  // Grid
+  ctx.font='9px DM Mono,monospace';
 
   if(mode==='total'){
-    const maxPts=Math.max(...teamData.flat());
+    // Compute max points
+    const allPts=TMS.map((_,ti)=>stages.map(s=>totPts(ti,s)));
+    const maxPts=Math.max(...allPts.flat(),1);
     const xStep=cw/Math.max(stages.length,1);
-    const yScale=ch/Math.max(maxPts,1);
+    const yScale=ch/maxPts;
 
-    // Grid
-    ctx.strokeStyle='rgba(0,0,0,0.05)';ctx.lineWidth=1;
+    // Grid lines
     for(let g=0;g<=5;g++){
       const y=PAD.t+ch-(g/5)*ch;
+      ctx.strokeStyle='rgba(0,0,0,0.06)';ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cw,y);ctx.stroke();
-      ctx.fillStyle='#aaa';ctx.font='9px DM Mono';ctx.textAlign='right';
+      ctx.fillStyle='#aaa';ctx.textAlign='right';
       ctx.fillText(Math.round(g/5*maxPts),PAD.l-4,y+3);
     }
-    // X labels
-    ctx.fillStyle='#888';ctx.font='9px DM Mono';ctx.textAlign='center';
-    stages.forEach((s,i)=>{ctx.fillText('E'+s,PAD.l+(i+1)*xStep,PAD.t+ch+14);});
+    ctx.fillStyle='#888';ctx.textAlign='center';
+    stages.forEach((s,i)=>ctx.fillText('E'+s,PAD.l+(i+0.5)*xStep,PAD.t+ch+14));
 
-    // Lines
-    TMS.forEach((t,ti)=>{
-      if(!raceVisible.has(ti))return;
+    // Lines per team
+    const visible=[...raceVisible];
+    visible.forEach(ti=>{
       const col=COLORS[ti%COLORS.length];
       ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
-      const pts=teamData[ti];
-      pts.forEach((p,i)=>{
-        const x=PAD.l+i*xStep;const y=PAD.t+ch-p*yScale;
-        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      let first=true;
+      stages.forEach((s,i)=>{
+        const p=totPts(ti,s);
+        const x=PAD.l+(i+0.5)*xStep,y=PAD.t+ch-p*yScale;
+        if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
       });
       ctx.stroke();
-      // Endpoint label
-      const lastX=PAD.l+stages.length*xStep;
-      const lastY=PAD.t+ch-pts[pts.length-1]*yScale;
-      ctx.fillStyle=col;ctx.font='bold 10px DM Sans';ctx.textAlign='left';
-      ctx.fillText(t.team.slice(0,12),lastX+3,lastY+3);
-      // Dots
-      pts.forEach((p,i)=>{
-        if(i===0)return;
-        ctx.beginPath();ctx.arc(PAD.l+i*xStep,PAD.t+ch-p*yScale,3,0,2*Math.PI);
-        ctx.fillStyle=col;ctx.fill();
+      // Endpoint
+      const lastP=totPts(ti,stages[stages.length-1]);
+      const lx=PAD.l+(stages.length-0.5)*xStep,ly=PAD.t+ch-lastP*yScale;
+      ctx.fillStyle=col;ctx.font='bold 10px DM Sans,sans-serif';ctx.textAlign='left';
+      ctx.fillText(TMS[ti].team.slice(0,14),PAD.l+cw+6,ly+3);
+      // Dots at each stage
+      stages.forEach((s,i)=>{
+        const p=totPts(ti,s);const x=PAD.l+(i+0.5)*xStep,y=PAD.t+ch-p*yScale;
+        ctx.beginPath();ctx.arc(x,y,3,0,2*Math.PI);ctx.fillStyle=col;ctx.fill();
       });
     });
+
   } else {
-    // Rank mode
-    const n=TMS.length;const xStep=cw/Math.max(stages.length,1);const yStep=ch/(n-1||1);
+    // RANK MODE — filter to rankLimit
+    const n=TMS.length;
+    const visRanks=Math.min(rankLimit,n);
+    const yStep=ch/Math.max(visRanks-1,1);
 
     // Grid
-    for(let rank=1;rank<=n;rank++){
+    for(let rank=1;rank<=visRanks;rank++){
       const y=PAD.t+(rank-1)*yStep;
       ctx.strokeStyle='rgba(0,0,0,0.05)';ctx.lineWidth=1;
       ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cw,y);ctx.stroke();
-      ctx.fillStyle='#aaa';ctx.font='9px DM Mono';ctx.textAlign='right';
-      ctx.fillText(rank,PAD.l-4,y+3);
+      ctx.fillStyle=rank<=3?['#D4A017','#8A8A8A','#8B5A2B'][rank-1]:'#aaa';
+      ctx.font=rank<=3?'bold 10px DM Mono,monospace':'9px DM Mono,monospace';
+      ctx.textAlign='right';ctx.fillText(rank,PAD.l-4,y+3);
     }
-    ctx.fillStyle='#888';ctx.font='9px DM Mono';ctx.textAlign='center';
-    stages.forEach((s,i)=>{ctx.fillText('E'+s,PAD.l+(i+1)*xStep,PAD.t+ch+14);});
+    ctx.fillStyle='#888';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
+    stages.forEach((s,i)=>ctx.fillText('E'+s,PAD.l+(i+0.5)*(cw/Math.max(stages.length,1)),PAD.t+ch+14));
+
+    const xStep=cw/Math.max(stages.length,1);
 
     TMS.forEach((t,ti)=>{
       if(!raceVisible.has(ti))return;
       const col=COLORS[ti%COLORS.length];
-      ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
+      ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();
+      let first=true,lastVisible=null;
       stages.forEach((s,i)=>{
         const rank=getRankAtStage(ti,s);
-        const x=PAD.l+(i+1)*xStep;const y=PAD.t+(rank-1)*yStep;
-        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        if(rank>visRanks)return;
+        const x=PAD.l+(i+0.5)*xStep,y=PAD.t+(rank-1)*yStep;
+        if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
+        lastVisible={x,y,rank};
       });
       ctx.stroke();
-      const lastS=stages[stages.length-1];
-      const lastRank=getRankAtStage(ti,lastS);
-      const lastX=PAD.l+stages.length*xStep;
-      const lastY=PAD.t+(lastRank-1)*yStep;
-      ctx.fillStyle=col;ctx.font='bold 10px DM Sans';ctx.textAlign='left';
-      ctx.fillText(t.team.slice(0,12),lastX+3,lastY+3);
+      if(lastVisible){
+        ctx.fillStyle=col;ctx.font='bold 10px DM Sans,sans-serif';ctx.textAlign='left';
+        ctx.fillText(t.team.slice(0,14),PAD.l+cw+6,lastVisible.y+3);
+        // Highlight top 3 positions
+        stages.forEach((s,i)=>{
+          const rank=getRankAtStage(ti,s);
+          if(rank>visRanks)return;
+          const x=PAD.l+(i+0.5)*xStep,y=PAD.t+(rank-1)*yStep;
+          ctx.beginPath();ctx.arc(x,y,rank<=3?5:3,0,2*Math.PI);
+          ctx.fillStyle=col;ctx.fill();
+        });
+      }
     });
   }
 
-  // Top-10 log
-  let logH=`<table class="tbl" style="font-size:11px"><tr><th>Etappe</th>`;
-  for(let rank=1;rank<=Math.min(10,TMS.length);rank++)logH+=`<th>Nr ${rank}</th>`;
+  // Top-10 log tabel
+  let logH=`<table class="tbl" style="font-size:10px"><tr><th style="min-width:40px">E</th>`;
+  for(let r=1;r<=Math.min(10,TMS.length);r++)logH+=`<th>Nr ${r}</th>`;
   logH+=`</tr>`;
   stages.forEach(s=>{
     logH+=`<tr><td><span class="p pg-" style="font-size:9px">E${s}</span></td>`;
-    const entries=TMS.map((_,ti)=>({ti,pts:totPts(ti,s)}));
-    const rkd=ranked(entries);
-    for(let rank=1;rank<=Math.min(10,TMS.length);rank++){
-      const entry=rkd.find(e=>e.rank===rank);
-      const col=COLORS[(entry?.ti||0)%COLORS.length];
-      logH+=`<td style="white-space:nowrap;font-size:10px"><span style="color:${col};font-weight:500">${entry?TMS[entry.ti].team:'—'}</span></td>`;
+    const rkd=ranked(TMS.map((_,ti)=>({i:ti,pts:totPts(ti,s)})));
+    for(let r=1;r<=Math.min(10,TMS.length);r++){
+      const e=rkd.find(x=>x.rank===r);
+      const col=e?COLORS[e.i%COLORS.length]:'#ccc';
+      logH+=`<td style="white-space:nowrap;font-size:10px;color:${col};font-weight:500">${e?TMS[e.i].team.slice(0,12):'—'}</td>`;
     }
     logH+=`</tr>`;
   });
@@ -1682,8 +1843,7 @@ function renderRace(){
 
 function getRankAtStage(ti,stage){
   const entries=TMS.map((_,i)=>({i,pts:totPts(i,stage)}));
-  const rkd=ranked(entries);
-  return (rkd.find(e=>e.i===ti)||{rank:TMS.length}).rank;
+  return (ranked(entries).find(e=>e.i===ti)||{rank:TMS.length}).rank;
 }
 
 function toggleTeam(i){
@@ -1842,7 +2002,7 @@ function renderRiders(){
     return;
   }
 
-  let h=`<table class="tbl"><tr><th>#</th><th>Renner</th><th>Rug</th><th>Punten</th><th>Top-15 finishes</th><th>Keer gekozen</th></tr>`;
+  let h=`<table class="tbl"><tr><th>#</th><th>Renner</th><th>Rug</th><th>Punten</th><th>Top-15 finishes</th><th>Keer gekozen</th><th>Keer ingeval</th></tr>`;
   let rank=1;
   sorted.forEach(([n,pts],idx)=>{
     if(idx>0&&sorted[idx-1][1]!==pts)rank=idx+1;
@@ -1850,9 +2010,26 @@ function renderRiders(){
     // How many teams had this rider
     let chosen=0;
     if(S.sel[1])for(let i=0;i<TMS.length;i++){if(S.sel[1][i].includes(num))chosen++;}
+    // How many times used as substitute
+    let timesSubbed=0;
+    if(S.sel[1])for(let i=0;i<TMS.length;i++){
+      const base=S.sel[1][i];
+      if(!base.includes(num)){
+        // Check if in any later stage selection due to substitution
+        const rv=S.rv[i]||[];
+        if(rv.includes(num)){
+          // Count how many stages this rider was active as substitute
+          const stages2=Object.keys(S.pts).map(Number).sort((a,b)=>a-b);
+          for(const sg of stages2){
+            const stageSel=bStage(i,sg);
+            if(stageSel.includes(num)&&!base.includes(num))timesSubbed++;
+          }
+        }
+      }
+    }
     const rc=rank===1?'rank-gold':rank===2?'rank-silver':rank===3?'rank-bronze':'';
     const rnC=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
-    h+=`<tr class="${rc}"><td class="rn ${rnC}">${rank}</td><td><strong>${rn(num)}</strong></td><td><span class="p pg-">${num}</span></td><td><span class="pts">${pts}</span></td><td style="font-family:'DM Mono',monospace;font-size:12px">${riderCount[num]||0}</td><td style="font-size:11px;color:var(--mu)">${chosen}/${TMS.length}</td></tr>`;
+    h+=`<tr class="${rc}"><td class="rn ${rnC}">${rank}</td><td><strong>${rn(num)}</strong></td><td><span class="p pg-">${num}</span></td><td><span class="pts">${pts}</span></td><td style="font-family:'DM Mono',monospace;font-size:12px">${riderCount[num]||0}</td><td style="font-size:11px;color:var(--mu)">${chosen}/${TMS.length}</td><td style="font-size:11px;color:var(--pur)">${timesSubbed>0?timesSubbed:'—'}</td></tr>`;
   });
   h+=`</table>`;
   document.getElementById('riders-content').innerHTML=h;

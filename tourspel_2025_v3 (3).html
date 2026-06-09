@@ -37,10 +37,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .pgr{background:rgba(0,0,0,.06);color:var(--mu);border:1px solid rgba(0,0,0,.08);}
 .pw-{background:rgba(230,126,34,.1);color:#904000;border:1px solid rgba(230,126,34,.25);}
 .pok{background:rgba(30,123,76,.1);color:var(--green);border:1px solid rgba(30,123,76,.2);}
-.sok{font-size:10px;color:var(--green);font-weight:600;}
-.swarn{font-size:10px;color:#A04000;font-weight:500;}
-.serr{font-size:10px;color:var(--red);font-weight:500;}
-.smut{font-size:10px;color:var(--pur);font-weight:500;}
+/* Status pills — duidelijk kleurschema */
+.sok{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#0a5c2e;background:#d4f4e4;border:1px solid #8fd4b0;border-radius:3px;padding:1px 5px;}
+.swarn{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#2d6a9f;background:#d6eaf8;border:1px solid #85c1e9;border-radius:3px;padding:1px 5px;}
+.serr{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#922b21;background:#fadbd8;border:1px solid #f1948a;border-radius:3px;padding:1px 5px;}
+.smut{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#6c3483;background:#e8daef;border:1px solid #c39bd3;border-radius:3px;padding:1px 5px;}
+.snt{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#922b21;background:#fadbd8;border:1px solid #f1948a;border-radius:3px;padding:1px 5px;}
 .rn{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;min-width:22px;text-align:center;}
 .r1{color:var(--gold)}.r2{color:var(--silver)}.r3{color:var(--bronze)}
 .pts{font-family:'DM Mono',monospace;font-weight:500;font-size:14px;}
@@ -402,7 +404,191 @@ const SL={1:"POGACAR Tadej",2:"ALMEIDA Joao",3:"NARVAEZ Jhonatan",4:"POLITT Nils
 
 const NIT={bardet:1,carapaz:1,bernal:1,jakobsen:1,hindley:1,pidcock:1,gaudu:1,welsford:1,pedersen:1,ciccone:1,"del toro":1,landa:1,pinot:1,lafay:1,küng:1,kung:1,uijtdebroeks:1,"geoghegan hart":1,kooij:1,bilbao:1};
 
-const AL={"b. o'connor":121,"b.o'connor":121,"b o'connor":121,"bo'connor":121,
+const AL={
+  // Arensman varianten
+  "arentsman":62,"arendsman":62,"thijmen arendsman":62,"thymen arensman":62,
+  "t. arensman":62,"t.arensman":62,"t arensman":62,
+  // Alaphilippe varianten
+  "allaphillipe":111,"allaphilippe":111,"alaphillipe":111,"alaphilippe":111,
+  "j. alaphilippe":111,"julian alaphilippe":111,"j.alaphilippe":111,
+  // Punt als spatie wordt apart afgehandeld in resolveAuto
+  // Meer veelvoorkomende spelfouten
+  "jorgenson":15,"jörgenson":15,"jorgensen":15,"m.jorgenson":15,"matteo jorgenson":15,
+  "vingegaard":11,"vinegaard":11,"vingegard":11,"j.vingegaard":11,
+  "pogacar":1,"pogačar":1,"t.pogacar":1,"tadej pogacar":1,
+  "evenepoel":21,"r.evenepoel":21,"remco evenepoel":21,
+  "roglic":71,"roglič":71,"p.roglic":71,"primoz roglic":71,
+  "lipowitz":72,"f.lipowitz":72,"florian lipowitz":72,
+  "skjelmose":81,"sjkelmose":81,"m.skjelmose":81,
+  "vauquelin":131,"k.vauquelin":131,"kevin vauquelin":131,
+  "girmay":41,"ghirmay":41,"b.girmay":41,"biniam girmay":41,
+  "philipsen":105,"j.philipsen":105,"jasper philipsen":105,"phillipsen":105,
+  "merlier":24,"t.merlier":24,"tim merlier":24,
+  "milan":83,"j.milan":83,"jonathan milan":83,
+  "van aert":17,"w.van aert":17,"wout van aert":17,"vanaert":17,
+  "van der poel":101,"vdpoel":101,"v.d.poel":101,"vanderpoel":101,
+  "almeida":2,"j.almeida":2,"joao almeida":2,
+  "buitrago":51,"s.buitrago":51,
+  "onley":191,"o.onley":191,"oscar onley":191,
+  "gall":151,"f.gall":151,"felix gall":151,
+  "mas":141,"e.mas":141,"enric mas":141,
+  "rodriguez":61,"c.rodriguez":61,
+  "lipowitz":72,
+  "thomas":67,"g.thomas":67,
+  "healy":34,"b.healy":34,"ben healy":34,
+  "storer":117,"m.storer":117,
+  "groenewegen":124,"groenwegen":124,"d.groenewegen":124,
+  "meeus":73,"j.meeus":73,"jordi meeus":73,"meeuws":73,
+  "cort":223,"m.cort":223,
+  "armirail":152,"b.armirail":152,
+  "foss":63,"t.foss":63,
+  "schmid":128,"m.schmid":128,
+  "barguil":193,"w.barguil":193,
+  "buchmann":162,"e.buchmann":162,
+  "kuss":16,"s.kuss":16,"sepp kuss":16,
+  "groves":103,"k.groves":103,
+  "nys":84,"t.nys":84,"thibau nys":84,"nijs":84,
+  "bol":173,"c.bol":173,
+  "soler":6,"m.soler":6,
+  "asgreen":32,"k.asgreen":32,
+  "mohoric":56,"mohorič":56,
+  "vlasov":76,"a.vlasov":76,
+  "swift":66,"c.swift":66,
+  "watson":68,"s.watson":68,
+  "gregoire":94,"r.gregoire":94,"grégoire":94,
+  "johannessen":221,"t.h.johannessen":221,"tobias h.johannessen":221,
+  "andresen":192,"t.andresen":192,"tobias andresen":192,
+  "penhoet":97,"p.penhoet":97,
+  "bittner":194,"p.bittner":194,
+  "stewart":208,"j.stewart":208,
+  "ackermann":202,"p.ackermann":202,
+  "demare":134,"a.demare":134,"démare":134,
+  "dainese":112,"a.dainese":112,
+  "ballerini":172,"d.ballerini":172,
+  "champoussin":174,"c.champoussin":174,
+  "higuita":176,"s.higuita":176,
+  "sivakov":5,"p.sivakov":5,
+  "moscon":74,"g.moscon":74,
+  "hirschi":114,"m.hirschi":114,
+  "fredheim":224,"s.fredheim":224,
+  "romeo":147,"i.romeo":147,
+  "barre":42,"l.barre":42,"barré":42,
+  "schachmann":26,"m.schachmann":26,
+  "aranburu":161,"a.aranburu":161,
+  "izagirre":164,"i.izagirre":164,
+  "teuns":166,"d.teuns":166,
+  "renard":165,"a.renard":165,
+  "touze":168,"d.touze":168,"touzé":168,
+  "thomas b":167,"b.thomas":167,
+  "thomas g":67,"g.thomas":67,
+  "tejada":171,"h.tejada":171,
+  "teunissen":177,"m.teunissen":177,
+  "velasco":178,"s.velasco":178,
+  "naberman":197,"t.naberman":197,
+  "markl":196,"n.markl":196,"märkl":196,
+  "van den broek":198,"f.van den broek":198,
+  "van eetvelt":211,"l.van eetvelt":211,"lennert van eetvelt":211,
+  "van moer":218,"b.van moer":218,
+  "sepulveda":217,"e.sepulveda":217,"sepúlveda":217,
+  "grignard":216,"s.grignard":216,
+  "drizners":215,"j.drizners":215,
+  "de buyst":213,"j.de buyst":213,
+  "de lie":214,"a.de lie":214,
+  "berckmoes":212,"j.berckmoes":212,
+  "hoelgaard":225,"m.hoelgaard":225,
+  "abrahamsen":222,"j.abrahamsen":222,
+  "leknessund":227,"a.leknessund":227,
+  "waerenskjold":228,"wærenskjold":228,"s.waerenskjold":228,
+  "woods":201,"m.woods":201,
+  "lutsenko":206,"a.lutsenko":206,
+  "neilands":207,"k.neilands":207,
+  "blackmore":203,"j.blackmore":203,
+  "boivin":204,"g.boivin":204,
+  "louvel":205,"m.louvel":205,
+  "castrillo":143,"p.castrillo":143,
+  "garcia cortina":144,"i.garcia cortina":144,
+  "muhlberger":145,"g.muhlberger":145,"mühlberger":145,
+  "oliveira":146,"n.oliveira":146,
+  "rubio":148,"e.rubio":148,
+  "berthet":153,"c.berthet":153,
+  "bissegger":154,"s.bissegger":154,
+  "naesen":155,"o.naesen":155,
+  "scotson":157,"c.scotson":157,
+  "tronchon":158,"b.tronchon":158,
+  "coquard":163,"b.coquard":163,
+  "buchmann":162,
+  "powless":35,"n.powless":35,
+  "sweeny":36,"h.sweeny":36,
+  "valgren":37,"m.valgren":37,
+  "van den berg":38,"m.van den berg":38,
+  "baudin":33,"a.baudin":33,
+  "albanese":31,"v.albanese":31,
+  "braet":43,"v.braet":43,
+  "page":44,"h.page":44,
+  "rex":45,"l.rex":45,
+  "rutsch":46,"j.rutsch":46,
+  "van sintmaartensdijk":47,"r.van sintmaartensdijk":47,
+  "zimmermann":48,"g.zimmermann":48,
+  "haig":54,"j.haig":54,
+  "stannard":57,"r.stannard":57,
+  "wright":58,"f.wright":58,
+  "arensman":62,"t.arensman":62,
+  "laurance":65,"a.laurance":65,
+  "pithie":75,"l.pithie":75,
+  "van dijke":77,"m.van dijke":77,
+  "van poppel":78,"d.van poppel":78,
+  "simmons":85,"q.simmons":85,
+  "skujins":86,"t.skujins":86,"skujiņš":86,
+  "stuyven":87,"j.stuyven":87,
+  "theuns":88,"e.theuns":88,
+  "martin":91,"g.martin":91,"guillaume martin":91,
+  "askey":92,"l.askey":92,
+  "barthe":93,"c.barthe":93,
+  "madouas":95,"v.madouas":95,
+  "pacher":96,"q.pacher":96,
+  "penhoet":97,
+  "russo":98,"c.russo":98,
+  "dillier":102,"s.dillier":102,
+  "meurisse":104,"x.meurisse":104,
+  "rickaert":106,"j.rickaert":106,
+  "vermeersch":107,"g.vermeersch":107,
+  "verstrynge":108,"e.verstrynge":108,
+  "haller":113,"m.haller":113,
+  "lienhard":115,"f.lienhard":115,
+  "mayrhofer":116,"m.mayrhofer":116,
+  "trentin":118,"m.trentin":118,
+  "dunbar":122,"e.dunbar":122,
+  "durbridge":123,"l.durbridge":123,
+  "mezgec":125,"l.mezgec":125,
+  "plapp":126,"l.plapp":126,
+  "reinders":127,"e.reinders":127,
+  "capiot":132,"a.capiot":132,
+  "costiou":133,"e.costiou":133,
+  "le berre":136,"m.le berre":136,
+  "venturini":138,"c.venturini":138,
+  "barta":142,"w.barta":142,
+  "burgaudeau":182,"m.burgaudeau":182,
+  "cras":183,"s.cras":183,
+  "delettre":184,"a.delettre":184,
+  "gachignard":185,"t.gachignard":185,
+  "jeanniere":186,"e.jeanniere":186,"jeannière":186,
+  "jegat":187,"j.jegat":187,
+  "vercher":188,"m.vercher":188,
+  "turgis":181,"a.turgis":181,
+  "gradek":53,"k.gradek":53,
+  "lienhard":115,
+  "campenaerts":14,"v.campenaerts":14,
+  "affini":13,"e.affini":13,
+  "benoot":14,
+  "eenkhoorn":23,"p.eenkhoorn":23,
+  "paret-peintre v":25,"paret-peintre a":156,
+  "narvaez":3,"j.narvaez":3,
+  "wellens":7,"t.wellens":7,
+  "cattaneo":22,"m.cattaneo":22,
+  "van lerberghe":27,"b.van lerberghe":27,
+  "van wilder":28,"i.van wilder":28,
+  "healy":34,
+"b. o'connor":121,"b.o'connor":121,"b o'connor":121,"bo'connor":121,
   "o.onley":191,"o. onley":191,"o onley":191,"oscar onley":191,
   "tobias johannesen":221,"t.h. johannesen":221,"th johannesen":221,"tobias h johannessen":221,
   "tobias halland johannesen":221,
@@ -469,6 +655,12 @@ const NM={};Object.entries(SL).forEach(([num,name])=>{const n=parseInt(num),p=na
 function res(raw){
   if(!raw||raw.trim()==='/'||raw.trim()==='-')return{num:null,st:'empty'};
   raw=raw.trim();
+  // Punt als spatie: "J.Almeida" → "J. Almeida", "Van.Aert" → "Van Aert"
+  // Maar niet bij getallen zoals "101." of initialen "J."
+  // Strategie: vervang punt gevolgd door hoofdletter door ". "
+  raw=raw.replace(/\.([A-ZÁÉÍÓÚ])/g,'. $1');
+  // Verwijder dubbele spaties
+  raw=raw.replace(/\s+/g,' ').trim();
   const pm=raw.match(/^\d+$/);if(pm){const n=parseInt(raw);if(SL[n])return{num:n,st:'ok'};return{num:null,st:'nf',raw};}
   const nm=raw.match(/^(\d+)[\.\s]/);if(nm){const n=parseInt(nm[1]);if(SL[n])return{num:n,st:'ok'};}
   const ni=raw.match(/\b(\d{1,3})\b/);if(ni){const n=parseInt(ni[1]);if(SL[n]&&n>0&&n<250)return{num:n,st:'ok'};}
@@ -491,6 +683,13 @@ function res(raw){
   const words=low.replace(/[^a-z\s]/g,'').split(/\s+/).filter(w=>w.length>2);
   for(const w of words)if(NM[w]&&NM[w].length===1)return{num:NM[w][0],st:'ok'};
   for(const w of words)if(NM[w]&&NM[w].length>0)return{num:NM[w][0],st:'amb'};
+  // Laatste poging: verwijder alle niet-letters en probeer opnieuw
+  const stripped=low.replace(/[^a-z\s]/g,' ').replace(/\s+/g,' ').trim();
+  if(stripped!==low){
+    const wds2=stripped.split(' ').filter(w=>w.length>2);
+    for(const w of wds2)if(NM[w]&&NM[w].length===1)return{num:NM[w][0],st:'ok'};
+    for(const w of wds2)if(NM[w]&&NM[w].length>0)return{num:NM[w][0],st:'amb'};
+  }
   return{num:null,st:'nf',raw};
 }
 
@@ -894,7 +1093,21 @@ function rHist(){
 // ══════════════════════════════════════════
 let chkFilt='all',chkOpen=new Set();
 function setFilt(f,el){chkFilt=f;document.querySelectorAll('.fc').forEach(c=>c.classList.remove('on'));el.classList.add('on');rChkList();}
-function tSt(ti){const t=TMS[ti];for(let i=0;i<15;i++){const r=res(t.riders[i]);if(r.st==='nf')return'err';if(r.st==='nt'||r.st==='amb')return'warn';}return'ok';}
+function tSt(ti){
+  const t=TMS[ti];
+  let hasWarn=false;
+  for(let i=0;i<15;i++){
+    const r=res(t.riders[i]);
+    if(r.st==='nf')return'err';
+    if(r.st==='nt'||r.st==='amb'||r.st==='alias')hasWarn=true;
+  }
+  // Check reserves too
+  for(let i=0;i<t.res.length;i++){
+    const r=res(t.res[i]);
+    if(r.st==='nf')hasWarn=true;
+  }
+  return hasWarn?'warn':'ok';
+}
 function hMut(ti){const t=TMS[ti];for(let i=0;i<15;i++){const r=res(t.riders[i]);if(r.st==='nt'||r.st==='nf')return true;}return false;}
 function rChkSum(){let ok=0,wn=0,er=0,mu=0;for(let i=0;i<TMS.length;i++){const s=tSt(i);if(s==='ok')ok++;else if(s==='warn')wn++;else er++;if(hMut(i))mu++;}document.getElementById('chk-sum').innerHTML=`<div class="sc"><div class="n" style="color:var(--green)">${ok}</div><div class="l">Volledig ok</div></div><div class="sc"><div class="n" style="color:#A04000">${wn}</div><div class="l">Twijfelgeval</div></div><div class="sc"><div class="n" style="color:var(--red)">${er}</div><div class="l">Onbekend</div></div><div class="sc"><div class="n" style="color:var(--pur)">${mu}</div><div class="l">Reserve ingezet</div></div>`;}
 function rChkList(){
@@ -905,7 +1118,7 @@ function rChkList(){
     if(chkFilt==='issues'&&st==='ok'&&!mut)continue;
     if(chkFilt==='mut'&&!mut)continue;
     const open=chkOpen.has(ti);
-    const stB=st==='ok'?'<span class="sok">✓ ok</span>':st==='warn'?'<span class="swarn">⚠ check</span>':'<span class="serr">✕ onbekend</span>';
+    const stB=st==='ok'?'<span class="sok">✓ ok</span>':st==='warn'?'<span class="swarn">⚠ spelfout/check</span>':'<span class="serr">✕ onbekend</span>';
     h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togChk(${ti})">
       <div style="flex:1"><strong style="font-family:'Syne',sans-serif;font-size:13px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>
       <div>${stB}${mut?'<span class="smut" style="margin-left:5px">↔ reserve</span>':''}</div>
@@ -924,10 +1137,10 @@ function rChkList(){
         const numR=resolvedR.num;
         let scR='';
         if(resolvedR.st==='ok')scR='<span class="sok">✓</span>';
-        else if(resolvedR.st==='alias')scR='<span class="swarn">~ spelfout ok</span>';
+        else if(resolvedR.st==='alias')scR='<span class="swarn">~ spelfout</span>';
         else if(resolvedR.st==='amb')scR='<span class="swarn">? ambigu</span>';
         else if(resolvedR.st==='nf')scR='<span class="serr">✕ onbekend</span>';
-        else if(resolvedR.st==='nt')scR='<span style="color:#A04000;font-size:10px">✕ niet in Tour → reserve</span>';
+        else if(resolvedR.st==='nt')scR='<span class="snt">✕ niet in Tour</span>';
         else if(resolvedR.st==='manual')scR='<span class="smut">✎</span>';
         const bgR=resolvedR.st==='nf'?'background:rgba(192,57,43,.04)':resolvedR.st==='nt'?'background:rgba(230,126,34,.04)':'';
         const rawDisp=rawR.length>18?rawR.slice(0,17)+'…':rawR;
@@ -954,10 +1167,10 @@ function rChkList(){
         const numRes=resolvedRes.num;
         let scRes='';
         if(resolvedRes.st==='ok')scRes='<span class="sok">✓</span>';
-        else if(resolvedRes.st==='alias')scRes='<span class="swarn">~ spelfout ok</span>';
+        else if(resolvedRes.st==='alias')scRes='<span class="swarn">~ spelfout</span>';
         else if(resolvedRes.st==='amb')scRes='<span class="swarn">? ambigu</span>';
         else if(resolvedRes.st==='nf')scRes='<span class="serr">✕ onbekend</span>';
-        else if(resolvedRes.st==='nt')scRes='<span style="color:#A04000;font-size:10px">✕ niet in Tour</span>';
+        else if(resolvedRes.st==='nt')scRes='<span class="snt">✕ niet in Tour</span>';
         else if(resolvedRes.st==='manual')scRes='<span class="smut">✎</span>';
         const rawResDisp=rawRes.length>18?rawRes.slice(0,17)+'…':rawRes;
         const numResDisp=numRes?`<span class="p ${ovRes?'pp-':'pb-'}">${numRes}</span>`:'<span class="p pgr">?</span>';

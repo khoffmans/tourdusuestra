@@ -899,42 +899,87 @@ function hMut(ti){const t=TMS[ti];for(let i=0;i<15;i++){const r=res(t.riders[i])
 function rChkSum(){let ok=0,wn=0,er=0,mu=0;for(let i=0;i<TMS.length;i++){const s=tSt(i);if(s==='ok')ok++;else if(s==='warn')wn++;else er++;if(hMut(i))mu++;}document.getElementById('chk-sum').innerHTML=`<div class="sc"><div class="n" style="color:var(--green)">${ok}</div><div class="l">Volledig ok</div></div><div class="sc"><div class="n" style="color:#A04000">${wn}</div><div class="l">Twijfelgeval</div></div><div class="sc"><div class="n" style="color:var(--red)">${er}</div><div class="l">Onbekend</div></div><div class="sc"><div class="n" style="color:var(--pur)">${mu}</div><div class="l">Reserve ingezet</div></div>`;}
 function rChkList(){
   let h='';
-  for(let i=0;i<TMS.length;i++){
-    const t=TMS[i],st=tSt(i),mut=hMut(i);
-    if(chkFilt==='ok'&&(st!=='ok'||mut))continue;if(chkFilt==='issues'&&st==='ok'&&!mut)continue;if(chkFilt==='mut'&&!mut)continue;
-    const open=chkOpen.has(i);
+  for(let ti=0;ti<TMS.length;ti++){
+    const t=TMS[ti],st=tSt(ti),mut=hMut(ti);
+    if(chkFilt==='ok'&&(st!=='ok'||mut))continue;
+    if(chkFilt==='issues'&&st==='ok'&&!mut)continue;
+    if(chkFilt==='mut'&&!mut)continue;
+    const open=chkOpen.has(ti);
     const stB=st==='ok'?'<span class="sok">✓ ok</span>':st==='warn'?'<span class="swarn">⚠ check</span>':'<span class="serr">✕ onbekend</span>';
-    h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togChk(${i})"><div style="flex:1"><strong style="font-family:'Syne',sans-serif;font-size:13px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div><div>${stB}${mut?'<span class="smut" style="margin-left:5px">↔ reserve</span>':''}</div><span class="arr">${open?'▲':'▼'}</span></div>`;
+    h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togChk(${ti})">
+      <div style="flex:1"><strong style="font-family:'Syne',sans-serif;font-size:13px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>
+      <div>${stB}${mut?'<span class="smut" style="margin-left:5px">↔ reserve</span>':''}</div>
+      <span class="arr">${open?'▲':'▼'}</span>
+    </div>`;
     if(open){
-      h+=`<div class="cb"><table class="tbl"><tr><th>#</th><th>Inzending</th><th>Herkend als</th><th>Rug</th><th>Status</th></tr>`;
-      for(let s=0;s<15;s++){
-        const raw=t.riders[s],k=`${i}_${s}`,ov=k in S.ov;
-        const r=ov?{num:S.ov[k],st:'manual'}:res(raw);const n=r.num;
-        let sc='';
-        if(r.st==='ok')sc='<span class="sok">✓</span>';else if(r.st==='alias')sc='<span class="swarn">~ spelfout ok</span>';else if(r.st==='amb')sc='<span class="swarn">? ambigu</span>';else if(r.st==='nf')sc='<span class="serr">✕ onbekend</span>';else if(r.st==='nt')sc='<span style="color:#A04000;font-size:10px">✕ niet in Tour → reserve</span>';else if(r.st==='manual')sc='<span class="smut">✎</span>';
-        h+=`<tr style="${r.st==='nf'?'background:rgba(192,57,43,.04)':r.st==='nt'?'background:rgba(230,126,34,.04)':''}"><td style="color:var(--mu);font-size:10px">${s+1}</td><td style="color:var(--mu);font-size:11px;max-width:110px">${raw.length>18?raw.slice(0,17)+'…':raw}</td><td>${n?`<strong>${rn(n)}</strong>`:'<span style="color:var(--mu)">—</span>'}</td><td>${n?`<span class="p ${ov?'pp-':'pg-'}">${n}</span>`:'<span class="p pgr">?</span>'}</td><td style="display:flex;align-items:center;gap:5px">${sc}<button class="btn btn-s btn-sm" onclick="doEdit(event,${i},${s})">✎</button></td></tr>`;
+      h+=`<div class="cb"><table class="tbl">
+        <tr><th>#</th><th>Inzending</th><th>Herkend als</th><th>Rug</th><th>Status</th></tr>`;
+
+      // Renners 1-15
+      for(let slot=0;slot<15;slot++){
+        const rawR=t.riders[slot];
+        const kR=`${ti}_${slot}`;
+        const ovR=kR in S.ov;
+        const resolvedR=ovR?{num:S.ov[kR],st:'manual'}:res(rawR);
+        const numR=resolvedR.num;
+        let scR='';
+        if(resolvedR.st==='ok')scR='<span class="sok">✓</span>';
+        else if(resolvedR.st==='alias')scR='<span class="swarn">~ spelfout ok</span>';
+        else if(resolvedR.st==='amb')scR='<span class="swarn">? ambigu</span>';
+        else if(resolvedR.st==='nf')scR='<span class="serr">✕ onbekend</span>';
+        else if(resolvedR.st==='nt')scR='<span style="color:#A04000;font-size:10px">✕ niet in Tour → reserve</span>';
+        else if(resolvedR.st==='manual')scR='<span class="smut">✎</span>';
+        const bgR=resolvedR.st==='nf'?'background:rgba(192,57,43,.04)':resolvedR.st==='nt'?'background:rgba(230,126,34,.04)':'';
+        const rawDisp=rawR.length>18?rawR.slice(0,17)+'…':rawR;
+        const numDisp=numR?`<span class="p ${ovR?'pp-':'pg-'}">${numR}</span>`:'<span class="p pgr">?</span>';
+        const nameDisp=numR?`<strong>${rn(numR)}</strong>`:'<span style="color:var(--mu)">—</span>';
+        h+=`<tr style="${bgR}">
+          <td style="color:var(--mu);font-size:10px">${slot+1}</td>
+          <td style="color:var(--mu);font-size:11px;max-width:110px">${rawDisp}</td>
+          <td>${nameDisp}</td>
+          <td>${numDisp}</td>
+          <td style="display:flex;align-items:center;gap:5px">${scR}
+            <button class="btn btn-s btn-sm" onclick="doEdit(event,${ti},${slot})">✎</button>
+          </td>
+        </tr>`;
       }
+
+      // Reserves
       h+=`<tr><td colspan="5" style="background:var(--paper);padding:4px 7px;font-size:9px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em">Reserves</td></tr>`;
-      for(let s=0;s<t.res.length;s++){
-        const raw=t.res[s],r=res(raw),n=r.num;
-        const sc=r.st==='ok'?'<span class="sok">✓</span>':r.st==='alias'?'<span class="swarn">~</span>':r.st==='nf'?'<span class="serr">✕</span>':r.st==='nt'?'<span style="color:#A04000;font-size:10px">✕</span>':'';
-        const rk2=`${i}_r${s}`;const rov=rk2 in S.ov;
-        const rr=ov?{num:S.ov[rk2],st:'manual'}:res(raw);const rn2=rr.num;
-        let rsc='';
-        if(rr.st==='ok')rsc='<span class="sok">✓</span>';
-        else if(rr.st==='alias')rsc='<span class="swarn">~ spelfout ok</span>';
-        else if(rr.st==='amb')rsc='<span class="swarn">? ambigu</span>';
-        else if(rr.st==='nf')rsc='<span class="serr">✕ onbekend</span>';
-        else if(rr.st==='nt')rsc='<span style="color:#A04000;font-size:10px">✕ niet in Tour</span>';
-        else if(rr.st==='manual')rsc='<span class="smut">✎</span>';
-        h+=`<tr style="background:rgba(26,82,118,.02)"><td style="color:var(--mu);font-size:10px">R${s+1}</td><td style="color:var(--mu);font-size:11px">${raw.length>18?raw.slice(0,17)+'…':raw}</td><td style="font-size:12px">${rn2?rn(rn2):'<span style="color:var(--mu)">—</span>'}</td><td>${rn2?`<span class="p ${rov?'pp-':'pb-'}">${rn2}</span>`:'<span class="p pgr">?</span>'}</td><td style="display:flex;align-items:center;gap:5px">${rsc}<button class="btn btn-s btn-sm" onclick="doEditRes(event,${i},${s})">✎</button></td></tr>`;
+      for(let ri=0;ri<t.res.length;ri++){
+        const rawRes=t.res[ri];
+        const kRes=`${ti}_r${ri}`;
+        const ovRes=kRes in S.ov;
+        const resolvedRes=ovRes?{num:S.ov[kRes],st:'manual'}:res(rawRes);
+        const numRes=resolvedRes.num;
+        let scRes='';
+        if(resolvedRes.st==='ok')scRes='<span class="sok">✓</span>';
+        else if(resolvedRes.st==='alias')scRes='<span class="swarn">~ spelfout ok</span>';
+        else if(resolvedRes.st==='amb')scRes='<span class="swarn">? ambigu</span>';
+        else if(resolvedRes.st==='nf')scRes='<span class="serr">✕ onbekend</span>';
+        else if(resolvedRes.st==='nt')scRes='<span style="color:#A04000;font-size:10px">✕ niet in Tour</span>';
+        else if(resolvedRes.st==='manual')scRes='<span class="smut">✎</span>';
+        const rawResDisp=rawRes.length>18?rawRes.slice(0,17)+'…':rawRes;
+        const numResDisp=numRes?`<span class="p ${ovRes?'pp-':'pb-'}">${numRes}</span>`:'<span class="p pgr">?</span>';
+        const nameResDisp=numRes?rn(numRes):'<span style="color:var(--mu)">—</span>';
+        h+=`<tr style="background:rgba(26,82,118,.02)">
+          <td style="color:var(--mu);font-size:10px">R${ri+1}</td>
+          <td style="color:var(--mu);font-size:11px">${rawResDisp}</td>
+          <td style="font-size:12px">${nameResDisp}</td>
+          <td>${numResDisp}</td>
+          <td style="display:flex;align-items:center;gap:5px">${scRes}
+            <button class="btn btn-s btn-sm" onclick="doEditRes(event,${ti},${ri})">✎</button>
+          </td>
+        </tr>`;
       }
+
       h+=`</table></div>`;
     }
     h+=`</div>`;
   }
   document.getElementById('chk-list').innerHTML=h;
 }
+
 function togChk(i){chkOpen.has(i)?chkOpen.delete(i):chkOpen.add(i);rChkList();}
 
 function doEditRes(evt,ti,si){

@@ -135,7 +135,7 @@ canvas{display:block;}
   </div>
 </div>
 <div id="app-wrapper" style="display:none"><div class="hdr">
-  <div><div class="hdr-t">Tour du Suëstra</div><div class="hdr-s">Tour de France 2025 · 10 teams (testmodus)</div></div>
+  <div><div class="hdr-t">Tour du Suëstra</div><div class="hdr-s">Tour de France 2025 · 77 deelnemers</div></div>
   <div class="hdr-b" id="stage-badge">SELECTIE E1</div>
 </div>
 <div class="nav">
@@ -179,6 +179,7 @@ canvas{display:block;}
     <div id="chk-list"></div>
     <div class="fr" style="margin-top:14px">
       <button class="btn btn-p ao" onclick="confirmE1()">✓ Selectie E1 vaststellen</button>
+      <button class="btn btn-s ao" onclick="refreshSheets()" title="Herlaad selecties vanuit Google Sheets">↺ Selecties herladen</button>
       <span style="font-size:11px;color:var(--mu)" id="e1-lbl"></span>
     </div>
   </div>
@@ -248,6 +249,17 @@ canvas{display:block;}
     <div id="fetch-log" style="max-height:160px;overflow-y:auto;font-size:11px;border:1px solid var(--bo);border-radius:var(--r);padding:8px;background:white;"></div>
   </div>
   <div id="uit-ex"></div>
+  <div class="fr" style="margin-bottom:10px">
+    <label style="font-size:12px;font-weight:500">Etappe type:</label>
+    <select class="inp" id="uit-type" onchange="onUitTypeChange()" style="font-size:12px">
+      <option value="normaal">Normaal</option>
+      <option value="sprint">⚡ Sprintetappe</option>
+      <option value="berg">⛰ Bergetappe</option>
+      <option value="itt">🕐 ITT (individuele tijdrit)</option>
+      <option value="ttt">👥 TTT (ploegentijdrit — telt niet mee)</option>
+    </select>
+    <span id="ttt-notice" style="display:none;font-size:11px;color:var(--red);font-weight:500">⚠ TTT telt niet mee voor dag- en totaalstand</span>
+  </div>
   <div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 7px">
     Top-15 handmatig invullen — <kbd style="background:var(--paper);border:1px solid var(--b2);border-radius:3px;padding:1px 4px;font-size:10px">Tab</kbd>/<kbd style="background:var(--paper);border:1px solid var(--b2);border-radius:3px;padding:1px 4px;font-size:10px">Enter</kbd> = selecteer &amp; volgende
   </div>
@@ -407,16 +419,83 @@ function ss(q,mx=10){if(!q)return[];const lo=q.toLowerCase();return Object.entri
 // TEAMS (eerste 10)
 // ══════════════════════════════════════════
 const TMS=[
-  {team:"AP Jan III",name:"Jan van Wegberg",riders:["Tadej Pogacar","Jonas Vinegaard","J. Almeida","R. Evenepoel","P. Roglic","C. Rodriguez","F. Gall","B. O'Connor","D. Gaudu","M. vd Poel","W. van Aert","M. Skjelmose","J. Philipsen","T. Merlier","J. Milan"],res:["J. Ayuso","C. Ciccone","T. Pidcock","D. Gaudu","O. Onley"]},
-  {team:"Balokima",name:"Marco Sanders",riders:["Tadeje Pogacar","Jonas Vingegaard","Remco Evenepoel","Matteo Jörgenson","Joao Almeida","Carlos Rodriguez","Primos Roglic","Simon Yates","Kevin Vauquelin","Jonathan Milan","Tim Melier","Jasper Philipsen","Wout van Aert","Matthieu van der Poel","Ganna"],res:["Florian Lipowitz","L. Martinez","Michael Storer","Santiago Buitrago","Pablo Castrillo"]},
-  {team:"Barrels Zöstere",name:"John Engelbert",riders:["1","11","21","2","55","51","151","131","41","73","83","105","124","228","52"],res:["71","18","8","61","117"]},
-  {team:"Bing Go",name:"Hannah Vranken",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Jorgenson","Roglic","Skjelmose","Lipowitsj","Van der Poel","Van Aert","Vauquelin","Philipsen","Merlier","Milan","Girmay"],res:["Gall","C. Rodriguez","L. Martinez","Mas","Buitrago"]},
-  {team:"Capitaine Escargot",name:"Maurits Meessen",riders:["Pogacar","Vingegaard","Evenepoel","Roglic","Almeida","Jorgenson","Lipowitz","Skjelmose","Merlier","Milan","Philipsen","Van Aert","Van der Poel","Girmay","Healy"],res:["Carlos Rodriguez","Kuss","Mas","Vauquelin","Adam Yates"]},
-  {team:"Château Gépété",name:"Mark Peters",riders:["Tadej Pogacar","Primoz Roglic","Remco Evenepoel","Matteo Jorgenson","Carlos Rodriguez","Jonas Vingegaard","Santiago Buitrago","Joao Almeida","Tim Merlier","Jasper Philipsen","Dylan Groenewegen","Mathieu van der Poel","Felix Gall","Magnus Cort","Biniam Girmay"],res:["Sepp Kuss","Jakobsen","Bryan Coquard","Jordi Meeus","Jonathan Milan"]},
-  {team:"Claudio Ciappucino",name:"Cas Bocken",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Roglic","Skjelmose","Vauquelin","Nijs","Van Aert","Van der Poel","Meeus","Girmay","Merlier","Philipsen","Milan"],res:["L. Martinez","Jorgenson","Lipowitz","Carlos Rodriguez","Gall"]},
-  {team:"Cochin",name:"Mandy Beerens",riders:["Pogacar","Vingegaard","Almeida","Roglic","Lipowitz","Evenepoel","Buitrago","Carlos Rodriguez","De Lie","Girmay","Milan","Philipsen","Merlier","Van Aert","Van der Poel"],res:["Jorgenson","Onley","Gall","Skjelmose","L. Martinez"]},
-  {team:"Conquérir sans petites roues",name:"Jip Leenders",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Joao Almeida","Simon Yates","Primoz Roglic","Matteo Jorgenson","Mattias Skjelmose","Jasper Philipsen","Tim Merlier","Biniam Girmay","Jonathan Milan","Michael Storer","Clement Champoussin","Mathieu van der Poel"],res:["Florian Lipowitz","Felix Gall","L. Martinez","Wout van Aert","Jordi Meeus"]},
-  {team:"Daags na de Tour",name:"Aimy Hoedemakers",riders:["Tim Merlier","Jasper Philipsen","Jonathan Milan","Jordi Meeus","Dylan Groenewegen","Phil Bauhaus","Biniam Girmay","Emilien Jeanniere","Soren Waerenskjold","Alberto Dainese","Arnaud Demare","Alexis Renard","Bryan Coquard","Davide Ballerini","Arnaud De Lie"],res:["Pascal Ackermann","Pavel Bittner","Jake Stewart","Tobias Andresen","Paul Penhoet"]}
+  {team:"AP Jan III",name:"Jan van Wegberg",riders:["Tadej Pogacar","Jonas Vinegaard","J. Almeida","R. Evenepoel","P. Roglic","C. Rodriguez","F. Gall","B. O`Connor","D. Gaudu","M. vd Poel","W. van Aert","M. Skjelmose","J. Philipsen","T. Merlier","J. Milan"],res:["J. Ayuso","C. Ciccone","T. Pidcock","D. Gaudu","O.Onley"]},
+  {team:"Balokima",name:"Marco Sanders",riders:["Tadeje Pogacar","Jonas Vingegaard","Remco Evenepoel","Matteo Jörgenson","Joao Almeida","Carlos Rodriguez","Primos Roglic","Simon Yates","Kevin Vauquelin","Jonathan Milan","Tim Melier","Jasper Philipsen","Wout van Aert","Matthieu van der Poel","Philippo Ganna"],res:["Florian Lipowitz","Lenny Martinez","Michael Storer","Santiago Buitrago","Pablo Castrillo"]},
+  {team:"Barrels Zöstere",name:"John Engelbert",riders:["Pogacar 1","Vingegard 11","Evenpoel 21","Almeida 2","Matinez 55","Buitrago 51","Gall 151","Vauquelin 131","Girmay 41","Meeuws 73","Milan 81","Philipsen 101","Groenewegen 124","Waerenskjold 228","Bauhaus 52"],res:["Roglic 71","S Yares 18","A Yates 8","Rodriguez 66","Storen 117"]},
+  {team:"Bing Go",name:"Hannah Vranken",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Jorgensen","Roglic","Skjelmose","Lipowitsj","Van der Poel","Van Aert","Vauquelin","Philipsen","Merlier","Milan","Girmay"],res:["Gall","C. Rodriquez","L. Martinez","Mas","Buitrago"]},
+  {team:"Capitaine Escargot",name:"Maurits Meessen",riders:["Pogacar","Vingegaard","Evenepoel","Roglic","Almeida","Jorgenson","Lipowitz","Skjelmose","Merlier","Milan","Philipsen","Van Aert","Van der Poel","girmay","Healy"],res:["Carlos Rodriguez","Kuss","Mas","Vauquelin","Adam Yates"]},
+  {team:"Château Gépété",name:"Mark Peters",riders:["Tadej Pogacar","Primos Roglic","Remco Evenepoel","Matteo Jorgenson","Carlos Rodrigues","Jonas Vingegaard","Santiago Buitrago","Joao Almeida","Tim Merlier","Jasper Philipsen","Dylan Groenewegen","Mathieu van der Poel","Felix Gall","Magnus Cort Nielsen","Biniam Girmay"],res:["Sepp Kuss","Fabio Jacobsen","Bryan Coquard","Jordi Meeus","Jonathan Milan"]},
+  {team:"Claudio Ciappucino",name:"Cas Bocken (Toine Bocken)",riders:["Pogacar","Vingegard","Evenepoel","Almeida","Roglic","Skjelmose","Vauquelin","Nijs","Van Aert","Van der Poel","Meeus","Girmay","Merlier","Philipsen","Milan"],res:["Lenny Martinez","Jorgenson","Lipowitz","Carlos Rodriguez","Gall"]},
+  {team:"Cochin",name:"Mandy beerens",riders:["Pogacar","Vingegaard","Almeida","Roglic","Lipowitz","Evenepoel","Buitrago","Carlos Rodrigues","De lie","Girmay","Milan","Philipsen","Merlier","Van aert","Vd poel"],res:["Jorgenson","Onley","Gall","Skjelmose","L Martinez"]},
+  {team:"Conquérir sans petites roues",name:"Jip Leenders",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","João Almeida","Simon Yates","Primoz Roglic","Matteo Jorgensen","Mattias Skjelmose","Jasper Philipsen","Tim Merlier","Biniam Girmay","Jonathan Milan","Michael Storer","Clement Champoussin","Mathieu van der Poel"],res:["Florian Lipowitz","Felix Gall","Lenny Martinez","Wout van Aert","Jordi Meeuws"]},
+  {team:"Daags na de Tour",name:"Aimy Hoedemakers",riders:["Tim Merlier","Jasper Philipsen","Jonathan Milan","Jordi Meeus","Dylan Groenewegen","Phil Bauhaus","Biniam Girmay","Emillien Jeanniere","Soren Waerenskjold","Alberto Dainese","Arnaud Demare","Alexis Renard","Bryan Coquard","Davide Ballerini","Arnaud de Lie"],res:["Pascal Ackermann","Pavel Bittner","Jake Stewart","Tobias Lund Andresen","Paul Penhoet"]},
+  {team:"De achterop renner",name:"John Sanders",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Carlos Rodriguez","Mattias Skjelmise","Joao Almeida","Matteo Jorgenson","Primoz Roglic","Jasper Philipsen","Jonathan Milanl","Tim Merlier","Benian Girmay","Laurens de Plus","Ben O'Connor","Mathieu van der Poel"],res:["Wout van Aert","Marc Hirschi","Nielson Powless","Enric Mas","Lenny Martinez"]},
+  {team:"De bel van Mariëlle",name:"Kevin Hoffmans",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Jorgenson","Lipowitz","Mas","Roglic","Skjelmose","Vauquelin","Van der Poel","Ganna","Philipsen","Milan","Van Aert"],res:["Gall","A. Yates","Carlos Rodriguez","S. Yates","O'connor"]},
+  {team:"De Flesj, MinusL",name:"Minus Limpens",riders:["Pogacar","Vingegaard","Almeide","Evanepoel","Healy","Vlasov","Rodiguez Carlos","Hindley","Van der Poel","Van Aert","Girmay","Van Poppel","Milan","Philipsen","Ganna"],res:["Roglic","Thomas Garaint","Yates Adam","Izagirre","Politt"]},
+  {team:"De gele parel",name:"Karel viehoff",riders:["Tadej Pocagar","Jonas Vingegaard","Remco Evenepoel","Primoz Roglic","Carlos Rodriguez","Florian Lipowitz","Joa Almeida","Matthias Skjelmose","Wout van Aert","Matthieu van der Poel","Tim Merlier","Jasper Philipsen","Beniam Girmay","Dylan Groenewegen","Jonathan Milan"],res:["Matteo Jorgenson","Enric Mas","Ben o Conner","Oscar Onley","Simon Yates"]},
+  {team:"De Kannibaal",name:"Wilbert Smeets",riders:["Tadej Pogačar","Jonas Vingegaard","Remco Evenepoel","João Almeida","Primož Roglič","Matteo Jorgenson","Mattias Skjelmose","Carlos Rodríguez","Julian Alaphilippe","Biniam Girmay","Mathieu van der Poel","Wout van Aert","Jonathan Milan","Tim Merlier","Jasper Philipsen"],res:["Santiago Buitrago","Enric Mas","Florian Lipowitz","Ben O'Connor","Felix Gall"]},
+  {team:"De Kannibaal 1",name:"Joep Gerats",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Joao Almeida","Primoz Roglic","Matteo Jorgenson","Florian Lipowitz","Carlos Rodriguez","Jonathan Milan","Jasper Philipsen","Tim Merlier","Jordi Meeus","Mathieu van de Poel","Wout van Aert","Thibau Nys"],res:["Mattias Skjelmose","Felix Gall","Oscar Onley","Lenny Martinez","Tobias Halland Johannesen"]},
+  {team:"De Kannibaal 2",name:"Joep Gerats",riders:["Pogacar","Vingegaard","Almeida","Evenepoel","Jorgenson","Lipowitz","Carlos Rodriguez","Skjelmose","Milan","Philipsen","Merlier","Girmay","van der Poel","Van Aert","Vauquelin"],res:["Gall","Buitrago","Mas","Martinez","A. Yates"]},
+  {team:"De snelle jongens",name:"John Engelbert",riders:["Philipsen 101","Meeuws 73","Girmay 41","Bauhaus 52","Milan 81","De Lie 211","Waerenskjold 228","Pogacar 1","Groenewegen 124","Ackermann 202","Bol 173","Coquard 163","Mezgez 125","v Aert 17","v/d Poel 106"],res:["Vingegard 11","Almeida 2","Evenpoel 21","S Yates 18","Vauquelin 131"]},
+  {team:"Deau Pinh",name:"Kevin Hoffmans",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Jorgenson","Lipowitz","Mas","Roglic","Buitrago","Skjelmose","Onley","Van der Poel","Van Aert","Merlier","Philipsen"],res:["Carlos Rodriguez","Gall","A. Yates","Kuss","O'Connor"]},
+  {team:"Der Bockmeister",name:"Geert Bocken",riders:["Pogacar","Vingegaard","Almeida","Evenepoel","roglic","M. Jorgenson","Carlos Rodiguez","Adam Yates","Groenewegen","Gregoire","Van der Poel","Philipsen","Merlier","Milan","Ganna"],res:["Lipowitz","Buitrago","Skjelmose","Gall","Mas"]},
+  {team:"Fitskoempel",name:"Funs Meuffels",riders:["Pogacar","Vingegaard","Evenepoel","Roglic","C.Rodriguez","J.Almeida","Bernal","Kuss","Philipsen","Jakobsen","de Lie","Groenewegen","Girmay","Welsford","Pedersen"],res:["van Aert","Coquard","Van de Poel","Bauhaus","Kooij"]},
+  {team:"Flesjer",name:"Maurice van de laar",riders:["1 pogacar","11 vingegaard","21 evenepoel","2 Almeida","61 rodrigues","71 Rohlic","8 yates","85 skelmose","141 mas","62","51","151","18","121","55"],res:["146","87","15","63","191"]},
+  {team:"Fojo",name:"Niekie Storken",riders:["Pogacar tadej","Vingegaard jonas","Evenepoel remco","Roglic primoz","Almeida joao","Jorgenson matteo","Rodriguez carlos","Mas enric","Philipsen jasper","Girmay biniam","Aert van wout","Poel van der mathieu","Milan jonathan","Mealier tim","Sjkelmose mattias"],res:["Lipowitz Florian","Yates adam","Yates simon","Nys thibau","Kuss sepp"]},
+  {team:"Helden oet Helden 1",name:"John Eijkelbwrf",riders:["Pogacar","Vingegaard","Almeida","Lipowitz","Evenepoel","Roglic","CA Rodriquez","Tobias Johannesen","Van der Poel","Van Aert","Ganna","Philipsen","Merlier","Milan","Girmay"],res:["Gall","Onley","Nys","Vauquelin","De Lie"]},
+  {team:"Helje Dorp in de Toer de Suestra",name:"John Eijkelberg",riders:["Pogacar","Vingegaard","Evenepoel","Roglic","Almeida","Jorgenson","CA Rodriquez","Mas","Philipsen","Milan","Van Aert","Ghirmay","Merlier","Van der Poel","Meeus"],res:["Adam Yates","Skjelmose","Lipowitz","Simon Yates","Sepp Kuss"]},
+  {team:"HK Legacy Team",name:"Danny Kessels",riders:["Tadej Pogačar","Jonas Vingegaard","Remco Evenepoel","Carlos Rodríguez","Primož Roglič","Matteo Jorgenson","João Almeida","Egan Bernal","Jasper Philipsen","Mads Pedersen","Biniam Girmay","Fabio Jakobsen","Mathieu van der Poel","Wout van Aert","Arnaud De Lie"],res:["Richard Carapaz","Jasper Stuyven","Stefan Küng","Bryan Coquard","Victor Campenaerts"]},
+  {team:"Hofmani gaazzdrop",name:"Martin Hoffmans",riders:["Tadej Pogacar","Jonas Vingegaard","Primos Roglic","Remco Evenepoel","Felix Gall","Mattias Skjelmose","Carlos Rodrivuez Ineos","Enric Mas","Joao Almeida UAE","Florian Lipowitz RedBull","Tim Merlier","Jordi Meeus","Jasper Philipsen","Jonathan Milan","Biniam Girmay"],res:["Matteo Jorgenson","Thijmen Arendsman","Lenny Martinez Bahrein","Ben O'Connor","Simon Yates"]},
+  {team:"Hofmani-heropper",name:"Martin Hoffmans",riders:["Tadej Pogacar","Jonas Vingegaard","Primos Roglic","Remco Evenepoel","Felix Gall","Mattias Skjelmose","Carlos Rodriguez","Enric Mas","Joao Almeida","Florian Lipowitz","Matteo Jorgenson","Thijmen Arendsman","Lenny Martinez Bahrein","Ben O'Connor","Simon Yates"],res:["Ilan van Wilder","Oscar Onley","Ben Healy","Santiago Buitrago Bahrain","Lennert van Eetvelt"]},
+  {team:"Ijzeren Rinus",name:"John Engelbert",riders:["Pogacar 1","Evenpoel 21","Roglic 71","S Yates 18","Vingegard 11","A Yates 8","Vauquelin 131","Gall 151","v Aert 17","Milan 81","Philipsen 101","Meeuws 73","Bauhaus 52","Bol 173","Waerenskjold 228"],res:["Almeida 2","Martinez 55","Buitrago 51","Rodriguez 66","Storer 117"]},
+  {team:"Jack Pot",name:"David Vranken",riders:["Pogacar","Vingegaard","Almeida","Jorgensen","Evenepoel","Lipowitsj","C. Rodriquez","T.. Nijs","Philipsen","Milan","Merlier","Gregoire","Vauquelin","Van Aert","Van de Poel"],res:["Roglic","Skjelmose","Gall","O'Conner","Mas"]},
+  {team:"Jan linders E-sport",name:"Daan Janssen",riders:["Tadej Pogacar","Jonas vingegaard","Remco evenepoel","Primoz roglic","Matteo Jorgenson","Florian lipowitz","Joao almeida","Simon yates","Jasper phillipsen","Richard carapaz","Tim merlier","Oscar onley","Sepp kuss","Wout van der poel","Wout van Aerts"],res:["Jonathan Milan","Lennert van Eetvelt","Carlos rodriguez","Arnaud de lie","Tom pidcock"]},
+  {team:"Jean de la Rue Montagne",name:"Jan van Wegberg",riders:["T. Pogacar","J. Vinegaard","C.Rodriguez","J. Almeida","R. Evenepoel","S.Yates","F.Lipowitz","J. Ayuso","E. Mas","B. O`Connor","M. vd Poel","J. Philipsen","T. Merlier","J. Milan","B. Girmay"],res:["W. van Aert","J. Meeus","M. Jorgenson","M. Skjelmose","B. Healy"]},
+  {team:"Jim's finest",name:"Jim Lammerts van Bueren",riders:["Pogaçar","Vingegaard","Milan","Philipsen","Evenepoel","van de Poel","van Aert","Vauquelin","Storer","Gregoire","L.Martinez","Merlier","Groenewegen","Foss","Johannessen Tobias"],res:["Buitrago","Lipowitz","Skjelmose","Armirail","Only"]},
+  {team:"Kerdju",name:"Jan van Wegberg",riders:["T. Pogacar","J. Vinegaard","R. Evenepoel","P. Roglic","J. Almeida","C. Rodriguez","E. Mas","B. O`Connor","M. vd Poel","W. van Aert","F. Ganna","T. Merlier","J. Milan","J. Philipsen","J. Meeus"],res:["O. Onley","M. Jorgenson","M. Skjelmose","F. Lipowitz","F. Gall"]},
+  {team:"Kopmannenspel",name:"Wilbert Smeets",riders:["Tadej Pogačar","Jonas Vingegaard","Remco Evenepoel","Primož Roglič","Mattias Skjelmose","Carlos Rodríguez","Santiago Buitrago","Enric Mas","Biniam Girmay","Mathieu van der Poel","Julian Alaphilippe","Kévin Vauquelin","Vincenzo Albanese","Alex Aranburu","Lennert Van Eetvelt"],res:["Tobias Halland Johannessen","Ben O'Connor","Felix Gall","Oscar Onley","Guillaume Martin"]},
+  {team:"L'Equipe Fiddelers",name:"Marc Fiddelers",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Primoz Roglic","Joao Almeida","Carlos Rodriguez","Giuolo Ciccone","Santiago Buitrago","Mathieu van der Poel","Jasper philipsen","Jonathan Milan","Wout van Aerts","Biniam Girmay","Arnaud de Lie","Romain Bardet"],res:["Magnus cort Nielsen","David Gaudu","Ben Healy","Tom Pidcock","Valentin Maduas"]},
+  {team:"Ladyburpalot",name:"Ilse Bongers",riders:["T. Pogaçar","S. Yates","R. Evenepoel","J. Vingegaard","J. Almeida","M. Jorgenson","C. Rodriquez","M. van der Poel","T. Merlier","J. Milan","J. Philipsen","W. van Aert","M. Soler","C. Bol","K. Asgreen"],res:["A. Yates","P. Billbao","M. Skjelmose","C. Nielsen","M. Landa"]},
+  {team:"laeg tuup",name:"Alois Huizinga",riders:["1 Pogacar","11 Vingegaard","35 Powless","56 Mohoric","61 Rodriquez","71 Roglic","81 Skjelmose","95 Madouas","121 o`connor","141 Mas","201 Woods","24 Merlier","124 Groenewegen","163 coquard","105 phillipsen"],res:["41 Girmay","26 schachmann","16 Kuss","2 Almeida","101 v/d Poel"]},
+  {team:"Lattebodum",name:"Michael Latten",riders:["Tadej Pogačar","Jonas Vingegaard","Remco Evenepoel","João Almeida","Richard Carapaz","Carlos Rodríguez","Primož Roglič","Jasper Philipsen","Biniam Girmay","Dylan Groenewegen","Mathieu van der Poel","Enric Mas","Tiesj Benoot","Simon Yates","Matteo Jorgenson"],res:["Mikel Landa","Adam Yates","Jai Hindley","Thibaut Pinot","Victor Lafay"]},
+  {team:"L'epingle de Maillot a Pois",name:"Ralph Hoedemakers",riders:["Tadej Pogacar","Jonas Vingegaard","Joao Almeida","Primoz Roglic","Remco Evenepoel","Florian Lipowitz","Matteo Jorgenson","Carlos Rodriguez","Enric Mas","Felix Gall","Matthias Skjelmose","Santiago Buitrago","T.H. Johannesen","Oscar Onley","Lenny Martinez"],res:["Adam Yates","Michael Storer","Ben O'Connor","Sepp Kuss","Emanuel Buchmann"]},
+  {team:"Mini velo",name:"David van Egmond",riders:["Pogacar","Vingegaard","Evenepoel","Lipowitz","Almeida","Roglic","Skjelmose","Onley","Philipsen","Merlier","Jonathan Milan","Van aert","Van der Poel","Girmay","Groenewegen"],res:["Gall","Vauquelin","Alaphilippe","Tobias Halland johannessen","Mas"]},
+  {team:"Mister Spaghetti",name:"Kevin Hoffmans",riders:["Pogacar","Vingegaard","Almeida","Evenepoel","Roglic","Lipowitz","Skjelmose","Jorgenson","Philipsen","Milan","Merlier","Van der Poel","Van Aert","Buitrago","Allaphilippe"],res:["Gall","A. Yates","Mas","Carlos Rodriguez","O'Connor"]},
+  {team:"Net optied bènne",name:"Mart Peters",riders:["Tadej Pogačar","Jonas Vingegaard","Remco Evenepoel","Primož Roglič","Carlos Rodríguez","Florian Lipowitz","João Almeida","Enric Mas","Ben O'Connor","Felix Gall","Mattias Skjelmose","Oscar Onley","Kévin Vauquelin","Richard Carapaz","Adam Yates"],res:["Thymen Arensman","Giulio Ciccone","David Gaudu","/","/"]},
+  {team:"Ohne Bezei",name:"Rob Bakkes",riders:["Tadej Pogacar","Jonas Vinegard","Wout van Aert","Remco Evenepoel","Primoz Roglic","Joao Almeida","Lenny Martinez","Adam Yates","Tim Merlier","Florian Lipowitz","Enric Mas","Mathieu van der Poel","Richard Carapaz","Jasper Philipsen","Biniam Girmay"],res:["Milan Jonathan","Dylan Groenewegen","Michael Storer","Isaac Del Torro","Grégoire Romain"]},
+  {team:"Ossekop",name:"Maos",riders:["Dilleur s","García r","Tourze","Harig j","Thomas b","Teuns d","Renard a","V d berg m","Sweeny h","Gall f","Swift c","Thomas g","Rubio e","Valgren m","Bralt V"],res:["Rex l","Page h","Meeuws j","Mas e","Storer m"]},
+  {team:"Paries is nog wiet",name:"Toine Bocken",riders:["Pogacar","Vingegard","Roglic","Almeida","Evenepoel","Lipowitz","Skjelmose","Vauquelin","Van der Poel","Van Aert","Ganna","Meeus","Merlier","Philipsen","Milan"],res:["Jorgenson","Carlos Rodriguez","Simon Yates","O'Connor","Gall"]},
+  {team:"Pedaleur du charme",name:"Hub Meerten",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","João Almeida","Primoz Toglic","Florian Lipowitz","Enrico Mas","Carlos Rodriguez","Kevin Vauquelin","Mathieu van der Poel","Wout van Aert","Jasper Philipsen","Tim Merlier","Jonathan Milan","Biniam Girmay"],res:["Matteo Jorgenson","Mattias Skjelmose","Oscar Onley","Julian Alaphilippe","Simon Yates"]},
+  {team:"Pogatsja!",name:"Kyan Bocken (Toine Bocken)",riders:["Pogacar","Vingegard","Evenepoel","Roglic","Almeida","Skjelmose","Onley","Groenwegen","Vauqelin","Nijs","Gregoire","van der poel","Merlier","philipsen","milan"],res:["jorgenson","lipowitz","Carlos Rodriguez","Tobias Halland Johannesen","Mas"]},
+  {team:"Pouahdomme",name:"Luc beerens",riders:["Pogacar","Vingegaard","Evenepoel","Lipowitz","Almeida","Roglic","Vauqelin","Skjelmose","Van aert","Girmay","De lie","Aranburu","Vd poel","Merlier","Milan"],res:["Jorgenson","Gall","Onley","Carlos Rodrigues","Storer"]},
+  {team:"Pröpke",name:"Eric Sanders",riders:["1. Tadej Pogačar U.A.E.","11. Jonas Vingegaard Team Visma","21. Remco Evenepoel Soudal QS","2. João Almeida U.A.E.","71. Primož Roglič Red Bull","66. Carlos Rodriquez Ineos","151. Felix Gall AG2R","141. Enric Mass Movistar","101. Jasper Philipsen Alpecin","81. Jonathan Milan Lidl","24. Tim Merlier Soudal","211. Arnaud de Lie Lotto","41. Biniam Girmay Intermarché","106. Mathieu v.d. Poel Alpecin","17. Wout v. Aert Team Visma"],res:["18. Simon Yates Team Visma","8. Adam Yates U.A.E.","85. Mattias Skjelmose Lidl","117. Michael Storer Tudo Pro Cycling","191. Oscar Onley Team Picnic"]},
+  {team:"Quizo 1",name:"Jan Goossens",riders:["1","11","21","71","2","15","61","141","152","111","73","24","105","41","214"],res:["83","121","81","18","34"]},
+  {team:"Quizo 2",name:"Jan Goossens",riders:["1","11","71","21","2","15","18","16","121","174","34","83","41","105","17"],res:["24","151","52","111","201"]},
+  {team:"Rappido",name:"Jan van Wegberg",riders:["J. Philipsen","T. Merlier","B. Girmay","J. Milan","D. Groenewegen","J. Meeus","W. van Aert","T. lund Andresen","K. Groves","E. Jeannière","P. Bittner","A. de Lie","A. Demare","B. Coquard","P. Ackerman"],res:["T. Pogacar","J. Vinegaert","R. Evenepoel","P. Roglic","C. Rodriguez"]},
+  {team:"Sansational",name:"Sandra Minkenberg (Toine Bocken)",riders:["Pogacar","Vingegard","Evenepoel","Almeida","Roglic","Meeus","Van Poppel","Groenewegen","van der poel","Van Aert","Ganna","Girmay","merlier","philipsen","milan"],res:["Jorgenson","skjelmose","Gall","Buitrago","Carlos Rodriguez"]},
+  {team:"Sjolkemeister",name:"Bart Hees",riders:["Pogacar","Vingegaard","Almeida","Evenepoel","Roglic","C. Rodriquez","B. O.Conner","J. Meeus","B. Girmay","A. De Lie","Van Aert","Van de Poel","Philipsen","Merlier","Milan"],res:["Jorgensen","Lipowitsj","Skjelmose","Onley","Mas"]},
+  {team:"Snemmel 1",name:"Maurice Lemmens",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Roglic","Lipowitz","Jörgenson","Carlos Rodriguez","Van Aert","Van der Poel","Philipsen","Girmay","Merlier","Milan","Meeus"],res:["Skjelmose","Buitrago","T. Johannessen","Gall","Mas"]},
+  {team:"Snemmel 2",name:"Maurice Lemmens",riders:["Pogacar","Vingegaard","Almeida","Evenepoel","Buitrago","Jörgenson","Skjelmose","Roglic","Van Aert","Van der Poel","Onley","Philipsen","Milan","Merlier","Girmay"],res:["Carlos Rodriguez","Lipowitz","Gall","Mas","T. Johannessen"]},
+  {team:"Snemmel Jr.",name:"Milan Lemmens",riders:["T. Pogacar","J. Vingegaard","J. Almeida","R. Evenepoel","P. Roglic","F. Lipowitz","C. Rodriguez","M. Skjelmose","M. van der Poel","W. van Aert","J. Philipsen","J. Milan","T. Merlier","J. Meeus","B. Girmay"],res:["B. O'connor","E. Mas","S. Buitrago","F. Gall","T.H. Johannessen"]},
+  {team:"Snemmel Jr. 2",name:"Milan Lemmens",riders:["T. Pogacar","J. Vingegaard","J. Almeida","F. Lipowitz","R. Evenepoel","P. Roglic","M. Jorgenson","C. Rodriguez","M. van der Poel","W. van Aert","L. Martinez","J. Milan","J. Philipsen","T. Merlier","J. Meeus"],res:["F. Gall","T.H. Johannessen","M. Skjelmose","S. Buitrago","E. Mas"]},
+  {team:"Soestdijk",name:"Bjorn Hoex",riders:["Vingegaard","Almeida","Pogačar","Yates","Roglič","Rodríguez","Evenepoel","Mas","O'Connor","Yates","Onley","Jorgenson","Skjelmose","Van Wilder","Vlasov"],res:["Geoghegan Hart","Thomas","Gall","Johannessen","Uijtdebroeks"]},
+  {team:"Soulsurfer",name:"Ilse Bongers",riders:["J. Vingegaard","T. Pogacar","J. Almeida","T. Merlier","R.Primoz","J. Milan","L. Barré","S. Kuss","K. Vauquelin","M. Schachmann","T. Andresen","A. Aranburu","I. Romeo","S. Fredheim","F. Lipowitz"],res:["J. Stewart","P. Ackermann","B. Girmay","S. Hiquita","P. Sivakov"]},
+  {team:"Sten",name:"Sten Fiddelers",riders:["Tadej Pogacar","Jonas Vingegaard","Joao Almeida","Remco Evenepoel","Primoz Roglic","Wout van Aert","Matteo Jorgenson","Marc Soler","Jasper Philipsen","Dylan Groenewegen","Jordi Meeus","Jake Stewart","Arnaud Demare","Lenny Martinez","Florian Lipowitz"],res:["Pascal Ackermann","Biniam Girmay","Felix Gall","Aleksandr Vlasov","Kaden Groves"]},
+  {team:"Team Clac-Clac",name:"Marcel Bonten",riders:["Tadej Pogacar","Rwmco Evenepoel","Jonas Vingegaard","Primoz Roglic","Joao Almeida","Ben O'Conner","Enric Mas","Wout van Aert","Jasper Philipsen","Biniam Girmay","Tim Merlier","Jonathan Milan","Lennert van Eetvelt","Alberto Dainese","Clement Champoussin"],res:["Matthieu van der Poel","Kevin Vauquelin","Frank van de Broek","Enric Mas","Dylan Groenewegen"]},
+  {team:"Tete de la Course",name:"Peter Tummers",riders:["1","11","21","71","72","16","2","8","141","17","101","105","41","24","124"],res:["83","61","121","15","73"]},
+  {team:"The Moustache",name:"Gert Hoedemakers",riders:["Tadej Pogacar","Jonas Vingegaard","Joao Almeida","Primoz Roglic","Remco Evenepoel","Enric Mas","Felix Gall","Carlos Rodriguez","Jasper Philipsen","Mathieu van der Poel","Wout van Aert","Jonathan Milan","Filippo Ganna","Tim Merlier","Dylan Groenewegen"],res:["Santiago Buitrago","Matthias Skjelmose","Matteo Jorgenson","Ben O'Connor","Thijmen Arensman"]},
+  {team:"Tour de buis",name:"Colin Keijbeck",riders:["Tadej Pogacar","Jonas Vingegaard","Joao Almeida","Florian Lipowitz","Remco Evenepoel","Enric Mas","Primoz Roglic","Wout van der poel","Jasper Philipsen","Jonathan Milan","Tim Merlier","Matthias Skjelmose","Ben o'connor","Niniam Girmay","Wout van Aert"],res:["Matteo Jorgenson","Carlos Rodriquez","Simon Yates","Adam Yates","Sepp Kuss"]},
+  {team:"Tour de Drama",name:"Colin Keijbeck",riders:["Emiel verstrynge","Roel van Sintmaartensdijk","Mick van Dijke","Damien Touze","Harry Sweeny","Robert Stannard","Eduardo Sepulveda","Callum Scotson","Jonas Rutsch","Alexis Renard","Tim Naberman","Xandro Meurisse","Niklas Markl","Anders Halland Johannessen","Markus Hoelgaard"],res:["Kamil Gradek","Sean Flynn","Alexandre Delettre","Jasper de Buyst","Ewan Costiou"]},
+  {team:"Tour de Farce",name:"Maurits Meessen",riders:["Bert van Lerberghe","Callum Scotson","Gianni Moscon","Damien Touze","Emiel Verstrynge","Jonas Rickaert","Xander Meurisse","Silvan Dillier","Mathis le Berre","Jonas Rutsch","Roel van Sintmaartensdijk","Cyril Barthe","Wil Bartra","Gregor Muhlberger","Tim Naberman"],res:["Elmar Reinders","Kamil Gradek","Yevgeni Fedorov","Clement Russo","Luke Durbridge"]},
+  {team:"Tour de Helje Dorp",name:"John Eijkelberg",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Lipowitz","Roglic","Jorgenson","Mas","Milan","Philipsen","Van der Poel","Merlier","Van Aert","Ghirmay","Meeus"],res:["Carlos Rodriquez","Onley","Gall","Buitrago","Lenny Martinez"]},
+  {team:"Tour Down Under",name:"Wilbert Smeets",riders:["Kamil Gradek","Gianni Moscon","Silvan Dillier","Fabian Lienhard","Elmar Reinders","Callum Scotson","Alexis Renard","Damien Touzé","Tim Naberman","Guillaume Boivin","Jarrad Drizners","Sébastien Grignard","Brent Van Moer","Sean Flynn","Bert Van Lerberghe"],res:["Nils Politt","Tim Wellens","Tiesj Benoot","Steff Cras","Mathieu Burgaudeau"]},
+  {team:"Tweewieler Gerrit",name:"Gerrit Ermans",riders:["Pogaçar","Vingegaard","Evenepoel","Milan","Philipsen","Vd Poel","van Aert","Vauquelin","L. Martinez","Storer","Lipowitz","Johannessen","Merlier","Groenewegen","Foss"],res:["Schmid","Almeida","Meeus","Armirail","Skjelmose"]},
+  {team:"Uiltje wit = gevloage!",name:"Ralph Hoedemakers",riders:["Tadej Pogacar","Jonas Vingegaard","Joao Almeida","Remco Evenepoel","Primoz Roglic","Matteo Jorgenson","Carlos Rodriguez","Florian Lipowitz","Biniam Girmay","Tim Merlier","Jonathan Milan","Jasper Philipsen","Jordi Meeus","Wout van Aert","Matthieu van der Poel"],res:["Matthias Skjelmose","Enric Mas","Santiago Buitrago","Felix Gall","T.H. Johannessen"]},
+  {team:"Ut is niks en wurdt niks",name:"Dennis wilms",riders:["Pogacar","Vingegaard","Evenepoel","Roglic","Mas","Jorgenson","Thomas","O'connor","Van der poel","Van aert","Girmay","Philipsen","Gall","Allaphillipe","Barguil"],res:["De lie","Healy","Buitrago","Arentsman","Mohoric"]},
+  {team:"Vélo Volé",name:"Marcel Bonten",riders:["Tadej Pocacar","Jonas Vingegaard","Rwmco Evenepoel","Jaoa Almeida","Florian Lipowitz","Adam Yates","Carlos Rodriguez","Matteo Jorgenson","Jasper Philipsen","Biniam Girmay","Tim Merlier","Jonathan Milan","Mathieu van der Poel","Jordi Meeus","Wout van Aert"],res:["Arnoud de Lie","Oscar Only","Pascal Ackermann","Guillaume Martin","Lenny Martinez"]},
+  {team:"Voeiquelin",name:"Luc beerens",riders:["Pogacar","Vingegaard","Evenepoel","Roglic","Almeida","Vd poel","Meeus","Jeannierre","Andresen","Girmay","Milan","Philipsen","Merlier","Van aert","De lie"],res:["Ca Rodriguez","Jorgenson","Gall","Buitrago","Onley"]},
+  {team:"Willy van Achteren",name:"Dave Veanken",riders:["Pogacar","Vingegaard","Evenepoel","Almeida","Roglic","Skjelmose","Meeus","Bauhaus","Philipsen","Milan","Merlier","Girmay","Ganna","Van Aert","Van de Poel"],res:["Gall","Jorgensen","Lipowitsj","L. Martinez","Buitrago"]},
+  {team:"Witte trui",name:"Ralph Hoedemakers",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Primoz Roglic","Joao Almeida","Matteo Jorgenson","Florian Lipowitz","Matthias Skjelmose","Jonathan Milan","Jasper Philipsen","Tim Merlier","Biniam Girmay","Dylan Groenewegen","Wout van Aert","Matthieu van der Poel"],res:["Carlos Rodriguez","Enric Mas","Felix Gall","Santiago Buitrago","Ben O'connor"]}
 ];
 
 const DP=[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6];
@@ -435,6 +514,13 @@ function bBase(ti){
   const t=TMS[ti];const nums=[];
   for(let i=0;i<15;i++){const k=`${ti}_${i}`;nums.push(k in S.ov?S.ov[k]:res(t.riders[i]).num);}
   const rv=t.res.map(r=>res(r).num);S.rv[ti]=rv;
+  // Dedup: als een renner 2x voorkomt, verwijder de lagere plek
+  const seen=new Set();
+  for(let i=0;i<15;i++){
+    if(nums[i]===null)continue;
+    if(seen.has(nums[i])){nums[i]=null;}// dup gevonden — verwijder lagere plek
+    else seen.add(nums[i]);
+  }
   const ur=new Set();
   for(let i=0;i<15;i++){
     if(nums[i]!==null)continue;
@@ -502,6 +588,51 @@ function ranked(entries){
   const sorted=[...entries].sort((a,b)=>b.pts-a.pts);let rank=1;
   return sorted.map((e,i)=>{if(i>0&&e.pts===sorted[i-1].pts){}else rank=i+1;return{...e,rank};});
 }
+
+// ══════════════════════════════════════════
+// REFRESH SELECTIES VANUIT SHEETS
+// ══════════════════════════════════════════
+async function refreshSheets(){
+  if(!confirm('Selecties herladen vanuit Google Sheets? Dit overschrijft de huidige ingeladen data (niet de opgeslagen state).'))return;
+  const SHEET_ID='1XYZck3lt15mDTbNRNqKtzuVsLxWqj1OOySq1nzvaS8M';
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+  const statusEl=document.getElementById('e1-lbl');
+  statusEl.textContent='Ophalen…';
+  try{
+    const resp=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&timestamp=${Date.now()}`);
+    const data=await resp.json();
+    const csv=data.contents||'';
+    if(!csv){statusEl.textContent='Geen data ontvangen.';return;}
+    const parsed=parseSheetCSV(csv);
+    if(parsed.length>0){
+      // Update TMS array in-place (cannot reassign const, update object properties)
+      TMS.length=0;
+      parsed.forEach(t=>TMS.push(t));
+      for(let i=0;i<TMS.length;i++)bBase(i);
+      rChkSum();rChkList();
+      statusEl.textContent=`✓ ${TMS.length} teams herladen op ${new Date().toLocaleTimeString('nl-NL')}`;
+    }else{statusEl.textContent='Kon geen teams parsen uit de sheet.';}
+  }catch(e){statusEl.textContent='Fout: '+e.message;}
+}
+
+function parseSheetCSV(csv){
+  const lines=csv.split('\n').filter(l=>l.trim()&&!l.startsWith('"Wat is'));
+  const teams=[];
+  for(const line of lines){
+    const cols=line.match(/("(?:[^"\\]|\\.)*"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g)||[];
+    const clean=cols.map(c=>c.replace(/^"|"$/g,'').replace(/""/g,'"').trim());
+    if(clean.length<17)continue;
+    const team=clean[0],name=clean[1];
+    if(!team||team.toLowerCase().includes('ploegnaam'))continue;
+    if(name.toLowerCase().includes('test'))continue;
+    const riders=clean.slice(2,17);
+    const res=clean.slice(17,22);
+    if(riders.some(r=>r.match(/^[a-z]{3,}$/i)&&r.length>3)||riders[0].match(/\d/)||riders[0].length>2)
+      teams.push({team,name,riders,res});
+  }
+  return teams;
+}
+
 
 // ══════════════════════════════════════════
 // PERSISTENTIE — localStorage auto-save/load
@@ -878,6 +1009,11 @@ function renderUit(){
   if(!S.ok){document.getElementById('uit-ex').innerHTML='<div class="notice nw">Stel eerst E1 vast.</div>';rTop15();return;}
   const stage=parseInt((document.getElementById('uit-stg')||{}).value)||1;
   const ex=S.rs[stage];let h='';
+  // Herstel etappe-type selector
+  const typeEl=document.getElementById('uit-type');
+  if(typeEl&&S.stageTypes[stage])typeEl.value=S.stageTypes[stage];
+  else if(typeEl)typeEl.value='normaal';
+  onUitTypeChange();
   if(ex){h='<div class="notice nok">Uitslag etappe '+stage+' opgeslagen.</div>';h+='<table class="tbl"><tr><th>#</th><th>Renner</th><th>Pts</th></tr>';ex.forEach((n,i)=>h+=`<tr><td class="rn ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</td><td>${n?rn(n):'—'}</td><td><span class="p pg-">${DP[i]||0}</span></td></tr>`);h+='</table>';}
   document.getElementById('uit-ex').innerHTML=h;
   t15=[...(ex||Array(15).fill(null))];while(t15.length<15)t15.push(null);rTop15();
@@ -908,19 +1044,48 @@ function kT15(e,pos){
   else if(e.key==='Tab'){e.preventDefault();if(r.length&&document.getElementById(`t15-${pos}`).value.trim()){sT15(pos,r[(dF[pos]||0)]?.num||r[0].num);}else{const nx=document.getElementById(`t15-${pos+1}`);if(nx){nx.focus();nx.select();}}}
   else if(e.key==='Escape'){document.getElementById(`t15d-${pos}`).style.display='none';}
 }
-function sT15(pos,num){t15[pos]=num;dF[pos]=0;rTop15();setTimeout(()=>{for(let i=pos+1;i<15;i++){if(!t15[i]){const el=document.getElementById(`t15-${i}`);if(el){el.focus();el.select();break;}}}},50);}
+function sT15(pos,num){
+  // Geen duplicaten in daguitslag
+  const existingIdx=t15.indexOf(num);
+  if(existingIdx>=0&&existingIdx!==pos){
+    t15[existingIdx]=null; // verwijder van oude plek
+  }
+  // Check DNF/DNS — mag niet in uitslag
+  if(S.wd[num]){
+    const w=S.wd[num];const stage=parseInt((document.getElementById('uit-stg')||{}).value)||1;
+    const eff=w.type==='DNF'?w.stage+1:w.stage;
+    if(eff<=stage){alert(`${rn(num)} heeft een ${w.type} in etappe ${w.stage} en kan niet in de uitslag staan.`);return;}
+  }
+  t15[pos]=num;dF[pos]=0;rTop15();setTimeout(()=>{for(let i=pos+1;i<15;i++){if(!t15[i]){const el=document.getElementById(`t15-${i}`);if(el){el.focus();el.select();break;}}}},50);}
 function clT15(pos){t15[pos]=null;rTop15();}
 
 function saveUit(){
   const stage=parseInt(document.getElementById('uit-stg').value)||1;
   if(t15.filter(Boolean).length<1){alert('Vul minimaal 1 renner in.');return;}
-  S.rs[stage]=[...t15];if(!S.pts[stage])S.pts[stage]={};
-  for(let i=0;i<TMS.length;i++){const nums=bStage(i,stage);S.pts[stage][i]=cPts(nums,S.rs[stage]);}
+  const uitType=(document.getElementById('uit-type')||{}).value||'normaal';
+  S.stageTypes[stage]=uitType;
+  S.rs[stage]=[...t15];
+  if(uitType==='ttt'){
+    // TTT: sla uitslag op maar reken geen punten
+    if(!S.pts[stage])S.pts[stage]={};
+    for(let i=0;i<TMS.length;i++)S.pts[stage][i]={total:0,bd:[],ttt:true};
+    alert('TTT opgeslagen — telt niet mee voor dag- en totaalstand.');
+  } else {
+    if(!S.pts[stage])S.pts[stage]={};
+    for(let i=0;i<TMS.length;i++){const nums=bStage(i,stage);S.pts[stage][i]=cPts(nums,S.rs[stage]);}
+  }
   popSels();renderUit();renderDag();renderTot();renderRace();renderRaw();popRidersStg();
   document.getElementById('s3').classList.remove('act');document.getElementById('s3').classList.add('done');
   document.getElementById('s4').classList.add('act');
   document.getElementById('nxe').textContent=stage+1;document.getElementById('nxe2').textContent=stage+1;
   shDNF(stage);rGeld();saveState();
+}
+
+
+function onUitTypeChange(){
+  const type=document.getElementById('uit-type').value;
+  const notice=document.getElementById('ttt-notice');
+  if(notice)notice.style.display=type==='ttt'?'':'none';
 }
 
 function fetchLive(){
@@ -1074,13 +1239,14 @@ function prevMuts(){
     const base=S.sel[1][i];const aff=[...pD,...pN].filter(n=>base.includes(n));if(!aff.length)continue;any=true;
     const rv=[...S.rv[i]];const ur=new Set();
     Object.values(S.wd).forEach(w=>{const sl=base.indexOf(w.num);if(sl<0)return;for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const rw=S.wd[rn2];if(rw)continue;ur.add(ri);break;}});
-    h+=`<div class="card" style="margin-bottom:8px"><div class="cb"><strong>${TMS[i].team}</strong> <span style="color:var(--mu);font-size:11px">${TMS[i].name}</span>`;
+    h+=`<div class="card" style="margin-bottom:8px"><div class="cb"><strong>${TMS[i].team}</strong> <span style="color:var(--mu);font-size:11px">${TMS[i].name}</span><table class="tbl" style="margin-top:8px"><tr><th>Plek</th><th>Uitvaller</th><th>Type</th><th>Reserve invaller</th><th>v.a. etappe</th></tr>`;
     aff.forEach(n=>{
       const type=pD.has(n)?'DNF':'DNS';let repl=null;
       for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const tw={...S.wd};pD.forEach(x=>tw[x]={num:x,stage,type:'DNF'});pN.forEach(x=>tw[x]={num:x,stage:stage+1,type:'DNS'});if(tw[rn2])continue;repl={num:rn2,ri};ur.add(ri);break;}
-      h+=`<div class="mut-line" style="margin-top:7px"><span class="p ${type==='DNF'?'pr-':'pw-'}" style="font-size:9px">${type}</span><span class="p pr-" style="font-size:9px">${n}</span> ${rn(n)} → ${repl?`<span class="p pp-" style="font-size:9px">${repl.num}</span> <strong>${rn(repl.num)}</strong>`:'<em style="color:var(--red);font-size:11px">geen reserve</em>'} <span style="font-size:10px;color:var(--mu)">v.a. E${stage+1}</span></div>`;
+      const slot2=base.indexOf(n);
+      h+=`<tr><td style="font-weight:600;font-size:11px">${slot2>=0?slot2+1:'—'}</td><td><span class="p pr-" style="font-size:9px">${n}</span> ${rn(n)}</td><td><span class="p ${type==='DNF'?'pr-':'pw-'}" style="font-size:9px">${type}</span></td><td>${repl?`<span class="p pp-" style="font-size:9px">${repl.num}</span> <strong>${rn(repl.num)}</strong>`:'<em style="color:var(--red);font-size:11px">geen reserve</em>'}</td><td style="font-size:10px;color:var(--mu)">E${stage+1}</td></tr>`;
     });
-    h+=`</div></div>`;
+    h+=`</table></div></div>`;
   }
   if(!any)h+='<div class="notice ni">Geen van de renners zit in een actieve selectie.</div>';
   document.getElementById('mut-prev').innerHTML=h;document.getElementById('conf-next').style.display='inline-flex';
@@ -1248,7 +1414,7 @@ function rGeld(){
     const rk=v.pos;const rc=rk===1?'color:var(--gold)':rk===2?'color:var(--silver)':rk===3?'color:var(--bronze)':'';
     vk+=`<div class="pct-row" style="gap:5px">
       <div style="min-width:28px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;${rc}">${rk}</div>
-      <input type="number" class="inp btn-sm" value="${v.pct}" min="0" max="100" step="0.01" style="width:54px;text-align:right" oninput="GVK[${idx}].pct=parseFloat(this.value)||0;GVK[${idx}].manual=true;rGeld()">
+      <input type="number" class="inp btn-sm" value="${v.pct.toFixed(1)}" min="0" max="100" step="0.1" style="width:70px;text-align:right" oninput="GVK[${idx}].pct=parseFloat(this.value)||0;GVK[${idx}].manual=true;rGeld()">
       <span style="font-size:10px;color:var(--mu)">%</span>
       <span style="font-size:10px;color:${v.manual?'var(--pur)':'var(--mu)'};min-width:60px;text-align:right">€ ${e.toLocaleString('nl-NL',{minimumFractionDigits:2})}</span>
     </div>`;
@@ -1276,7 +1442,46 @@ function rGeld(){
   });
   wh+=`</table>`;
   if(rkd.every(e=>e.pts===0))wh='<div class="notice ni">Voer eerste etappe-uitslagen in.</div>';
-  document.getElementById('g-win').innerHTML=wh;
+  
+  // Per deelnemer detail: etappeprijzen + klassementsprijs + totaal
+  const stages2=Object.keys(S.rs).map(Number).sort((a,b)=>a-b).filter(s=>S.stageTypes[s]!=='ttt');
+  let detail='';
+  if(stages2.length){
+    const perEtappeWinnaar={}; // stage -> [rank1_ti, rank2_ti, rank3_ti]
+    stages2.forEach(s=>{
+      const ep=S.pts[s];if(!ep)return;
+      const stageRkd=ranked(Object.entries(ep).map(([i,p])=>({i:parseInt(i),pts:p.total})));
+      perEtappeWinnaar[s]=stageRkd.filter(r=>r.rank<=3).map(r=>r.i);
+    });
+    const etappePrijsPerTi={};
+    for(let i=0;i<TMS.length;i++)etappePrijsPerTi[i]=0;
+    stages2.forEach(s=>{
+      const winnaars=perEtappeWinnaar[s]||[];
+      winnaars.forEach((ti,idx)=>{
+        const pct=GVE_FIXED[idx]||0;
+        etappePrijsPerTi[ti]=(etappePrijsPerTi[ti]||0)+potE*pct/100;
+      });
+    });
+
+    // Filter opties
+    detail+=`<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bo)">
+      <div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Gedetailleerd prijsoverzicht per deelnemer</div>
+      <table class="tbl"><tr><th>#</th><th>Ploeg</th><th>Deelnemer</th><th>Etappeprijzen</th><th>Klassement</th><th>Totaal</th></tr>`;
+    rkd.forEach(r=>{
+      const rk=r.rank,rc=rk===1?'rank-gold':rk===2?'rank-silver':rk===3?'rank-bronze':'',rnC=rk===1?'r1':rk===2?'r2':rk===3?'r3':'';
+      const ep=etappePrijsPerTi[r.i]||0;
+      const vd=GVK.find(v=>v.pos===rk);const kp=vd?potK*parseFloat(vd.pct)/100:0;
+      const totPrijs=ep+kp;
+      detail+=`<tr class="${rc}"><td class="rn ${rnC}">${rk}</td><td><strong>${r.team}</strong></td><td style="color:var(--mu);font-size:11px">${r.name}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;${ep>0?'color:var(--green)':'color:var(--mu)'}">${ep>0?'€ '+ep.toLocaleString('nl-NL',{minimumFractionDigits:2}):'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;${kp>0?'color:var(--green)':'color:var(--mu)'}">${kp>0?'€ '+kp.toLocaleString('nl-NL',{minimumFractionDigits:2}):'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;${totPrijs>0?'color:var(--green)':'color:var(--mu)'}">${totPrijs>0?'€ '+totPrijs.toLocaleString('nl-NL',{minimumFractionDigits:2}):'—'}</td>
+      </tr>`;
+    });
+    detail+=`</table></div>`;
+  }
+  
+  document.getElementById('g-win').innerHTML=wh+detail;
 }
 
 // ══════════════════════════════════════════
@@ -1653,6 +1858,20 @@ function renderRiders(){
   document.getElementById('riders-content').innerHTML=h;
 }
 
+
+function printRiders(){
+  document.querySelectorAll('.no-print').forEach(el=>el.style.display='none');
+  // Maak print div
+  const content=document.getElementById('riders-content');
+  const printDiv=document.createElement('div');
+  printDiv.className='print-show';
+  printDiv.style.cssText='display:block';
+  printDiv.innerHTML='<div style="font-size:13px;font-weight:bold;margin-bottom:8px">Tour du Suëstra 2025 — Rennersklassement</div>'+content.innerHTML;
+  document.body.appendChild(printDiv);
+  window.print();
+  document.body.removeChild(printDiv);
+  document.querySelectorAll('.no-print').forEach(el=>el.style.display='');
+}
 function popRidersStg(){
   const sel=document.getElementById('riders-stg');if(!sel)return;
   // Keep "Alle etappes" option, add individual stages
@@ -1755,7 +1974,9 @@ init();
 
 <!-- RENNERSKLASSEMENT -->
 <div class="pg" id="pg-riders">
-  <div class="sec">Rennersklassement — totale puntenopbrengst</div>
+  <div class="sec no-print">Rennersklassement — totale puntenopbrengst
+    <button class="btn btn-s btn-sm no-print" style="margin-left:auto" onclick="printRiders()">🖨 Print / PDF</button>
+  </div>
   <div class="fr no-print">
     <select class="inp" id="riders-stg" onchange="renderRiders()" style="font-size:11px">
       <option value="all">Alle etappes</option>

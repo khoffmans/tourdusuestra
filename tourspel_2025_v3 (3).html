@@ -267,7 +267,7 @@ canvas{display:block;}
   </div>
   <div id="top15"></div>
   <div class="fr" style="margin-top:10px">
-    <button class="btn btn-p ao" onclick="saveUit()">Uitslag opslaan &amp; punten berekenen</button>
+    <button class="btn btn-p" onclick="saveUit()">Uitslag opslaan &amp; punten berekenen</button>
   </div>
 </div>
 
@@ -1489,19 +1489,18 @@ function saveUit(){
 
 
 
-// Slimme percentage invoer: 5→5.0, 50→50.0, 505→50.5
+// Percentage invoer — accepteert: 5, 5.0, 5,0, 10.5, 10,5
 function onPctInput(e,idx){
-  const raw=e.target.value.replace(/[^0-9]/g,'');
-  e.target.value=raw; // allow typing
+  // Laat vrij typen toe, vervang komma door punt voor display
+  e.target.value=e.target.value.replace(',','.');
 }
 function onPctBlur(e,idx){
-  const raw=e.target.value.replace(/[^0-9]/g,'');
-  if(!raw){GVK[idx].pct=0;GVK[idx].manual=true;e.target.value='0.0';rGeld();return;}
-  let pct;
-  if(raw.length<=2) pct=parseFloat(raw);          // 1→1.0, 50→50.0
-  else pct=parseFloat(raw.slice(0,-1)+'.'+raw.slice(-1)); // 505→50.5
-  pct=Math.min(100,Math.max(0,pct));
-  GVK[idx].pct=parseFloat(pct.toFixed(1));
+  const raw=e.target.value.replace(',','.').trim();
+  if(raw===''||raw==='.'){GVK[idx].pct=0;GVK[idx].manual=true;e.target.value='0.0';rGeld();return;}
+  let pct=parseFloat(raw);
+  if(isNaN(pct))pct=0;
+  pct=Math.min(100,Math.max(0,parseFloat(pct.toFixed(1))));
+  GVK[idx].pct=pct;
   GVK[idx].manual=true;
   e.target.value=pct.toFixed(1);
   rGeld();
@@ -1804,11 +1803,9 @@ function rGCRes(){
 const GVE_FIXED=[50,30,20]; // pct voor 1e/2e/3e per etappe
 // Klassement: 30 plaatsen — lineair verdeeld, handmatig aanpasbaar
 function initGVK(){
-  // Lineaire verdeling: plek 1 krijgt veel, plek 30 weinig
-  // Som moet 100%. Lineair: plek i krijgt (31-i) gewicht
-  const weights=Array.from({length:30},(_,i)=>30-i); // 30,29,...,1
-  const sum=weights.reduce((a,b)=>a+b,0); // 465
-  return weights.map((w,i)=>({pos:i+1,pct:parseFloat((w/sum*100).toFixed(2)),manual:false}));
+  const pcts=[10.0,9.0,8.0,7.0,4.5,4.5,3.0,3.0,3.0,3.0,2.5,2.5,2.5,2.5,2.0,2.0,2.0,2.0,2.0,2.0,
+              0,0,0,0,0,0,0,0,0,0]; // 21-30 = 0%
+  return pcts.map((pct,i)=>({pos:i+1,pct,manual:false}));
 }
 let GVK=initGVK();
 
@@ -1838,7 +1835,7 @@ function rGeld(){
     const rk=v.pos;const rc=rk===1?'color:var(--gold)':rk===2?'color:var(--silver)':rk===3?'color:var(--bronze)':'';
     vk+=`<div class="pct-row" style="gap:5px">
       <div style="min-width:28px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;${rc}">${rk}</div>
-      <input type="text" inputmode="numeric" class="inp btn-sm" value="${v.pct.toFixed(1)}" style="width:72px;text-align:right;font-family:'DM Mono',monospace" oninput="onPctInput(event,${idx})" onblur="onPctBlur(event,${idx})">
+      <input type="text" inputmode="numeric" class="inp btn-sm" value="${parseFloat(v.pct).toFixed(1)}" style="width:72px;text-align:right;font-family:'DM Mono',monospace" oninput="onPctInput(event,${idx})" onblur="onPctBlur(event,${idx})">
       <span style="font-size:10px;color:var(--mu)">%</span>
       <span style="font-size:10px;color:${v.manual?'var(--pur)':'var(--mu)'};min-width:60px;text-align:right">€ ${e.toLocaleString('nl-NL',{minimumFractionDigits:2})}</span>
     </div>`;
@@ -1861,30 +1858,53 @@ function rGeld(){
   let wh=`<table class="tbl"><tr><th>#</th><th>Ploeg</th><th>Deelnemer</th><th>Punten</th><th>Klassementsprijs</th></tr>`;
   rkd.forEach(r=>{
     const rk=r.rank,rc=rk===1?'rank-gold':rk===2?'rank-silver':rk===3?'rank-bronze':'',rnC=rk===1?'r1':rk===2?'r2':rk===3?'r3':'';
-    const vd=GVK.find(v=>v.pos===rk);const prijs=vd?potK*vd.pct/100:0;
+    // Gedeelde klassementsprijs bij gelijke punten
+    const sameRank=rkd.filter(x=>x.rank===rk);
+    let prijs=0;
+    if(sameRank.length===1){
+      const vd=GVK.find(v=>v.pos===rk);
+      prijs=vd?potK*parseFloat(vd.pct)/100:0;
+    } else {
+      let tot=0;
+      for(let p2=rk;p2<rk+sameRank.length;p2++){const vd=GVK.find(v=>v.pos===p2);if(vd)tot+=potK*parseFloat(vd.pct)/100;}
+      prijs=tot/sameRank.length;
+    }
     wh+=`<tr class="${rc}"><td class="rn ${rnC}">${rk}</td><td><strong>${r.team}</strong></td><td style="color:var(--mu);font-size:11px">${r.name}</td><td><span class="pts">${r.pts}</span></td><td style="font-size:13px;font-weight:500;${prijs>0?'color:var(--green)':'color:var(--mu)'}">${prijs>0?`€ ${prijs.toLocaleString('nl-NL',{minimumFractionDigits:2})}`:'—'}</td></tr>`;
   });
   wh+=`</table>`;
   if(rkd.every(e=>e.pts===0))wh='<div class="notice ni">Voer eerste etappe-uitslagen in.</div>';
   
   // Per deelnemer detail: etappeprijzen + klassementsprijs + totaal
+  // Gelijke punten = prijs delen (gedeelde plaatsen)
   const stages2=Object.keys(S.rs).map(Number).sort((a,b)=>a-b).filter(s=>S.stageTypes[s]!=='ttt');
   let detail='';
   if(stages2.length){
-    const perEtappeWinnaar={}; // stage -> [rank1_ti, rank2_ti, rank3_ti]
-    stages2.forEach(s=>{
-      const ep=S.pts[s];if(!ep)return;
-      const stageRkd=ranked(Object.entries(ep).map(([i,p])=>({i:parseInt(i),pts:p.total})));
-      perEtappeWinnaar[s]=stageRkd.filter(r=>r.rank<=3).map(r=>r.i);
-    });
     const etappePrijsPerTi={};
     for(let i=0;i<TMS.length;i++)etappePrijsPerTi[i]=0;
     stages2.forEach(s=>{
-      const winnaars=perEtappeWinnaar[s]||[];
-      winnaars.forEach((ti,idx)=>{
-        const pct=GVE_FIXED[idx]||0;
-        etappePrijsPerTi[ti]=(etappePrijsPerTi[ti]||0)+potE*pct/100;
-      });
+      const ep=S.pts[s];if(!ep)return;
+      // Sorteer teams op punten voor deze etappe
+      const stagePts=Object.entries(ep).map(([i,p])=>({i:parseInt(i),pts:p.total}))
+        .sort((a,b)=>b.pts-a.pts);
+      // Verdeel prijzen voor plekken 1,2,3 met gedeelde bedragen bij gelijke punten
+      let pos=0;
+      while(pos<stagePts.length&&pos<3){
+        const curPts=stagePts[pos].pts;
+        // Vind alle teams met zelfde punten
+        let end=pos;
+        while(end<stagePts.length&&stagePts[end].pts===curPts)end++;
+        // Plekken pos+1 t/m end worden gedeeld
+        // Bereken totale prijs voor deze gedeelde plekken
+        let totalPrijs=0;
+        for(let p2=pos;p2<Math.min(end,3);p2++) totalPrijs+=potE*(GVE_FIXED[p2]||0)/100;
+        const aantalDelers=Math.min(end,3)-pos;
+        const prijsPerPersoon=aantalDelers>0?totalPrijs/aantalDelers:0;
+        for(let p2=pos;p2<end&&p2<3;p2++){
+          const ti=stagePts[p2].i;
+          etappePrijsPerTi[ti]=(etappePrijsPerTi[ti]||0)+prijsPerPersoon;
+        }
+        pos=end;
+      }
     });
 
     // Filter opties
@@ -1894,7 +1914,11 @@ function rGeld(){
     rkd.forEach(r=>{
       const rk=r.rank,rc=rk===1?'rank-gold':rk===2?'rank-silver':rk===3?'rank-bronze':'',rnC=rk===1?'r1':rk===2?'r2':rk===3?'r3':'';
       const ep=etappePrijsPerTi[r.i]||0;
-      const vd=GVK.find(v=>v.pos===rk);const kp=vd?potK*parseFloat(vd.pct)/100:0;
+      // Gedeelde klassementsprijs
+      const sameRkD=rkd.filter(x=>x.rank===rk);
+      let kp=0;
+      if(sameRkD.length===1){const vd=GVK.find(v=>v.pos===rk);kp=vd?potK*parseFloat(vd.pct)/100:0;}
+      else{let tot=0;for(let p2=rk;p2<rk+sameRkD.length;p2++){const vd=GVK.find(v=>v.pos===p2);if(vd)tot+=potK*parseFloat(vd.pct)/100;}kp=tot/sameRkD.length;}
       const totPrijs=ep+kp;
       detail+=`<tr class="${rc}"><td class="rn ${rnC}">${rk}</td><td><strong>${r.team}</strong></td><td style="color:var(--mu);font-size:11px">${r.name}</td>
         <td style="font-family:'DM Mono',monospace;font-size:12px;${ep>0?'color:var(--green)':'color:var(--mu)'}">${ep>0?'€ '+ep.toLocaleString('nl-NL',{minimumFractionDigits:2}):'—'}</td>
@@ -2147,6 +2171,7 @@ function showPg(id,btn){
   if(id==='riders'){popRidersStg();renderRiders();}
   if(id==='neven'){renderStageTypeGrid();renderNevenAll();}
   if(id==='gc')rGCIn();
+  if(id==='uit'){renderUit();}
 }
 
 document.addEventListener('click',e=>{if(!e.target.closest('.sw'))document.querySelectorAll('.sd').forEach(d=>d.style.display='none');});

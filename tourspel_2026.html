@@ -173,6 +173,11 @@ canvas{display:block;}
     <div class="sec">Selecties verifiëren &amp; vaststellen</div>
     <div class="notice ni">Selecties geladen. Spelfouten gecorrigeerd. Renners niet op de startlijst worden vervangen door reserves. Controleer twijfelgevallen en stel E1 vast.</div>
     <div class="sgrid" id="chk-sum"></div>
+    <div class="fr" style="margin-bottom:10px">
+      <button class="btn btn-p btn-sm ao" onclick="approveAll()">✓ Alle accorderen</button>
+      <button class="btn btn-s btn-sm ao" onclick="unapproveAll()">□ Alle de-accorderen</button>
+      <span style="font-size:11px;color:var(--mu)" id="approve-count-label"></span>
+    </div>
     <div class="fbar">
       <span class="fc on" onclick="setFilt('all',this)">Alle</span>
       <span class="fc" onclick="setFilt('issues',this)">Twijfelgevallen</span>
@@ -416,309 +421,298 @@ const SL={1:"POGACAR Tadej",2:"DEL TORO Isaac",3:"GROSSCHARTNER Felix",4:"MCNULT
 const NIT={bardet:1,carapaz:1,bernal:1,jakobsen:1,hindley:1,pidcock:1,gaudu:1,welsford:1,pedersen:1,ciccone:1,"del toro":1,landa:1,pinot:1,lafay:1,küng:1,kung:1,uijtdebroeks:1,"geoghegan hart":1,kooij:1,bilbao:1};
 
 const AL={
-  // Arensman varianten
-  "arentsman":62,"arendsman":62,"thijmen arendsman":62,"thymen arensman":62,
-  "t. arensman":62,"t.arensman":62,"t arensman":62,
-  // Alaphilippe varianten
-  "allaphillipe":111,"allaphilippe":111,"alaphillipe":111,"alaphilippe":111,
-  "j. alaphilippe":111,"julian alaphilippe":111,"j.alaphilippe":111,
-  // Punt als spatie wordt apart afgehandeld in resolveAuto
-  // Meer veelvoorkomende spelfouten
-  "jorgenson":15,"jörgenson":15,"jorgensen":15,"m.jorgenson":15,"matteo jorgenson":15,
-  "vingegaard":11,"vinegaard":11,"vingegard":11,"j.vingegaard":11,
-  "pogacar":1,"pogačar":1,"t.pogacar":1,"tadej pogacar":1,
-  "evenepoel":21,"r.evenepoel":21,"remco evenepoel":21,
-  "roglic":71,"roglič":71,"p.roglic":71,"primoz roglic":71,
-  "lipowitz":72,"f.lipowitz":72,"florian lipowitz":72,
-  "skjelmose":81,"sjkelmose":81,"m.skjelmose":81,
-  "vauquelin":131,"k.vauquelin":131,"kevin vauquelin":131,
-  "girmay":41,"ghirmay":41,"b.girmay":41,"biniam girmay":41,
-  "philipsen":105,"j.philipsen":105,"jasper philipsen":105,"phillipsen":105,
-  "merlier":24,"t.merlier":24,"tim merlier":24,
-  "milan":83,"j.milan":83,"jonathan milan":83,
-  "van aert":17,"w.van aert":17,"wout van aert":17,"vanaert":17,
-  "van der poel":101,"vdpoel":101,"v.d.poel":101,"vanderpoel":101,
-  "almeida":2,"j.almeida":2,"joao almeida":2,
-  "buitrago":51,"s.buitrago":51,
-  "onley":191,"o.onley":191,"oscar onley":191,
-  "gall":151,"f.gall":151,"felix gall":151,
-  "mas":141,"e.mas":141,"enric mas":141,
-  "rodriguez":61,"c.rodriguez":61,
-  "lipowitz":72,
-  "thomas":67,"g.thomas":67,
-  "healy":34,"b.healy":34,"ben healy":34,
-  "storer":117,"m.storer":117,
-  "groenewegen":124,"groenwegen":124,"d.groenewegen":124,
-  "meeus":73,"j.meeus":73,"jordi meeus":73,"meeuws":73,
-  "cort":223,"m.cort":223,
-  "armirail":152,"b.armirail":152,
-  "foss":63,"t.foss":63,
-  "schmid":128,"m.schmid":128,
-  "barguil":193,"w.barguil":193,
-  "buchmann":162,"e.buchmann":162,
-  "kuss":16,"s.kuss":16,"sepp kuss":16,
-  "groves":103,"k.groves":103,
-  "nys":84,"t.nys":84,"thibau nys":84,"nijs":84,
-  "bol":173,"c.bol":173,
-  "soler":6,"m.soler":6,
-  "asgreen":32,"k.asgreen":32,
-  "mohoric":56,"mohorič":56,
-  "vlasov":76,"a.vlasov":76,
-  "swift":66,"c.swift":66,
-  "watson":68,"s.watson":68,
-  "gregoire":94,"r.gregoire":94,"grégoire":94,
-  "johannessen":221,"t.h.johannessen":221,"tobias h.johannessen":221,
-  "andresen":192,"t.andresen":192,"tobias andresen":192,
-  "penhoet":97,"p.penhoet":97,
-  "bittner":194,"p.bittner":194,
-  "stewart":208,"j.stewart":208,
-  "ackermann":202,"p.ackermann":202,
-  "demare":134,"a.demare":134,"démare":134,
-  "dainese":112,"a.dainese":112,
-  "ballerini":172,"d.ballerini":172,
-  "champoussin":174,"c.champoussin":174,
-  "higuita":176,"s.higuita":176,
-  "sivakov":5,"p.sivakov":5,
-  "moscon":74,"g.moscon":74,
-  "hirschi":114,"m.hirschi":114,
-  "fredheim":224,"s.fredheim":224,
-  "romeo":147,"i.romeo":147,
-  "barre":42,"l.barre":42,"barré":42,
-  "schachmann":26,"m.schachmann":26,
-  "aranburu":161,"a.aranburu":161,
-  "izagirre":164,"i.izagirre":164,
-  "teuns":166,"d.teuns":166,
-  "renard":165,"a.renard":165,
-  "touze":168,"d.touze":168,"touzé":168,
-  "thomas b":167,"b.thomas":167,
-  "thomas g":67,"g.thomas":67,
-  "tejada":171,"h.tejada":171,
-  "teunissen":177,"m.teunissen":177,
-  "velasco":178,"s.velasco":178,
-  "naberman":197,"t.naberman":197,
-  "markl":196,"n.markl":196,"märkl":196,
-  "van den broek":198,"f.van den broek":198,
-  "van eetvelt":211,"l.van eetvelt":211,"lennert van eetvelt":211,
-  "van moer":218,"b.van moer":218,
-  "sepulveda":217,"e.sepulveda":217,"sepúlveda":217,
-  "grignard":216,"s.grignard":216,
-  "drizners":215,"j.drizners":215,
-  "de buyst":213,"j.de buyst":213,
-  "de lie":214,"a.de lie":214,
-  "berckmoes":212,"j.berckmoes":212,
-  "hoelgaard":225,"m.hoelgaard":225,
-  "abrahamsen":222,"j.abrahamsen":222,
-  "leknessund":227,"a.leknessund":227,
-  "waerenskjold":228,"wærenskjold":228,"s.waerenskjold":228,
-  "woods":201,"m.woods":201,
-  "lutsenko":206,"a.lutsenko":206,
-  "neilands":207,"k.neilands":207,
-  "blackmore":203,"j.blackmore":203,
-  "boivin":204,"g.boivin":204,
-  "louvel":205,"m.louvel":205,
-  "castrillo":143,"p.castrillo":143,
-  "garcia cortina":144,"i.garcia cortina":144,
-  "muhlberger":145,"g.muhlberger":145,"mühlberger":145,
-  "oliveira":146,"n.oliveira":146,
-  "rubio":148,"e.rubio":148,
-  "berthet":153,"c.berthet":153,
-  "bissegger":154,"s.bissegger":154,
-  "naesen":155,"o.naesen":155,
-  "scotson":157,"c.scotson":157,
-  "tronchon":158,"b.tronchon":158,
-  "coquard":163,"b.coquard":163,
-  "buchmann":162,
-  "powless":35,"n.powless":35,
-  "sweeny":36,"h.sweeny":36,
-  "valgren":37,"m.valgren":37,
-  "van den berg":38,"m.van den berg":38,
-  "baudin":33,"a.baudin":33,
-  "albanese":31,"v.albanese":31,
-  "braet":43,"v.braet":43,
-  "page":44,"h.page":44,
-  "rex":45,"l.rex":45,
-  "rutsch":46,"j.rutsch":46,
-  "van sintmaartensdijk":47,"r.van sintmaartensdijk":47,
-  "zimmermann":48,"g.zimmermann":48,
-  "haig":54,"j.haig":54,
-  "stannard":57,"r.stannard":57,
-  "wright":58,"f.wright":58,
-  "arensman":62,"t.arensman":62,
-  "laurance":65,"a.laurance":65,
-  "pithie":75,"l.pithie":75,
-  "van dijke":77,"m.van dijke":77,
-  "van poppel":78,"d.van poppel":78,
-  "simmons":85,"q.simmons":85,
-  "skujins":86,"t.skujins":86,"skujiņš":86,
-  "stuyven":87,"j.stuyven":87,
-  "theuns":88,"e.theuns":88,
-  "martin":91,"g.martin":91,"guillaume martin":91,
-  "askey":92,"l.askey":92,
-  "barthe":93,"c.barthe":93,
-  "madouas":95,"v.madouas":95,
-  "pacher":96,"q.pacher":96,
-  "penhoet":97,
-  "russo":98,"c.russo":98,
-  "dillier":102,"s.dillier":102,
-  "meurisse":104,"x.meurisse":104,
-  "rickaert":106,"j.rickaert":106,
-  "vermeersch":107,"g.vermeersch":107,
-  "verstrynge":108,"e.verstrynge":108,
-  "haller":113,"m.haller":113,
-  "lienhard":115,"f.lienhard":115,
-  "mayrhofer":116,"m.mayrhofer":116,
-  "trentin":118,"m.trentin":118,
-  "dunbar":122,"e.dunbar":122,
-  "durbridge":123,"l.durbridge":123,
-  "mezgec":125,"l.mezgec":125,
-  "plapp":126,"l.plapp":126,
-  "reinders":127,"e.reinders":127,
-  "capiot":132,"a.capiot":132,
-  "costiou":133,"e.costiou":133,
-  "le berre":136,"m.le berre":136,
-  "venturini":138,"c.venturini":138,
-  "barta":142,"w.barta":142,
-  "burgaudeau":182,"m.burgaudeau":182,
-  "cras":183,"s.cras":183,
-  "delettre":184,"a.delettre":184,
-  "gachignard":185,"t.gachignard":185,
-  "jeanniere":186,"e.jeanniere":186,"jeannière":186,
-  "jegat":187,"j.jegat":187,
-  "vercher":188,"m.vercher":188,
-  "turgis":181,"a.turgis":181,
-  "gradek":53,"k.gradek":53,
-  "lienhard":115,
-  "campenaerts":14,"v.campenaerts":14,
-  "affini":13,"e.affini":13,
-  "benoot":14,
-  "eenkhoorn":23,"p.eenkhoorn":23,
-  "paret-peintre v":25,"paret-peintre a":156,
-  "narvaez":3,"j.narvaez":3,
-  "wellens":7,"t.wellens":7,
-  "cattaneo":22,"m.cattaneo":22,
-  "van lerberghe":27,"b.van lerberghe":27,
-  "van wilder":28,"i.van wilder":28,
-  "healy":34,
-"b. o'connor":121,"b.o'connor":121,"b o'connor":121,"bo'connor":121,
-  "o.onley":191,"o. onley":191,"o onley":191,"oscar onley":191,
-  "tobias johannesen":221,"t.h. johannesen":221,"th johannesen":221,"tobias h johannessen":221,
-  "tobias halland johannesen":221,
-  "mathieu van de poel":101,"mathieu van der poel":101,
-  "wout van der poel":17,"wout v aert":17,"wout van aerts":17,
-  "jan linders":121,"richard carapaz":null,"carapaz":null,
-  "laurens de plus":null,"de plus":null,
-  "niniam girmay":41,"benian girmay":41,"beniam girmay":41,
-  "roglic primoz":71,"r.primoz":71,"r. primoz":71,"primoz roglic":71,
-  "toglic":71,"primos roglic":71,
-  "carlos rodrivuez":61,"ca rodriquez":61,"rodiguez carlos":61,
-  "carlos rodriquez ineos":61,"ca rodrigues":61,
-  "mattias skjelmise":81,
-  "jonathan milanl":83,
-  "matteo van der poel":101,"wout van der poel":101,
-  "lenny martinez bahrein":55,"thijmen arendsman":62,"thymen arensman":62,
-  "santiago buitrago bahrain":51,
-  "ben o conner":121,"b. o.conner":121,"b. o.connor":121,
-  "sjolkemeister carlos":61,
-  "only":191,"oscar only":191,
-  "tobias halland johannessen":221,"tobias halland johannesen":221,
-  "t. halland johannessen":221,
-  "tobias johannessen":221,
-  "j. johannessen":221,"johannessen tobias":221,
-  "anders halland johannessen":226,
-  "pedaleur toglic":71,
-  "enrico mas":141,"enric mass":141,
-  "florian lipowitz redbull":72,
-  "joao almeida uae":2,
-  "isaac del torro":null,"del torro":null,
-  "geoghegan hart":null,"uijtdebroeks":null,
-  "egan bernal":null,"richard carapaz":null,
-  "mikel landa":null,"thibaut pinot":null,"victor lafay":null,
-  "jai hindley":null,"giulio ciccone":null,"giuolo ciccone":null,
-  "david gaudu":null,"tom pidcock":null,"mads pedersen":null,
-  "fabio jakobsen":null,"fabio jacobsen":null,
-  "romain bardet":null,"valentin maduas":null,
-  "welsford":null,"kooij":null,"bilbao":null,"p. billbao":null,
-  "cort nielsen":223,"magnus cort nielsen":223,
-  "c. nielsen":223,
-  "m. landa":null,"p. billbao":null,
-  "bralt v":43,"braet v":43,
-  "harig j":54,
-  "garcía r":144,"garcia r":144,
-  "dilleur s":102,"silvan dilleur":102,
-  "tourze":168,"tourze d":168,
-  "teuns d":166,"renard a":165,"sweeny h":36,
-  "v d berg m":38,"swift c":66,"rubio e":148,"valgren m":37,
-  "thomas b":167,"thomas g":67,"gall f":151,
-  "rex l":45,"page h":44,"meeuws j":73,"storer m":117,
-  "wout van aerts":17,"wout van der poel":101,
-  "arnoud de lie":214,"arnaud de lie":214,
-  "oscar only":191,"oscar onley":191,
-  "rwmco evenepoel":21,"rwmco":21,
-  "joao almeida":2,"jaoa almeida":2,"joa almeida":2,
-  "lenny martinez":55,"l.martinez":55,
-  "thijmen arendsman":62,"thymen arensman":62,
-  "frank van de broek":198,"frank van den broek":198,
-  "geraint":67,"thomas geraint":67,
-  "vingegard":11,"vinegaard":11,"vinegard":11,"pocagar":1,"pogačar":1,"pogatsja":1,"evanepoel":21,"evenpoel":21,"roglic":71,"rohlic":71,"roglič":71,"toglic":71,"almeide":2,"jörgenson":15,"jorgensen":15,"lipowitsj":72,"sjkelmose":81,"skelmose":81,"skjelmise":81,"vd poel":101,"v/d poel":101,"v aert":17,"ghirmay":41,"phillipsen":105,"melier":24,"mealier":24,"allaphilippe":111,"alaphillipe":111,"tobias johannessen":221,"tobias halland johannessen":221,"t.h. johannessen":221,"anders johannessen":226,"de lie":214,"magnus cort":223,"cort nielsen":223,"o'conner":121,"oconnor":121,"o'connor":121,"b. o'connor":121,"o. connor":121,"geraint thomas":67,"thomas geraint":67,"thomas g":67,"thomas b":167,"l. martinez":55,"l.martinez":55,"lenny martinez":55,"l martinez":55,"guillaume martin":91,"g. martin":91,"s. yates":18,"s yates":18,"simon yates":18,"a. yates":8,"a yates":8,"adam yates":8,"carlos rodriguez":61,"c. rodriguez":61,"carlos rodiguez":61,"carlos rodriquez":61,"ca rodriquez":61,"carlos rodrigues":61,"cristian rodriguez":137,"groenwegen":124,"nijs":84,"wærenskjold":228,"jeannierre":186,"tobias lund andresen":192,"tobias andresen":192,"primoz":71,"r.primoz":71,"van wilder":28,"storen":117,"meeuws":73,"sweeny":36,"garcia cortina":144,"garcia r":144,"touze":168,"touzé":168,"teuns":166,"renard":165,"van den berg":38,"van dijke":77,"benoot":14,"wellens":7,"cras":183,"fedorov":175,"russo":98,"thymen arensman":62,"arendsman":62,"barguil":193,"van poppel":78,"magnus cort nielsen":223,"cort":223,"schachmann":26,"aranburu":161,"politt":4,"izagirre":164,"foss":63,"scotson":157,"moscon":74,"verstrynge":108,"rickaert":106,"le berre":136,"meurisse":104,"muhlberger":145,"barta":142,"naberman":197,"zimmermann":48,"rutsch":46,"markl":196,"märkl":196,"van lerberghe":27,"delettre":184,"burgaudeau":182,"stannard":57,"sepulveda":217,"grignard":216,"van moer":218,"costiou":133,"boivin":204,"lienhard":115,"reinders":127,"swift":66,"rubio":148,"valgren":37,"barthe":93,"durbridge":123,"groves":103,"campenaerts":12,"laurance":65,"turgis":181,"lutsenko":206,"tejada":171,"teunissen":177,"velasco":178,"champoussin":174,"haller":113,"trentin":118,"van den broek":198,"frank van den broek":198,"jake stewart":208,"stewart":208,"ackermann":202,"demare":134,"dainese":112,"ballerini":172,"penhoet":97,"bittner":194,"hirschi":114,"fredheim":224,"romeo":147,"barré":42,"barre":42,"soler":6,"bol":173,"armirail":152,"castrillo":143,"healy":34,"haig":54,"sivakov":5,"mohoric":56,"vlasov":76,"gregoire":94,"vauquelin":131,"ganna":64,"stuyven":87,"van eetvelt":211,"lennert":211,"philipsen":105};
+  // ═══ UAE Team Emirates ═══
+  "pogacar":1,"tadej pogacar":1,"t. pogacar":1,
+  "del toro":2,"isaac del toro":2,"del toro isaac":2,"i. del toro":2,
+  "grosschartner":3,"felix grosschartner":3,
+  "mcnulty":4,"brandon mcnulty":4,
+  "politt":5,"nils politt":5,
+  "vermeersch":6,"florian vermeersch":6,
+  "wellens":7,"tim wellens":7,
+  "yates":8,"adam yates":8,"a yates":8,"a. yates":8,
+  // ═══ Visma Lease a Bike ═══
+  "vingegaard":11,"jonas vingegaard":11,"vinegaard":11,"j. vingegaard":11,
+  "affini":12,"edoardo affini":12,
+  "armirail":13,"bruno armirail":13,
+  "campenaerts":14,"victor campenaerts":14,
+  "hagenes":15,"per hagenes":15,"per strand hagenes":15,
+  "jorgenson":16,"matteo jorgenson":16,"jörgenson":16,"m. jorgenson":16,"jorgensen":16,
+  "kuss":17,"sepp kuss":17,"s. kuss":17,
+  "piganzoli":18,"davide piganzoli":18,
+  // ═══ Red Bull Bora ═══
+  "evenepoel":21,"remco evenepoel":21,"r. evenepoel":21,"evenenpoel":21,
+  "cattaneo":22,"mattia cattaneo":22,
+  "denz":23,"nico denz":23,
+  "hindley":24,"jai hindley":24,
+  "lipowitz":25,"florian lipowitz":25,"f. lipowitz":25,"lipowitsj":25,"lipowiz":25,
+  "tratnik":26,"jan tratnik":26,
+  "van dijke":27,"tim van dijke":27,
+  "van gils":28,"maxim van gils":28,"m. van gils":28,
+  // ═══ Lidl Trek ═══
+  "ayuso":31,"juan ayuso":31,"j. ayuso":31,
+  "gee":32,"derek gee":32,"gee-west":32,"derek gee-west":32,
+  "pedersen":33,"mads pedersen":33,"m. pedersen":33,
+  "simmons":34,"quinn simmons":34,"q. simmons":34,
+  "skjelmose":35,"mattias skjelmose":35,"matthias skjelmose":35,"sjkelmose":35,"skelmose":35,
+  "skujins":36,"toms skujins":36,
+  "vacek":37,"mathias vacek":37,"mathis vacek":37,
+  "verona":38,"carlos verona":38,
+  // ═══ EF Education ═══
+  "carapaz":41,"richard carapaz":41,"r. carapaz":41,
+  "asgreen":42,"kasper asgreen":42,
+  "baudin":43,"alex baudin":43,
+  "healy":44,"ben healy":44,"b. healy":44,
+  "quinn":45,"sean quinn":45,"sean quin":45,
+  "steinhauser":46,"georg steinhauser":46,
+  "valgren":47,"michael valgren":47,
+  "walker":48,"max walker":48,
+  // ═══ Decathlon ═══
+  "seixas":51,"paul seixas":51,"sexias":51,"paul sexias":51,
+  "benoot":52,"tiesj benoot":52,
+  "bol":53,"cees bol":53,
+  "hoole":54,"daan hoole":54,
+  "kooij":55,"olav kooij":55,"olaf kooij":55,
+  "paret-peintre a":56,"aurelien paret-peintre":56,"paret-peintre aurelien":56,
+  "prodhomme":57,"nicolas prodhomme":57,
+  "riccitello":58,"matthew riccitello":58,
+  // ═══ XDS Astana ═══
+  "higuita":61,"sergio higuita":61,
+  "ballerini":62,"davide ballerini":62,
+  "gate":63,"aaron gate":63,
+  "kanter":64,"max kanter":64,
+  "tejada":65,"harold tejada":65,
+  "teunissen":66,"mike teunissen":66,
+  "velasco":67,"simone velasco":67,
+  "vinokurov":68,"nicolas vinokurov":68,
+  // ═══ Bahrain Victorious ═══
+  "martinez":71,"lenny martinez":71,"l. martinez":71,"l.martinez":71,
+  "bauhaus":72,"phil bauhaus":72,"p. bauhaus":72,
+  "caruso":73,"damiano caruso":73,
+  "gradek":74,"kamil gradek":74,
+  "stannard":75,"robert stannard":75,
+  "mohoric":76,"matej mohoric":76,"mohorič":76,"matij mohoric":76,
+  "tiberi":77,"antonio tiberi":77,"a. tiberi":77,
+  "van mechelen":78,"vlad van mechelen":78,
+  // ═══ INEOS ═══
+  "bernal":81,"egan bernal":81,
+  "arensman":82,"thymen arensman":82,"thijmen arensman":82,"t. arensman":82,"arendsman":82,
+  "foss":83,"tobias foss":83,"t. foss":83,
+  "ganna":84,"filippo ganna":84,"f. ganna":84,
+  "godon":85,"dorian godon":85,"d. godon":85,
+  "kwiatkowski":86,"michal kwiatkowski":86,
+  "tarling":87,"joshua tarling":87,
+  "vauquelin":88,"kevin vauquelin":88,"k. vauquelin":88,"vauquilin":88,"vauqelin":88,
+  // ═══ Soudal Quick-Step ═══
+  "merlier":91,"tim merlier":91,"t. merlier":91,
+  "eenkhoorn":92,"pascal eenkhoorn":92,
+  "paret-peintre v":93,"valentin paret-peintre":93,"v. paret-peintre":93,"paret-peintre valentin":93,
+  "stuyven":94,"jasper stuyven":94,
+  "van baarle":95,"dylan van baarle":95,
+  "van lerberghe":96,"bert van lerberghe":96,
+  "van wilder":97,"ilan van wilder":97,
+  "vervaeke":98,"louis vervaeke":98,
+  // ═══ Alpecin ═══
+  "van der poel":101,"mathieu van der poel":101,"vd poel":101,"v/d poel":101,"m. v.d. poel":101,
+  "debruyne":102,"ramses debruyne":102,"r. debruyne":102,
+  "dillier":103,"silvan dillier":103,
+  "marsman":104,"tim marsman":104,
+  "philipsen":105,"jasper philipsen":105,"j. philipsen":105,"phillipsen":105,"jasper philipssen":105,
+  "planckaert":106,"edward planckaert":106,
+  "rickaert":107,"jonas rickaert":107,
+  "verstrynge":108,"emiel verstrynge":108,
+  // ═══ Team Jayco ═══
+  "o'connor":111,"ben o'connor":111,"b. o'connor":111,"oconnor":111,"ben o'cconor":111,
+  "ackermann":112,"pascal ackermann":112,
+  "durbridge":113,"luke durbridge":113,
+  "engelhardt":114,"felix engelhardt":114,
+  "matthews":115,"michael matthews":115,
+  "o'brien":116,"kelland o'brien":116,
+  "plapp":117,"luke plapp":117,
+  "schmid":118,"mauro schmid":118,
+  // ═══ Uno-X ═══
+  "johannessen":121,
+  "th johannessen":121,"t.h. johannessen":121,"th johanessen":121,"tobias halland johannessen":121,
+  "tobias johannessen":121,"halland johannessen":121,"tobias halland-johannessen":121,
+  "abrahamsen":122,"jonas abrahamsen":122,
+  "charmig":123,"anthon charmig":123,
+  "cort":124,"magnus cort":124,"magnus cort nielsen":124,"magnus cort niesen":124,
+  "anders halland johannessen":125,"anders johannessen":125,"anders halland":125,
+  "skaarseth":126,"anders skaarseth":126,
+  "traeen":127,"torstein traeen":127,
+  "waerenskjold":128,"soren waerenskjold":128,"wærenskjold":128,
+  // ═══ NSN (Intermarché) ═══
+  "girmay":131,"biniam girmay":131,"b. girmay":131,"binian germay":131,
+  "askey":132,"lewis askey":132,
+  "bennett":133,"george bennett":133,
+  "frigo":134,"marco frigo":134,
+  "louvel":135,"matis louvel":135,
+  "neilands":136,"krists neilands":136,
+  "stewart":137,"jake stewart":137,
+  "van asbroeck":138,"tom van asbroeck":138,
+  // ═══ Movistar ═══
+  "uijtdebroeks":141,"cian uijtdebroeks":141,"uijtebroeks":141,"uijtdenbroeks":141,"uijtdebroek":141,
+  "castrillo":142,"pablo castrillo":142,
+  "cepeda":143,"jefferson cepeda":143,
+  "garcia pierna":144,"raul garcia pierna":144,
+  "hessmann":145,"michel hessmann":145,"michiel hessmann":145,
+  "oliveira":146,"nelson oliveira":146,
+  "romo":147,"javier romo":147,
+  "rubio":148,"einer rubio":148,
+  // ═══ Lotto Intermarché ═══
+  "de lie":151,"arnaud de lie":151,"arnoud de lie":151,
+  "artz":152,"huub artz":152,
+  "berckmoes":153,"jenno berckmoes":153,
+  "craps":154,"lars craps":154,
+  "slock":155,"liam slock":155,
+  "van eetvelt":156,"lennert van eetvelt":156,
+  "veistroffer":157,"baptiste veistroffer":157,
+  "zimmermann":158,"georg zimmermann":158,
+  // ═══ Cofidis ═══
+  "izagirre":161,"ion izagirre":161,
+  "allegaert":162,"piet allegaert":162,
+  "aranburu":163,"alex aranburu":163,
+  "biermans":164,"jenthe biermans":164,
+  "fretin":165,"milan fretin":165,
+  "kirsch":166,"alex kirsch":166,
+  "page":167,"hugo page":167,
+  "thomas b":168,"benjamin thomas":168,"thomas benjamin":168,
+  // ═══ Pinarello Q36.5 ═══
+  "pidcock":171,"tom pidcock":171,"t. pidcock":171,"thomas pidcock":171,
+  "azparren":172,"xabier azparren":172,"xavier azparren":172,
+  "harper":173,"chris harper":173,
+  "hermans":174,"quinten hermans":174,"q. hermans":174,
+  "howson":175,"damien howson":175,
+  "meurisse":176,"xandro meurisse":176,
+  "van moer":177,"brent van moer":177,
+  "wright":178,"fred wright":178,
+  // ═══ Groupama FDJ ═══
+  "gregoire":181,"romain gregoire":181,"grégoire":181,
+  "berthet":182,"clement berthet":182,
+  "braz afonso":183,"clement braz afonso":183,
+  "costiou":184,"ewen costiou":184,
+  "germani":185,"lorenzo germani":185,
+  "martin":186,"guillaume martin":186,"g. martin":186,
+  "pacher":187,"quentin pacher":187,
+  "russo":188,"clement russo":188,
+  // ═══ Tudor ═══
+  "alaphilippe":191,"julian alaphilippe":191,"alaphillipe":191,"allaphilippe":191,"julian alaphilipe":191,
+  "de kleijn":192,"arvid de kleijn":192,
+  "haller":193,"marco haller":193,
+  "hirschi":194,"marc hirschi":194,
+  "pluimers":195,"rick pluimers":195,
+  "storer":196,"michael storer":196,"m. storer":196,
+  "trentin":197,"matteo trentin":197,
+  "voisard":198,"yannis voisard":198,
+  // ═══ TotalEnergies ═══
+  "jegat":201,"jordan jegat":201,"op jegat":201,
+  "breuillard":202,"nicolas breuillard":202,
+  "delbove":203,"joris delbove":203,
+  "delettre":204,"alexandre delettre":204,
+  "guernalec":205,"thibault guernalec":205,
+  "le berre":206,"mathis le berre":206,
+  "turgis":207,"anthony turgis":207,
+  "vercher":208,"matteo vercher":208,
+  // ═══ Team Picnic ═══
+  "barguil":211,"warren barguil":211,
+  "biesterbos":212,"frits biesterbos":212,
+  "bittner":213,"pavel bittner":213,
+  "degenkolb":214,"john degenkolb":214,
+  "dhondt":215,"robbe dhondt":215,
+  "markl":216,"niklas markl":216,"märkl":216,
+  "van den berg":217,"julius van den berg":217,
+  "van den broek":218,"frank van den broek":218,
+  // ═══ Caja Rural ═══
+  "gaviria":221,"fernando gaviria":221,
+  "balderstone":222,"abel balderstone":222,
+  "berwick":223,"sebastian berwick":223,
+  "molenaar":224,"alex molenaar":224,
+  "nicolau":225,"joel nicolau":225,
+  "oldani":226,"stefano oldani":226,
+  "otruba":227,"jakub otruba":227,
+  "parra":228,"jose felix parra":228,
+  // ═══ NIET IN TOUR 2026 → null ═══
+  "groenewegen":null,"dylan groenewegen":null,
+  "roglic":null,"primoz roglic":null,"p. roglic":null,
+  "van aert":null,"wout van aert":null,
+  "kelderman":null,"wilco kelderman":null,
+  "poels":null,"wout poels":null,
+  "almeida":null,"joao almeida":null,
+  "carlos rodriguez":null,"c. rodriguez":null,
+  "rodriguez":null,
+  "groves":null,"kaden groves":null,
+  "coquard":null,"bryan coquard":null,
+  "meeus":null,"jordi meeus":null,
+  "milan":null,"jonathan milan":null,
+  "fortunato":null,"lorenzo fortunato":null,
+  "magnier":null,"paul magnier":null,
+  "welsford":null,"sam welsford":null,
+  "ciccone":null,"giulio ciccone":null
+};
 
 const NM={};Object.entries(SL).forEach(([num,name])=>{const n=parseInt(num),p=name.toLowerCase().split(' ');p.forEach(w=>{if(!NM[w])NM[w]=[];if(!NM[w].includes(n))NM[w].push(n);});NM[name.toLowerCase()]=[n];if(!NM[p[0]])NM[p[0]]=[];if(!NM[p[0]].includes(n))NM[p[0]].push(n);});
 
 function res(raw){
-  if(!raw||raw.trim()==='/'||raw.trim()==='-')return{num:null,st:'empty'};
+  if(!raw||!raw.trim()||raw.trim()==='/'||raw.trim()==='-')return{num:null,st:'empty'};
   raw=raw.trim();
-  // Punt als spatie: "J.Almeida" → "J. Almeida", "Van.Aert" → "Van Aert"
-  // Maar niet bij getallen zoals "101." of initialen "J."
-  // Strategie: vervang punt gevolgd door hoofdletter door ". "
-  raw=raw.replace(/\.([A-ZÁÉÍÓÚ])/g,'. $1');
-  // Verwijder dubbele spaties
-  raw=raw.replace(/\s+/g,' ').trim();
-  const pm=raw.match(/^\d+$/);if(pm){const n=parseInt(raw);if(SL[n])return{num:n,st:'ok'};return{num:null,st:'nf',raw};}
-  const nm=raw.match(/^(\d+)[\.\s]/);if(nm){const n=parseInt(nm[1]);if(SL[n])return{num:n,st:'ok'};}
-  const ni=raw.match(/\b(\d{1,3})\b/);if(ni){const n=parseInt(ni[1]);if(SL[n]&&n>0&&n<250)return{num:n,st:'ok'};}
-  const low=raw.toLowerCase()
-    .replace(/[`\u2018\u2019]/g,"'")
+
+  // 1. Puur getal → direct rugnummer
+  if(/^\d+$/.test(raw)){const n=parseInt(raw);if(SL[n])return{num:n,st:'ok'};return{num:null,st:'nf',raw};}
+
+  // 2. Getal aan begin: "101 Van der Poel"
+  const numPfx=raw.match(/^(\d{1,3})[\s\.]/);
+  if(numPfx){const n=parseInt(numPfx[1]);if(SL[n])return{num:n,st:'ok'};}
+
+  // 3. Normaliseer
+  const norm=raw.toLowerCase()
+    .replace(/[`\u2018\u2019\u201a]/g,"'")
     .replace(/[éèêëě]/g,'e').replace(/[àâãä]/g,'a').replace(/[üùûú]/g,'u')
     .replace(/[ïîì]/g,'i').replace(/[čć]/g,'c').replace(/[žźż]/g,'z')
-    .replace(/[š]/g,'s').replace(/[ñ]/g,'n').replace(/[ą]/g,'a')
-    .replace(/[ő]/g,'o').replace(/[ç]/g,'c').replace(/[ø]/g,'o')
-    .replace(/  +/g,' ').trim();
-  for(const k of Object.keys(NIT))if(low.includes(k))return{num:null,st:'nt',raw};
-  const ak=Object.keys(AL).sort((a,b)=>b.length-a.length);
-  for(const k of ak){
-    if(low===k||low.includes(k)){
+    .replace(/[š]/g,'s').replace(/[ñ]/g,'n').replace(/[ő]/g,'o')
+    .replace(/[ç]/g,'c').replace(/[ø]/g,'o').replace(/[ł]/g,'l')
+    .replace(/\s+/g,' ').trim();
+
+  // 4. Exacte alias match (langste eerst)
+  const keys=Object.keys(AL).sort((a,b)=>b.length-a.length);
+  for(const k of keys){
+    if(norm===k){
       const v=AL[k];
-      if(v===null)return{num:null,st:'nt',raw}; // expliciet niet in Tour
+      if(v===null)return{num:null,st:'nt',raw};
       return{num:v,st:'alias'};
     }
   }
-  const words=low.replace(/[^a-z\s]/g,'').split(/\s+/).filter(w=>w.length>2);
-  for(const w of words)if(NM[w]&&NM[w].length===1)return{num:NM[w][0],st:'ok'};
-  for(const w of words)if(NM[w]&&NM[w].length>0)return{num:NM[w][0],st:'amb'};
-  // Laatste poging: verwijder alle niet-letters en probeer opnieuw
-  const stripped=low.replace(/[^a-z\s]/g,' ').replace(/\s+/g,' ').trim();
-  if(stripped!==low){
-    const wds2=stripped.split(' ').filter(w=>w.length>2);
-    for(const w of wds2)if(NM[w]&&NM[w].length===1)return{num:NM[w][0],st:'ok'};
-    for(const w of wds2)if(NM[w]&&NM[w].length>0)return{num:NM[w][0],st:'amb'};
+
+  // 5. Alias als deelstring (alleen als ≥6 tekens om valse hits te vermijden)
+  for(const k of keys){
+    if(k.length>=6&&norm.includes(k)){
+      const v=AL[k];
+      if(v===null)return{num:null,st:'nt',raw};
+      return{num:v,st:'alias'};
+    }
   }
+
+  // 6. Exacte naam in startlijst
+  for(const[num,name]of Object.entries(SL)){
+    const n=parseInt(num);
+    const normalized=name.toLowerCase()
+      .replace(/[čć]/g,'c').replace(/[žź]/g,'z').replace(/[š]/g,'s')
+      .replace(/[']/g,"'");
+    if(normalized===norm||normalized.split(' ').reverse().join(' ')===norm)
+      return{num:n,st:'ok'};
+  }
+
+  // 7. Woordindex: zoek op achternaam
+  const words=norm.replace(/[^a-z\s']/g,' ').split(/\s+/).filter(w=>w.length>2);
+  for(const w of words){
+    if(NM[w]&&NM[w].length===1)return{num:NM[w][0],st:'ok'};
+  }
+  // Meerdere hits → eerste (meest waarschijnlijk)
+  for(const w of words){
+    if(NM[w]&&NM[w].length>0)return{num:NM[w][0],st:'amb'};
+  }
+
   return{num:null,st:'nf',raw};
 }
 
-function parseName(n){
-  // SL format: "VAN DER POEL Mathieu" or "POGACAR Tadej"
-  // All-caps words at start = lastname, rest = firstname
-  if(!SL[n])return{first:'',last:'#'+n,full:'#'+n};
-  const words=SL[n].split(' ');
-  const lastParts=[],firstParts=[];
-  let inFirst=false;
-  for(const w of words){
-    if(!inFirst&&w===w.toUpperCase()&&w.length>1)lastParts.push(w);
-    else{inFirst=true;firstParts.push(w);}
-  }
-  const last=lastParts.map(w=>w[0]+w.slice(1).toLowerCase()).join(' ');
-  const first=firstParts.join(' ');
-  return{first,last,full:first?first+' '+last:last};
-}
 function rn(n){if(!SL[n])return'#'+n;const {full}=parseName(n);return full;}
 function rs(n){
   if(!SL[n])return'#'+n;
@@ -772,7 +766,7 @@ const COLORS=['#D4A017','#1A5276','#1E7B4C','#C0392B','#6C3483','#884400','#1A70
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-const S={ok:false,cs:1,ov:{},sel:{},rv:{},wd:{},rs:{},pts:{},gcR:null,gcP:{},gcOk:false,hist:[],stageTypes:{}}; // stageTypes[n]='berg'|'sprint'|'normal'
+const S={ok:false,cs:1,ov:{},sel:{},rv:{},wd:{},rs:{},pts:{},gcR:null,gcP:{},gcOk:false,hist:[],stageTypes:{},approved:new Set()}; // stageTypes[n]='berg'|'sprint'|'normal'
 
 // ══════════════════════════════════════════
 // RESOLUTION
@@ -1089,7 +1083,33 @@ function tSt(ti){
   return hasWarn?'warn':'ok';
 }
 function hMut(ti){const t=TMS[ti];for(let i=0;i<15;i++){const r=res(t.riders[i]);if(r.st==='nt'||r.st==='nf')return true;}return false;}
-function rChkSum(){let ok=0,wn=0,er=0,mu=0;for(let i=0;i<TMS.length;i++){const s=tSt(i);if(s==='ok')ok++;else if(s==='warn')wn++;else er++;if(hMut(i))mu++;}document.getElementById('chk-sum').innerHTML=`<div class="sc"><div class="n" style="color:var(--green)">${ok}</div><div class="l">Volledig ok</div></div><div class="sc"><div class="n" style="color:#A04000">${wn}</div><div class="l">Twijfelgeval</div></div><div class="sc"><div class="n" style="color:var(--red)">${er}</div><div class="l">Onbekend</div></div><div class="sc"><div class="n" style="color:var(--pur)">${mu}</div><div class="l">Reserve ingezet</div></div>`;}
+
+// ── AKKOORD per team ──
+function toggleApprove(ti,evt){
+  if(evt)evt.stopPropagation();
+  if(!IS_ADMIN)return;
+  if(S.approved.has(ti))S.approved.delete(ti);else S.approved.add(ti);
+  saveState();
+  rChkSum();rChkList();
+}
+function approveAll(){
+  if(!IS_ADMIN)return;
+  for(let i=0;i<TMS.length;i++)S.approved.add(i);
+  saveState();rChkSum();rChkList();
+}
+function unapproveAll(){
+  if(!IS_ADMIN)return;
+  S.approved.clear();
+  saveState();rChkSum();rChkList();
+}
+function rChkSum(){let ok=0,wn=0,er=0,mu=0;for(let i=0;i<TMS.length;i++){const s=tSt(i);if(s==='ok')ok++;else if(s==='warn')wn++;else er++;if(hMut(i))mu++;}if(document.getElementById('approve-count-label'))document.getElementById('approve-count-label').textContent=S.approved.size+'/'+TMS.length+' geaccordeerd';
+  document.getElementById('chk-sum').innerHTML=`
+    <div class="sc"><div class="n" style="color:var(--green)">${ok}</div><div class="l">Volledig ok</div></div>
+    <div class="sc"><div class="n" style="color:#A04000">${wn}</div><div class="l">Twijfelgeval</div></div>
+    <div class="sc"><div class="n" style="color:var(--red)">${er}</div><div class="l">Onbekend</div></div>
+    <div class="sc"><div class="n" style="color:var(--pur)">${mu}</div><div class="l">Reserve ingezet</div></div>
+    <div class="sc"><div class="n" style="color:var(--green)">${S.approved.size}</div><div class="l">Geaccordeerd</div></div>
+    <div class="sc"><div class="n" style="color:var(--mu)">${TMS.length-S.approved.size}</div><div class="l">Nog te accorderen</div></div>`;}
 function rChkList(){
   let h='';
   for(let ti=0;ti<TMS.length;ti++){
@@ -1099,7 +1119,9 @@ function rChkList(){
     if(chkFilt==='mut'&&!mut)continue;
     const open=chkOpen.has(ti);
     const stB=st==='ok'?'<span class="sok">✓ ok</span>':st==='warn'?'<span class="swarn">⚠ spelfout/check</span>':'<span class="serr">✕ onbekend</span>';
-    h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togChk(${ti})">
+    const isApproved=S.approved.has(ti);
+    const approveBtn=IS_ADMIN?`<button onclick="toggleApprove(${ti},event)" class="btn btn-sm" style="margin-left:6px;padding:2px 8px;font-size:10px;background:${isApproved?'var(--green)':'white'};color:${isApproved?'white':'var(--mu)'};border:1px solid ${isApproved?'var(--green)':'var(--b2)'};">${isApproved?'✓ Akkoord':'□ Accorderen'}</button>`:'';
+    h+=`<div class="card" style="${isApproved?'border-left:3px solid var(--green)':''}"><div class="ch${open?' open':''}" onclick="togChk(${ti})">
       <div style="flex:1"><strong style="font-family:'Syne',sans-serif;font-size:13px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>
       <div>${stB}${mut?'<span class="smut" style="margin-left:5px">↔ reserve</span>':''}</div>
       <span class="arr">${open?'▲':'▼'}</span>

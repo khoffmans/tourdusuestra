@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tour du Suëstra 2026</title>
+<title>Tourspel 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#D4A017;--gl:#F0C040;--gd:rgba(212,160,23,.14);--ink:#0F0E0C;--paper:#FAF7F0;--mu:#7A7060;--bo:rgba(212,160,23,.22);--b2:rgba(0,0,0,.09);--red:#C0392B;--green:#1E7B4C;--blue:#1A5276;--pur:#6C3483;--silver:#8A8A8A;--bronze:#8B5A2B;--r:6px;}
@@ -116,7 +116,7 @@ canvas{display:block;}
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,14,12,.85);z-index:1000;align-items:center;justify-content:center;">
   <div style="background:var(--paper);border-radius:12px;padding:32px 36px;min-width:320px;box-shadow:0 8px 40px rgba(0,0,0,.4);text-align:center;">
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--gold);margin-bottom:4px">Tour du Suëstra</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--gold);margin-bottom:4px">Tourspel 2026</div>
     <div style="font-size:12px;color:var(--mu);margin-bottom:24px">Voer het wachtwoord in om de app te bekijken</div>
     <input id="pw-inp" type="password" class="inp" placeholder="Wachtwoord" style="width:100%;margin-bottom:10px;text-align:center;font-size:14px;" onkeydown="if(event.key==='Enter')tryLogin()">
     <div id="pw-err" style="display:none;color:var(--red);font-size:12px;margin-bottom:8px">Onjuist wachtwoord</div>
@@ -137,7 +137,7 @@ canvas{display:block;}
   </div>
 </div>
 <div id="app-wrapper" style="display:none"><div class="hdr">
-  <div><div class="hdr-t">Tour du Suëstra</div><div class="hdr-s" id="hdr-subtitle">Tour du Suëstra 2026 · 31 deelnemers</div></div>
+  <div><div class="hdr-t">Tourspel 2026</div><div class="hdr-s" id="hdr-subtitle">Tourspel 2026 · 31 deelnemers</div></div>
   <div class="hdr-b" id="stage-badge">SELECTIE E1</div>
   
 </div>
@@ -877,7 +877,7 @@ async function refreshSheets2026(){
       for(var i=0;i<TMS.length;i++) bBase(i);
       rChkSum();rChkList();
       if(statusEl)statusEl.textContent='✓ '+teams.length+' teams geladen op '+new Date().toLocaleTimeString('nl-NL');
-      document.querySelector('.hdr-s').textContent='Tour du Suëstra 2026 · '+teams.length+' deelnemers';
+      document.querySelector('.hdr-s').textContent='Tourspel 2026 · '+teams.length+' deelnemers';
     }else{
       if(statusEl)statusEl.textContent='Geen teams gevonden';
     }
@@ -911,7 +911,7 @@ function parseSheets2026(csv){
 // ══════════════════════════════════════════
 // PERSISTENTIE — localStorage auto-save/load
 // ══════════════════════════════════════════
-const STORAGE_KEY=STORAGE_KEY;
+const STORAGE_KEY='ttds2026_state';
 const ADMIN_PW='suestra2026'; // ← verander dit wachtwoord
 let IS_ADMIN=false;
 
@@ -1333,7 +1333,7 @@ function applyFetchedDNF(){
 }
 
 async function fetchDNFFromCF(stage){
-  const url=`https://cyclingflash.com/race/tour-de-france-2025/result/stage-${stage}`;
+  const url=`https://cyclingflash.com/race/tour-de-france-2026/result/stage-${stage}`;
   try{
     const resp=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&timestamp=${Date.now()}`);
     if(!resp.ok)return{dnf:[],dns:[]};
@@ -1491,7 +1491,7 @@ function fetchLive(){
 }
 
 async function fetchAndParseStage(stage){
-  const year=2025;
+  const year=2026;
   const url=`https://cyclingflash.com/race/tour-de-france-${year}/result/stage-${stage}`;
   try{
     const resp=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&timestamp=${Date.now()}`);
@@ -1668,7 +1668,7 @@ function renderDag(){
   if(!p){document.getElementById('dag-content').innerHTML='<div class="notice ni">Nog geen uitslag voor etappe '+stage+'.</div>';return;}
   const entries=Object.entries(p).map(([i,pt])=>({i:parseInt(i),team:TMS[i].team,name:TMS[i].name,pts:pt.total,bd:pt.bd}));
   const rkd=ranked(entries);
-  let h=`<div class="no-print" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);margin-bottom:8px">DAGSTAND ETAPPE ${stage} · TOUR DU SUËSTRA 2025</div>`;
+  let h=`<div class="no-print" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);margin-bottom:8px">DAGSTAND ETAPPE ${stage} · TOURSPEL 2026</div>`;
   h+=`<table class="tbl no-print"><tr><th>#</th><th>Ploeg</th><th>Deelnemer</th><th>Punten</th><th>Scorende renners</th></tr>`;
   rkd.forEach(r=>{const rk=r.rank,rc=rk===1?'rank-gold':rk===2?'rank-silver':rk===3?'rank-bronze':'',rnC=rk===1?'r1':rk===2?'r2':rk===3?'r3':'';h+=`<tr class="${rc}"><td class="rn ${rnC}">${rk}</td><td><strong>${r.team}</strong></td><td style="color:var(--mu);font-size:11px">${r.name}</td><td><span class="pts">${r.pts}</span></td><td style="font-size:11px">${r.bd.map(b=>`${rs(b.num)} +${b.pts}${b.bonus?` 🎯+${b.bonus}`:''}`).join(' · ')||'—'}</td></tr>`;});
   h+=`</table>`;
@@ -1682,7 +1682,7 @@ function renderDag(){
     return `<tr style="background:${bg};border-bottom:1px solid #eee"><td style="padding:2px 4px;font-size:${big?'13px':'10px'};font-weight:bold;width:24px;text-align:center">${r.rank}</td><td style="padding:2px 4px;font-size:${fs};font-weight:${fw}">${r.team}</td><td style="padding:2px 4px;font-size:${fs};font-weight:bold;text-align:right;width:36px">${r.pts}</td></tr>`;
   }
   h+=`<div class="print-dag print-show" style="display:none">
-    <div style="font-size:13px;font-weight:bold;margin-bottom:6px;font-family:sans-serif">Tour du Suëstra 2025 — Dagstand Etappe ${stage}</div>
+    <div style="font-size:13px;font-weight:bold;margin-bottom:6px;font-family:sans-serif">Tourspel 2026 — Dagstand Etappe ${stage}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <table style="width:100%;border-collapse:collapse;font-size:9px">
         <tr style="border-bottom:2px solid #000;font-size:8px;text-transform:uppercase;letter-spacing:.03em"><th style="padding:2px 4px;text-align:left">#</th><th style="padding:2px 4px;text-align:left">Ploeg</th><th style="padding:2px 4px;text-align:right">Pts</th></tr>
@@ -1705,7 +1705,7 @@ function renderTot(){
   const totals={};for(let i=0;i<TMS.length;i++)totals[i]=totPts(i);
   const entries=Object.entries(totals).map(([i,pts])=>({i:parseInt(i),team:TMS[i].team,name:TMS[i].name,pts}));
   const rkd=ranked(entries);const stages=Object.keys(S.pts).map(Number).sort((a,b)=>a-b);
-  let h=`<div class="no-print" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);margin-bottom:8px">TOTAALSTAND · TOUR DU SUËSTRA 2025</div>`;
+  let h=`<div class="no-print" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);margin-bottom:8px">TOTAALSTAND · TOURSPEL 2026</div>`;
   h+=`<table class="tbl no-print"><tr><th>#</th><th>Ploeg</th><th>Deelnemer</th>`;
   stages.forEach(s=>h+=`<th>E${s}</th>`);if(S.gcOk)h+=`<th>GC</th>`;h+=`<th>Totaal</th></tr>`;
   rkd.forEach(r=>{const rk=r.rank,rc=rk===1?'rank-gold':rk===2?'rank-silver':rk===3?'rank-bronze':'',rnC=rk===1?'r1':rk===2?'r2':rk===3?'r3':'';
@@ -1722,7 +1722,7 @@ function renderTot(){
     return `<tr style="background:${bg};border-bottom:1px solid #eee"><td style="padding:2px 4px;font-size:${big?'13px':'10px'};font-weight:bold;width:24px;text-align:center">${r.rank}</td><td style="padding:2px 4px;font-size:${fs};font-weight:${fw}">${r.team}</td><td style="padding:2px 4px;font-size:${fs};font-weight:bold;text-align:right;width:36px">${r.pts}</td></tr>`;
   }
   h+=`<div class="print-tot print-show" style="display:none">
-    <div style="font-size:13px;font-weight:bold;margin-bottom:6px;font-family:sans-serif">Tour du Suëstra 2025 — Totaalstand</div>
+    <div style="font-size:13px;font-weight:bold;margin-bottom:6px;font-family:sans-serif">Tourspel 2026 — Totaalstand</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <table style="width:100%;border-collapse:collapse;font-size:9px">
         <tr style="border-bottom:2px solid #000;font-size:8px;text-transform:uppercase;letter-spacing:.03em"><th style="padding:2px 4px;text-align:left">#</th><th style="padding:2px 4px;text-align:left">Ploeg</th><th style="padding:2px 4px;text-align:right">Totaal</th></tr>
@@ -2361,7 +2361,7 @@ function printRiders(){
   const printDiv=document.createElement('div');
   printDiv.className='print-show';
   printDiv.style.cssText='display:block';
-  printDiv.innerHTML='<div style="font-size:13px;font-weight:bold;margin-bottom:8px">Tour du Suëstra 2025 — Rennersklassement</div>'+content.innerHTML;
+  printDiv.innerHTML='<div style="font-size:13px;font-weight:bold;margin-bottom:8px">Tourspel 2026 — Rennersklassement</div>'+content.innerHTML;
   document.body.appendChild(printDiv);
   window.print();
   document.body.removeChild(printDiv);

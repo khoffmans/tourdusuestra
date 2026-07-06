@@ -158,86 +158,88 @@ canvas{display:block;}
 
 <!-- WORKFLOW -->
 <div class="pg on" id="pg-wf">
-  <!-- Voortgangsbalk -->
-  <div class="steps" id="wf-steps" style="margin-bottom:16px">
-    <div class="step" id="s1"><span class="step-n">1</span>Selecties laden</div>
+  <div class="steps">
+    <div class="step act" id="s1"><span class="step-n">1</span>Selecties laden</div>
     <div class="step" id="s2"><span class="step-n">2</span>E1 vaststellen</div>
-    <div class="step" id="s3"><span class="step-n">3</span>Uitslag E1</div>
-    <div class="step" id="s4"><span class="step-n">4</span>DNF/DNS + E2</div>
-    <div class="step" id="s5"><span class="step-n">…</span>Volgende etappes</div>
+    <div class="step" id="s3"><span class="step-n">3</span>Uitslag invoeren</div>
+    <div class="step" id="s4"><span class="step-n">4</span>DNF/DNS → E<span id="nxe">2</span></div>
   </div>
-
-  <!-- PANEEL A: Selectiecheck + vaststellen -->
-  <div id="wf-panel-check">
-    <div class="wf-sub" style="margin-bottom:12px">
-      <button class="wf-sb on" id="wf-tb-check" onclick="wfSubTab('check')">Selectiecheck</button>
-      <button class="wf-sb" id="wf-tb-history" onclick="wfSubTab('history')">Mutatielog (<span id="hist-cnt">0</span>)</button>
+  <div class="wf-sub">
+    <button class="wf-sb on" id="wf-tb-check" onclick="wfTab('check')">Selectiecheck</button>
+    <button class="wf-sb" id="wf-tb-history" onclick="wfTab('history')">Mutatielog (<span id="hist-cnt">0</span>)</button>
+  </div>
+    <div id="wf-check">
+    <div class="ro notice nw" style="display:none">Je bekijkt de app als lezer. Log in als beheerder om aanpassingen te maken.</div>
+    <div class="sec">Selecties verifiëren &amp; vaststellen</div>
+    <div class="notice ni">Selecties geladen. Spelfouten gecorrigeerd. Renners niet op de startlijst worden vervangen door reserves. Controleer twijfelgevallen en stel E1 vast.</div>
+    <div class="sgrid" id="chk-sum"></div>
+    <div class="fr" style="margin-bottom:8px">
+      <span style="font-size:11px;color:var(--mu)" id="approve-count-label"></span>
     </div>
-    <div id="wf-check-inner">
-      <div class="ro notice nw" style="display:none">Log in als beheerder om aanpassingen te maken.</div>
-      <div class="sgrid" id="chk-sum"></div>
-      <div class="fr" style="margin-bottom:8px">
-        <span style="font-size:11px;color:var(--mu)" id="approve-count-label"></span>
-      </div>
-      <div class="fbar">
-        <span class="fc on" onclick="setFilt('all',this)">Alle</span>
-        <span class="fc" onclick="setFilt('issues',this)">Twijfelgevallen</span>
-        <span class="fc" onclick="setFilt('mut',this)">Reserves ingezet</span>
-        <span class="fc" onclick="setFilt('ok',this)">Volledig ok</span>
-      </div>
-      <div id="chk-list"></div>
+    <div class="fbar">
+      <span class="fc on" onclick="setFilt('all',this)">Alle</span>
+      <span class="fc" onclick="setFilt('issues',this)">Twijfelgevallen</span>
+      <span class="fc" onclick="setFilt('mut',this)">Reserves ingezet</span>
+      <span class="fc" onclick="setFilt('ok',this)">Volledig ok</span>
     </div>
-    <div id="wf-history-inner" style="display:none">
-      <div class="sec" style="font-size:13px">Mutatielog — DNF / DNS per etappe</div>
-      <div id="hist-content"></div>
-    </div>
-    <div class="fr" style="margin-top:14px;justify-content:space-between;align-items:center">
-      <button class="btn btn-s ao" onclick="refreshSheets2026()">↺ Inzendingen herladen</button>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:11px;color:var(--green)" id="e1-lbl"></span>
-        <button class="btn btn-p ao" id="btn-confirm-e" onclick="wfVaststellen()">✓ Selecties E1 vaststellen</button>
-      </div>
+    <div id="chk-list"></div>
+    <div class="fr" style="margin-top:14px;justify-content:space-between">
+      <button class="btn btn-s ao" onclick="refreshSheets2026()" title="Herlaad inzendingen vanuit Google Sheets">↺ Inzendingen herladen</button>
+      <button class="btn btn-p ao" id="btn-confirm-e" onclick="confirmEX(S.cs||1)" style="margin-left:auto">✓ Selecties vaststellen</button>
+      <span style="font-size:11px;color:var(--mu)" id="e1-lbl"></span>
     </div>
   </div>
+  <div id="wf-history" style="display:none">
+    <div class="sec">Mutatielog — alle vastgestelde DNF / DNS per etappe</div>
+    <div id="hist-content"></div>
+  </div>
+  <div id="wf-dnf" style="display:none">
+    <div class="sec">DNF / DNS invoeren — na etappe <span id="dnf-stage">1</span></div>
+    <div class="notice ni">Voeg uitvallers toe via de zoekbalk of klik op een renner in de startlijst. DNF (vorige etappe) → reserve actief <em>volgende</em> etappe. DNS (komende etappe) → reserve actief <em>zelfde</em> etappe. Elke reserve 1× inzetbaar.</div>
 
-  <!-- PANEEL B: DNF/DNS invoeren -->
-  <div id="wf-panel-dnf" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <button class="btn btn-s" onclick="wfNaarCheck()">← Terug naar selectiecheck</button>
-      <strong style="font-size:14px">DNF/DNS invoeren na etappe <span id="dnf-stage-label">1</span></strong>
-    </div>
-    <div class="notice ni">
-      <strong>DNF</strong> = uitgevallen na deze etappe → reserve speelt mee <em>vanaf volgende etappe</em>.<br>
-      <strong>DNS</strong> = start niet in volgende etappe → reserve speelt mee <em>in volgende etappe</em>.
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:14px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:14px">
+      <!-- DNF kolom -->
       <div>
-        <div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;margin-bottom:7px">DNF — na etappe <span class="pl">1</span></div>
+        <div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px">DNF — Etappe <span class="pl">1</span></div>
         <div id="dnf-items" style="min-height:32px;margin-bottom:6px"></div>
         <div class="sw">
           <input class="inp" id="dnf-inp" type="text" placeholder="Naam of rugnummer…" oninput="wSrch('dnf')" onkeydown="wKey(event,'dnf')" style="width:100%">
           <div class="sd" id="dnf-drop" style="display:none"></div>
         </div>
       </div>
+      <!-- DNS kolom -->
       <div>
-        <div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;margin-bottom:7px">DNS — etappe <span class="cl">2</span></div>
+        <div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px">DNS — Etappe <span class="cl">2</span></div>
         <div id="dns-items" style="min-height:32px;margin-bottom:6px"></div>
         <div class="sw">
           <input class="inp" id="dns-inp" type="text" placeholder="Naam of rugnummer…" oninput="wSrch('dns')" onkeydown="wKey(event,'dns')" style="width:100%">
           <div class="sd" id="dns-drop" style="display:none"></div>
         </div>
       </div>
+      <!-- Snelkeuze startlijst -->
       <div>
-        <div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;margin-bottom:7px">Snelkeuze startlijst</div>
-        <div id="rider-quicklist" style="max-height:320px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:3px"></div>
+        <div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px">Snelkeuze startlijst</div>
+        <div id="rider-quicklist" style="max-height:340px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:3px"></div>
       </div>
     </div>
-    <button class="btn btn-s ao" onclick="prevMuts()" style="margin-bottom:8px">Toon effect op selecties</button>
-    <div id="mut-prev" style="margin-bottom:12px"></div>
-    <div class="fr">
-      <button class="btn btn-p ao" id="btn-conf-next" onclick="wfConfirmNext()">✓ Vastleggen &amp; Selecties E<span id="nxe2">2</span> vaststellen</button>
+
+    <button class="btn btn-s ao" onclick="prevMuts()">Toon mutaties in selecties</button>
+    <div id="mut-prev" style="margin-top:12px"></div>
+    <div class="fr" style="margin-top:10px">
+      <button class="btn btn-p ao" id="conf-next" style="display:none" onclick="confNext()">✓ Selectie E<span id="nxe2">2</span> vaststellen</button>
     </div>
   </div>
+</div>
+
+<!-- SELECTIES -->
+<div class="pg" id="pg-sel">
+  <div class="sec">Deelnemers &amp; selecties</div>
+  <div class="fr">
+    <input class="inp" id="sel-q" type="text" placeholder="Zoek team…" oninput="renderSel()" style="width:180px">
+    <select class="inp" id="sel-stg" onchange="renderSel()"></select>
+  </div>
+  <div id="sel-list"></div>
+</div>
 
 <!-- UITSLAG -->
 <div class="pg" id="pg-uit">
@@ -1002,7 +1004,6 @@ function parseSheets2026(csv){
 // ══════════════════════════════════════════
 const STORAGE_KEY='ttds2026_state';
 const PRELOAD_DATA={"ok":true,"cs":2,"ov":{},"sel":{"1":{"0":[1,11,2,21,25,51,31,35,105,33,131,101,171,41,44],"1":[1,11,25,2,51,31,21,88,101,171,105,91,55,33,131],"2":[74,212,215,216,103,104,102,166,185,188,155,135,138,172,217],"3":[1,11,2,21,25,51,31,55,105,91,33,131,101,181,128],"4":[11,1,21,2,51,31,25,121,55,91,105,151,88,131,101],"5":[1,11,25,21,82,51,121,16,101,105,151,44,91,141,33],"6":[1,11,25,82,21,51,121,16,101,151,105,41,141,84,31],"7":[1,11,2,21,25,51,77,31,91,105,33,101,32,124,35],"8":[1,21,11,16,8,31,111,51,105,91,55,33,131,101,151],"9":[1,11,51,2,21,25,31,41,82,101,131,44,125,76,115],"10":[1,11,51,2,25,21,31,121,171,105,55,33,101,91,28],"11":[1,11,51,2,25,21,31,121,105,55,91,33,151,131,171],"12":[1,11,51,2,25,21,31,121,171,101,28,37,33,105,55],"13":[1,11,21,2,31,25,51,82,16,121,41,8,141,35,17],"14":[1,11,41,25,35,31,21,51,93,16,71,111,121,8,17],"15":[1,11,21,25,51,2,16,41,105,91,213,131,71,17,151],"16":[1,11,51,25,2,21,31,41,101,105,91,33,55,88,8],"17":[1,11,51,2,88,82,21,105,25,35,31,16,171,4,91],"18":[11,1,51,25,131,101,71,44,111,196,55,148,141,88,77],"19":[1,11,21,25,2,31,16,8,105,91,101,33,131,55,51],"20":[1,11,25,2,21,51,16,31,101,105,33,55,91,171,131],"21":[1,51,11,21,31,25,121,82,105,91,101,171,44,41,2],"22":[1,2,25,11,51,16,91,21,101,33,55,171,105,131,196],"23":[104,108,96,114,125,138,166,172,193,183,206,212,215,225,228],"24":[1,11,51,2,25,21,31,88,91,105,55,131,85,171,101],"25":[1,11,51,25,2,21,31,121,207,33,64,105,131,171,85],"26":[1,51,11,25,31,2,21,71,91,105,33,171,35,131,151],"27":[1,25,11,51,2,121,171,41,64,33,105,131,85,71,35],"28":[1,11,2,51,25,21,31,121,91,105,55,33,171,181,131],"29":[1,11,51,21,2,25,31,71,101,28,171,105,91,55,33],"30":[1,11,21,31,2,51,171,41,124,105,91,25,131,72,33],"31":[1,11,25,31,51,21,2,82,105,91,101,33,71,121,131],"32":[1,11,21,25,51,2,31,32,101,33,44,105,91,84,28],"33":[1,11,21,25,51,16,2,121,101,33,44,105,91,55,87],"34":[1,11,21,25,51,16,31,32,101,33,105,91,55,44,87],"35":[11,21,25,51,31,32,82,121,101,33,131,71,28,124,115],"36":[1,11,51,2,25,41,21,55,101,37,105,91,131,82,88],"37":[21,1,11,25,31,111,35,41,101,33,91,105,55,131,171],"38":[1,11,25,31,21,88,51,41,105,91,55,131,151,33,171],"39":[1,11,21,31,25,2,41,111,82,51,121,171,71,141,35],"40":[1,11,21,31,41,25,51,2,105,91,55,33,101,151,44],"41":[1,11,21,2,25,105,51,171,101,151,33,91,82,55,44],"42":[1,11,21,25,51,105,91,55,151,33,131,112,64,165,84],"43":[1,11,31,25,51,21,2,16,105,91,131,213,171,88,101],"44":[1,11,21,51,31,25,41,82,101,105,91,131,33,214,213],"45":[1,82,51,34,11,21,2,25,105,71,93,33,171,101,41],"46":[1,51,11,25,2,31,21,171,105,55,91,64,33,131,71],"47":[1,11,2,51,25,31,21,41,171,16,35,121,141,71,88],"48":[1,51,21,11,31,71,25,121,105,91,165,101,171,44,41],"49":[1,11,25,51,2,31,41,121,105,55,85,64,33,207,171],"50":[91,105,55,131,33,165,64,192,151,72,128,213,112,221,85],"51":[1,11,25,2,82,121,51,41,88,21,35,71,31,111,24],"52":[1,11,2,51,25,31,21,121,33,131,55,91,105,64,41],"53":[1,11,25,2,82,121,51,41,101,117,44,91,105,221,33],"54":[1,11,25,2,31,51,121,171,55,33,91,105,131,16,21],"55":[1,11,51,21,25,2,31,171,105,33,131,91,55,101,88],"56":[1,11,51,21,41,82,31,213,105,33,131,91,55,151,181],"57":[1,11,51,21,31,55,64,44,105,33,131,91,151,85,88],"58":[1,11,25,21,51,31,2,105,101,91,33,131,71,88,82],"59":[1,11,21,82,35,41,165,171,105,33,131,88,64,101,85],"60":[1,11,51,2,25,21,121,31,181,101,105,55,131,33,91],"61":[1,11,2,51,21,25,31,121,88,85,33,131,55,91,105],"62":[1,11,51,2,25,21,31,171,88,101,181,55,91,105,33],"63":[1,11,51,2,21,25,31,16,105,91,33,55,131,101,171],"64":[11,51,21,101,12,181,105,112,88,44,35,25,13,41,52],"65":[1,11,51,2,21,25,141,171,101,88,105,91,131,33,55],"66":[1,11,21,31,71,2,51,41,105,101,131,33,91,16,93],"67":[1,11,21,51,2,25,31,121,105,91,33,55,131,101,171],"68":[1,11,2,51,25,21,31,88,207,64,33,105,55,85,171],"69":[1,11,21,51,2,25,121,88,41,101,105,91,55,33,131],"70":[1,11,51,2,21,25,31,88,85,181,101,171,105,33,131],"71":[1,11,2,51,21,25,31,121,33,105,41,131,151,171,101],"72":[1,11,2,51,25,21,31,88,101,85,41,33,91,105,131],"73":[1,11,51,2,31,25,21,16,33,101,85,105,171,131,181],"74":[1,11,51,82,31,2,21,101,33,131,105,91,151,41,44],"75":[1,11,25,21,51,121,31,2,101,35,33,88,105,91,131],"76":[1,11,2,25,31,51,141,121,105,55,91,171,41,101,35],"77":[1,11,21,2,31,25,51,77,105,44,91,81,131,151,111],"78":[1,11,2,51,25,31,71,41,33,91,131,24,17,88,82],"79":[1,11,51,31,41,2,21,82,55,105,91,33,131,84,44],"80":[1,11,2,51,25,21,31,41,101,105,91,131,33,76,44],"81":[1,11,51,88,21,25,181,71,91,105,55,85,128,131,33],"82":[1,51,11,121,25,88,31,2,105,91,55,128,151,72,131],"83":[91,105,55,128,131,85,151,72,13,112,33,1,51,11,25],"84":[1,11,21,31,88,25,51,2,91,105,55,33,131,101,85]}},"rv":{"0":[121,null,88,141,93],"1":[121,41,141,35,44],"2":[126,15,5,224,12],"3":[88,41,82,121,201],"4":[88,101,41,35,174],"5":[76,2,221,31,41],"6":[44,76,33,35,218],"7":[196,171,111,41,128],"8":[171,35,28,191,41],"9":[34,122,124,37,163],"10":[131,35,41,82,37],"11":[101,71,41,35,82],"12":[131,91,41,82,35],"13":[12,24,171,181,88],"14":[12,24,17,51,88],"15":[77,33,101,31,88],"16":[121,171,141,111,35],"17":[131,41,76,32,83],"18":[21,2,91,24,156],"19":[41,82,196,171,213],"20":[31,8,41,196,111],"21":[33,131,76,null,null],"22":[91,8,41,31,82],"23":[68,63,78,48,145],"24":[181,41,82,121,77],"25":[41,71,35,88,37],"26":[121,141,41,32,77],"27":[31,21,32,77,37],"28":[41,35,16,101,84],"29":[16,41,8,24,17],"30":[25,71,121,16,55],"31":[121,27,16,81,21],"32":[16,82,77,41,55],"33":[32,84,131,28,88],"34":[2,84,131,28,124],"35":[171,84,87,55,44],"36":[55,null,null,null,128],"37":[2,16,71,44,81],"38":[16,2,17,121,35],"39":[8,null,35,111,null],"40":[35,171,17,82,71],"41":[121,24,41,31,141],"42":[41,31,71,24,128],"43":[41,24,8,81,141],"44":[8,2,121,128,147],"45":[121,31,142,223,17],"46":[35,121,41,88,77],"47":[8,17,111,24,18],"48":[2,33,131,76,178],"49":[71,35,77,21,88],"50":[188,197,137,153,53],"51":[93,171,196,117,16],"52":[171,16,88,111,141],"53":[21,35,71,31,111],"54":[41,35,141,8,65],"55":[41,71,121,82,35],"56":[25,71,121,2,35],"57":[77,71,2,82,16],"58":[141,171,null,41,55],"59":[51,141,71,121,25],"60":[171,41,16,141,71],"61":[171,44,111,41,141],"62":[121,41,71,16,35],"63":[121,35,88,141,41],"64":[41,52,53,81],"65":[121,31,85,71,41],"66":[25,211,171,111,82],"67":[16,141,88,24,77],"68":[71,41,82,24,121],"69":[171,44,111,82,191],"70":[91,55,44,121,41],"71":[44,16,35,71,44],"72":[35,121,16,82,17],"73":[41,77,156,121,8],"74":[171,35,71,8,55],"75":[41,77,111,82,44],"76":[21,82,44,71,88],"77":[41,171,71,35,82],"78":[21,72,171,8,111],"79":[44,4,85,35,171],"80":[121,17,77,88,82],"81":[31,2,93,141,196],"82":[93,21,181,71,97],"83":[21,121,88,181,31],"84":[41,77,171,181,44]},"wd":{},"rs":{"1":[11,84,1,31,21,2,18,25,83,51,101,181,77,58,71]},"pts":{"1":{"0":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"1":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"2":{"total":0,"bd":[]},"3":{"total":129,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0}]},"4":{"total":125,"bd":[{"num":11,"pos":0,"pts":20,"bonus":5},{"num":1,"pos":2,"pts":18,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"5":{"total":88,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"6":{"total":129,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":84,"pos":1,"pts":19,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"7":{"total":128,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":77,"pos":12,"pts":8,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"8":{"total":92,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"9":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"10":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"11":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"12":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"13":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0}]},"14":{"total":101,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"15":{"total":104,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":71,"pos":14,"pts":6,"bonus":0}]},"16":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"17":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"18":{"total":91,"bd":[{"num":11,"pos":0,"pts":20,"bonus":5},{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0},{"num":77,"pos":12,"pts":8,"bonus":0}]},"19":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0}]},"20":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"21":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":5},{"num":2,"pos":5,"pts":15,"bonus":0}]},"22":{"total":103,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"23":{"total":0,"bd":[]},"24":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"25":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"26":{"total":121,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"27":{"total":83,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"28":{"total":119,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0}]},"29":{"total":126,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"30":{"total":115,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0}]},"31":{"total":136,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":5},{"num":71,"pos":14,"pts":6,"bonus":0}]},"32":{"total":144,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":84,"pos":1,"pts":19,"bonus":0}]},"33":{"total":103,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"34":{"total":105,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"35":{"total":98,"bd":[{"num":11,"pos":0,"pts":20,"bonus":5},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"36":{"total":103,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"37":{"total":94,"bd":[{"num":21,"pos":4,"pts":16,"bonus":0},{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"38":{"total":105,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0}]},"39":{"total":131,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":5},{"num":71,"pos":14,"pts":6,"bonus":0}]},"40":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"41":{"total":103,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"42":{"total":97,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":84,"pos":1,"pts":19,"bonus":0}]},"43":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"44":{"total":105,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"45":{"total":114,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":5},{"num":71,"pos":14,"pts":6,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"46":{"total":121,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":5}]},"47":{"total":116,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"48":{"total":111,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"49":{"total":94,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"50":{"total":0,"bd":[]},"51":{"total":116,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"52":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0}]},"53":{"total":87,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"54":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0}]},"55":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"56":{"total":91,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0}]},"57":{"total":82,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"58":{"total":126,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"59":{"total":64,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"60":{"total":129,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"61":{"total":115,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"62":{"total":129,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0}]},"63":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"64":{"total":84,"bd":[{"num":11,"pos":0,"pts":20,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0}]},"65":{"total":108,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"66":{"total":123,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":71,"pos":14,"pts":6,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"67":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"68":{"total":110,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0}]},"69":{"total":103,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"70":{"total":139,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":5}]},"71":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"72":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"73":{"total":129,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0}]},"74":{"total":112,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"75":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"76":{"total":104,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"77":{"total":118,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":77,"pos":12,"pts":8,"bonus":0}]},"78":{"total":100,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"79":{"total":126,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":2,"pos":5,"pts":15,"bonus":5},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":84,"pos":1,"pts":19,"bonus":0}]},"80":{"total":120,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]},"81":{"total":98,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":181,"pos":11,"pts":9,"bonus":0},{"num":71,"pos":14,"pts":6,"bonus":0}]},"82":{"total":94,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0}]},"83":{"total":62,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":25,"pos":7,"pts":13,"bonus":0}]},"84":{"total":125,"bd":[{"num":1,"pos":2,"pts":18,"bonus":0},{"num":11,"pos":0,"pts":20,"bonus":0},{"num":21,"pos":4,"pts":16,"bonus":0},{"num":31,"pos":3,"pts":17,"bonus":5},{"num":25,"pos":7,"pts":13,"bonus":0},{"num":51,"pos":9,"pts":11,"bonus":0},{"num":2,"pos":5,"pts":15,"bonus":0},{"num":101,"pos":10,"pts":10,"bonus":0}]}}},"gcR":null,"gcP":{},"gcOk":false,"hist":[],"stageTypes":{"1":"normaal"},"approved":{}};
-
 const ADMIN_PW='suestra2026'; // ← verander dit wachtwoord
 let IS_ADMIN=false;
 
@@ -1024,7 +1025,7 @@ function loadState(){
     if(!raw)return false;
     const p=JSON.parse(raw);
     p.hist=(p.hist||[]).map(h=>({...h,dnf:new Set(h.dnf||[]),dns:new Set(h.dns||[])}));
-    p.approved=new Set(p.approved||[]);
+    p.approved=new Set(Array.isArray(p.approved)?p.approved:Object.values(p.approved||{}));
     Object.assign(S,p);
     return true;
   }catch(e){console.warn('loadState error:',e);return false;}
@@ -1120,37 +1121,47 @@ function init(){
 }
 
 function initUI(){
-  // Update vaststellen knop tekst
-  wfUpdateSteps();
   if(IS_ADMIN)document.getElementById('app-wrapper').style.display='block';
-
   rChkSum();rChkList();popSels();rGCIn();rGeld();
   if(S.ok){renderSel();renderUit();renderDag();renderTot();renderRace();renderRaw();}
-  if(S.ok){
-    ['s1','s2'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('act');el.classList.add('done');}});
-    if(Object.keys(S.rs||{}).length>0){document.getElementById('s3').classList.remove('act');document.getElementById('s3').classList.add('done');}
-    else document.getElementById('s3').classList.add('act');
-    document.getElementById('stage-badge').textContent='E'+S.cs+' SELECTIE';
-    document.getElementById('nxe').textContent=S.cs+1;
-    document.getElementById('nxe2').textContent=S.cs+1;
+  // Workflow stappen bijwerken
+  var cs=S.cs||1;
+  var hasUitslag=S.rs&&Object.keys(S.rs).length>0;
+  ['s1','s2'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.classList.remove('act');if(S.ok)el.classList.add('done');}
+  });
+  var s3=document.getElementById('s3');
+  if(s3){s3.classList.remove('act');if(hasUitslag)s3.classList.add('done');else if(S.ok)s3.classList.add('act');}
+  var s4=document.getElementById('s4');
+  if(s4){s4.classList.remove('act');if(hasUitslag)s4.classList.add('act');}
+  // Badge tonen
+  var badge=document.getElementById('stage-badge');
+  if(badge){
+    if(!S.ok)badge.textContent='SELECTIE E1';
+    else if(hasUitslag)badge.textContent='E'+(cs-1)+' ✓ → DNF/DNS E'+cs;
+    else badge.textContent='E'+(cs-1)+' VASTGESTELD → UITSLAG E'+(cs-1);
   }
+  // Vaststellen knop
+  var btn=document.getElementById('btn-confirm-e');
+  if(btn)btn.textContent=S.ok?'✓ Selecties E'+cs+' vaststellen':'✓ Selecties E1 vaststellen';
+  // DNF stap nummers
+  var nxe=document.getElementById('nxe'),nxe2=document.getElementById('nxe2');
+  if(nxe)nxe.textContent=cs;if(nxe2)nxe2.textContent=cs;
   document.getElementById('hist-cnt').textContent=S.hist.length;
-  document.querySelectorAll('.ao').forEach(el=>el.style.display=IS_ADMIN?'':'none');
-  document.querySelectorAll('.ro').forEach(el=>el.style.display=IS_ADMIN?'none':'');
+  document.querySelectorAll('.ao').forEach(function(el){el.style.display=IS_ADMIN?'':'none';});
+  document.querySelectorAll('.ro').forEach(function(el){el.style.display=IS_ADMIN?'none':'';});
 }
 
 // ══════════════════════════════════════════
 // WF TABS
 // ══════════════════════════════════════════
-function wfSubTab(t){
-  document.getElementById('wf-check-inner').style.display=t==='check'?'block':'none';
-  document.getElementById('wf-history-inner').style.display=t==='history'?'block':'none';
-  document.getElementById('wf-tb-check').classList.toggle('on',t==='check');
-  document.getElementById('wf-tb-history').classList.toggle('on',t==='history');
+function wfTab(t){
+  ['check','history','dnf'].forEach(x=>{const el=document.getElementById('wf-'+x);if(el)el.style.display='none';});
+  document.getElementById('wf-'+t).style.display='block';
+  document.querySelectorAll('[id^="wf-tb-"]').forEach(el=>el.classList.toggle('on',el.id==='wf-tb-'+t));
   if(t==='history')rHist();
 }
-// legacy alias
-function wfTab(t){wfSubTab(t);}
 
 function rHist(){
   document.getElementById('hist-cnt').textContent=S.hist.length;
@@ -1377,6 +1388,27 @@ function doEdit(evt,ti,si){
 // ══════════════════════════════════════════
 // CONFIRM E1
 // ══════════════════════════════════════════
+function confirmE1(){
+  S.sel[1]={};for(let i=0;i<TMS.length;i++)S.sel[1][i]=bBase(i);S.ok=true;
+  document.getElementById('e1-lbl').textContent='✓ Vastgesteld '+new Date().toLocaleTimeString('nl-NL');
+  ['s1','s2'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('act');el.classList.add('done');});
+  document.getElementById('s3').classList.add('act');
+  document.getElementById('stage-badge').textContent='E1 VASTGESTELD';
+  popSels();renderSel();renderUit();saveState();
+}
+function confirmEX(stage){
+  if(stage===1){confirmE1();return;}
+  if(!S.ok){alert('Stel eerst E1 vast');return;}
+  S.sel[stage]={};
+  for(var i=0;i<TMS.length;i++){
+    S.sel[stage][i]=bBase(i);
+  }
+  var lbl=document.getElementById('e'+stage+'-lbl');
+  if(lbl)lbl.textContent='✓ Vastgesteld '+new Date().toLocaleTimeString('nl-NL');
+  saveState();
+  renderSel();
+  alert('Selecties etappe '+stage+' vastgesteld');
+}
 
 function popSels(){
   ['uit-stg','dag-stg','sel-stg'].forEach(id=>{
@@ -1389,122 +1421,453 @@ function popSels(){
 // SELECTIES PAGE — met DNF/DNS ophalen
 // ══════════════════════════════════════════
 let selOpen=new Set();
+function renderSel(){
+  if(!S.ok){document.getElementById('sel-list').innerHTML='<div class="notice nw">Stel eerst Selectie E1 vast.</div>';return;}
+  const q=(document.getElementById('sel-q')||{}).value||'';
+  const stage=parseInt((document.getElementById('sel-stg')||{}).value)||1;
+  let h='';
+  for(let i=0;i<TMS.length;i++){
+    const t=TMS[i];if(q&&!t.team.toLowerCase().includes(q.toLowerCase())&&!t.name.toLowerCase().includes(q.toLowerCase()))continue;
+    const nums=bStage(i,stage);const open=selOpen.has(i);
+    let tp=0;for(let sg=1;sg<=stage;sg++){const p=(S.pts[sg]||{})[i];if(p)tp+=p.total;}if(S.gcP[i])tp+=S.gcP[i].total;
+    const chain=gChain(i).filter(m=>m.eff<=stage);
+    h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togSel(${i})"><div style="flex:1"><span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ink);color:var(--gl);border-radius:3px;padding:1px 4px">E${stage}</span><strong style="font-family:Syne,sans-serif;font-size:13px;margin-left:7px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>${tp>0?`<span class="pts" style="margin-right:10px">${tp}<span style="font-size:10px;color:var(--mu)"> pts</span></span>`:''}${chain.length?`<span class="p pp-" style="margin-right:6px">${chain.length} mut.</span>`:''}<span class="arr">${open?'▲':'▼'}</span></div>`;
+    if(open){
+      const ur=new Set(chain.filter(m=>m.repl).map(m=>m.repl.ri));
+      h+=`<div class="cb"><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Actieve selectie E${stage}</div><div class="rg">`;
+      nums.forEach((n,si)=>{const iM=chain.some(m=>m.slot===si&&m.repl&&m.repl.num===n);h+=`<div class="rc${iM?' mut':''}"><span class="p ${iM?'pp-':'pg-'}" style="font-size:9px">${n||'—'}</span><span style="font-size:11px">${n?rs(n):'geen reserve'}</span>${iM?'<span style="font-size:9px;color:var(--pur)">R</span>':''}</div>`;});
+      h+=`</div><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin:9px 0 5px">Reserves</div><div class="rg">`;
+      S.rv[i].forEach((n,ri)=>{const used=chain.some(m=>m.repl&&m.repl.num===n&&m.repl.ri===ri&&m.eff<=stage);h+=`<div class="rc${used?' out':''}"><span class="p pb-" style="font-size:9px">R${ri+1}</span><span style="font-size:11px">${n?rs(n):'?'}</span>${used?'<span style="font-size:9px;color:var(--pur)">ingezet</span>':''}</div>`;});
+      h+=`</div>`;
+      if(chain.length){h+=`<div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin:9px 0 5px">Mutaties</div>`;chain.forEach(m=>{const tb=m.type==='DNF'?`<span class="p pr-" style="font-size:9px">DNF</span>`:`<span class="p pw-" style="font-size:9px">DNS</span>`;const rpl=m.repl?`<span class="p pp-" style="font-size:9px">${m.repl.num}</span> ${rn(m.repl.num)}`:'<em style="color:var(--red);font-size:11px">geen reserve</em>';h+=`<div class="mut-line">${tb} <span style="font-size:10px;color:var(--mu)">E${m.stage||'—'}</span> <span class="p pr-" style="font-size:9px">${m.outNum}</span> ${rn(m.outNum)} → ${rpl} <span style="font-size:10px;color:var(--mu)">v.a. E${m.eff}</span></div>`;});}
+      let ph='';for(let sg=1;sg<=stage;sg++){const p=(S.pts[sg]||{})[i];if(!p||!p.bd.length)continue;ph+=`<div style="font-size:11px;color:var(--mu);margin-top:3px">E${sg}: ${p.bd.map(b=>`${rs(b.num)} +${b.pts}${b.bonus?`+${b.bonus}🎯`:''}`).join(' · ')} = <strong>${p.total}</strong></div>`;}
+      if(S.gcP[i]&&S.gcP[i].bd.length)ph+=`<div style="font-size:11px;color:var(--mu);margin-top:3px">GC: ${S.gcP[i].bd.map(b=>`${rs(b.num)} +${b.pts}${b.bonus?`+${b.bonus}🎯`:''}`).join(' · ')} = <strong>${S.gcP[i].total}</strong></div>`;
+      if(ph)h+=`<div style="margin-top:9px;padding-top:9px;border-top:1px solid var(--bo)"><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Punten</div>${ph}</div>`;
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  }
+  document.getElementById('sel-list').innerHTML=h;
+}
+function togSel(i){selOpen.has(i)?selOpen.delete(i):selOpen.add(i);renderSel();}
+
+// ══════════════════════════════════════════
+// FETCH DNF/DNS — workflow paneel
+// ══════════════════════════════════════════
+let fetchedDNF=[],fetchedDNS=[],fetchedForStage=null;
+
+async function fetchDNFWorkflow(){
+  const stage=parseInt(document.getElementById('fetch-single-stage').value)||1;
+  const statusEl=document.getElementById('fetch-single-status');
+  statusEl.innerHTML='<span style="color:var(--mu)">Ophalen…</span>';
+  const result=await fetchDNFFromCF(stage);
+  fetchedForStage=stage;
+  fetchedDNF=result.dnf;
+  fetchedDNS=result.dns;
+  if(fetchedDNF.length||fetchedDNS.length){
+    statusEl.innerHTML=`<span style="color:var(--green)">✓ ${fetchedDNF.length} DNF, ${fetchedDNS.length} DNS gevonden voor etappe ${stage}</span>`;
+    renderFetchPreview(stage);
+  } else {
+    statusEl.innerHTML=`<span style="color:var(--red)">Geen uitvallers gevonden — cyclingflash mogelijk geblokkeerd. Vul handmatig in.</span>`;
+    document.getElementById('fetch-dnf-preview').style.display='none';
+  }
+}
+
+async function fetchAllDNF(){
+  if(!confirm('Alle 21 etappes ophalen voor DNF/DNS? Dit duurt ca. 40 seconden.'))return;
+  const prog=document.getElementById('fetch-dnf-prog');
+  const bar=document.getElementById('fetch-dnf-bar');
+  const log=document.getElementById('fetch-dnf-log');
+  prog.style.display='block';log.style.display='block';log.innerHTML='';
+  document.getElementById('fetch-dnf-preview').style.display='none';
+  for(let stage=1;stage<=21;stage++){
+    log.innerHTML+=`<div class="fetch-row" id="fdnf-row-${stage}"><span class="fetch-wait">E${stage}…</span></div>`;
+    log.scrollTop=log.scrollHeight;
+    const result=await fetchDNFFromCF(stage);
+    bar.style.width=`${(stage/21)*100}%`;
+    const row=document.getElementById(`fdnf-row-${stage}`);
+    if(result.dnf.length||result.dns.length){
+      // Apply directly to state
+      result.dnf.forEach(n=>{if(SL[n]&&!S.wd[n])S.wd[n]={num:n,stage,type:'DNF'};});
+      result.dns.forEach(n=>{if(SL[n]&&!S.wd[n])S.wd[n]={num:n,stage:stage+1,type:'DNS'};});
+      if(result.dnf.length||result.dns.length){
+        const existing=S.hist.find(h=>h.stage===stage);
+        if(!existing)S.hist.push({stage,dnf:new Set(result.dnf),dns:new Set(result.dns),ts:'auto'});
+      }
+      if(S.ok&&!S.sel[stage+1]){S.sel[stage+1]={};for(let i=0;i<TMS.length;i++)S.sel[stage+1][i]=bStage(i,stage+1);}
+      row.innerHTML=`<span class="fetch-ok">✓ E${stage}</span> <span style="font-size:11px;color:var(--mu)">${result.dnf.length} DNF · ${result.dns.length} DNS</span>`;
+    } else {
+      row.innerHTML=`<span class="fetch-wait">— E${stage}: geen data</span>`;
+    }
+    await new Promise(r=>setTimeout(r,1200));
+  }
+  document.getElementById('hist-cnt').textContent=S.hist.length;
+  log.innerHTML+=`<div style="color:var(--green);font-weight:500;margin-top:6px">✓ Klaar — alle beschikbare uitvallers verwerkt.</div>`;
+  renderSel();
+}
+
+function renderFetchPreview(stage){
+  document.getElementById('fp-prev-stg').textContent=stage;
+  document.getElementById('fp-curr-stg').textContent=stage+1;
+  document.getElementById('fp-dnf-list').innerHTML=fetchedDNF.length
+    ? fetchedDNF.map(n=>`<div class="fr" style="margin-bottom:4px"><span class="p pr-">${n}</span><span style="font-size:12px">${rn(n)}</span><button class="btn btn-d btn-sm" onclick="removeFetched('dnf',${n})">✕</button></div>`).join('')
+    : '<span style="font-size:11px;color:var(--mu)">Geen gevonden</span>';
+  document.getElementById('fp-dns-list').innerHTML=fetchedDNS.length
+    ? fetchedDNS.map(n=>`<div class="fr" style="margin-bottom:4px"><span class="p pw-">${n}</span><span style="font-size:12px">${rn(n)}</span><button class="btn btn-d btn-sm" onclick="removeFetched('dns',${n})">✕</button></div>`).join('')
+    : '<span style="font-size:11px;color:var(--mu)">Geen gevonden</span>';
+  document.getElementById('fetch-dnf-preview').style.display='block';
+}
+
+function removeFetched(type,num){
+  if(type==='dnf')fetchedDNF=fetchedDNF.filter(n=>n!==num);
+  else fetchedDNS=fetchedDNS.filter(n=>n!==num);
+  renderFetchPreview(fetchedForStage);
+}
+
+function applyFetchedDNF(){
+  if(fetchedForStage===null)return;
+  // Switch to DNF panel and prefill
+  shDNF(fetchedForStage);
+  fetchedDNF.forEach(n=>pD.add(n));
+  fetchedDNS.forEach(n=>pN.add(n));
+  rWL();
+  wfTab('dnf');
+  // Switch tab indicators back to match dnf panel (not wf-tb-dnf since that's not a tab button)
+  document.querySelectorAll('[id^="wf-tb-"]').forEach(el=>el.classList.remove('on'));
+}
+
+async function fetchDNFFromCF(stage){
+  const url=`https://cyclingflash.com/race/tour-de-france-2026/result/stage-${stage}`;
+  try{
+    const resp=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&timestamp=${Date.now()}`);
+    if(!resp.ok)return{dnf:[],dns:[]};
+    const data=await resp.json();
+    return parseCyclingflashDNF(data.contents||'',stage);
+  }catch(e){return{dnf:[],dns:[]};}
+}
+
+function parseCyclingflashDNF(html,stage){
+  const dnf=[],dns=[];
+  // Parse DNF/DNS from the cyclingflash HTML structure
+  const parser=new DOMParser();const doc=parser.parseFromString(html,'text/html');
+  // Look for sections with DNF/DNS labels
+  const allText=doc.body?doc.body.innerText:'';
+  const lines=allText.split('\n').map(l=>l.trim()).filter(Boolean);
+  let inDNF=false,inDNS=false;
+  for(const line of lines){
+    const lo=line.toLowerCase();
+    if(lo.includes('dnf')||lo.includes('did not finish'))inDNF=true;
+    if(lo.includes('dns')||lo.includes('did not start'))inDNS=true;
+    if(inDNF||inDNS){
+      // try to find rider numbers
+      const m=line.match(/^\s*(\d{1,3})\s/);
+      if(m){const n=parseInt(m[1]);if(SL[n]){if(inDNF&&!inDNS)dnf.push(n);else dns.push(n);}}
+      // also try name matching
+      const r=res(line);if(r.num&&r.st!=='nf'&&r.st!=='empty'){if(inDNF&&!inDNS)dnf.push(r.num);else dns.push(r.num);}
+    }
+  }
+  return{dnf:[...new Set(dnf)],dns:[...new Set(dns)]};
+}
+
+// ══════════════════════════════════════════
+// UITSLAG — met batch fetch
+// ══════════════════════════════════════════
+let t15=Array(15).fill(null);
+const dF={};
+
+function renderUit(){
+  if(!S.ok){document.getElementById('uit-ex').innerHTML='<div class="notice nw">Stel eerst E1 vast.</div>';rTop15();return;}
+  const stage=parseInt((document.getElementById('uit-stg')||{}).value)||1;
+  const ex=S.rs[stage];let h='';
+  // Herstel etappe-type selector
+  const typeEl=document.getElementById('uit-type');
+  if(typeEl&&S.stageTypes[stage])typeEl.value=S.stageTypes[stage];
+  else if(typeEl)typeEl.value='normaal';
+  onUitTypeChange();
+  if(ex){h='<div class="notice nok">Uitslag etappe '+stage+' opgeslagen.</div>';h+='<table class="tbl"><tr><th>#</th><th>Renner</th><th>Pts</th></tr>';ex.forEach((n,i)=>h+=`<tr><td class="rn ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</td><td>${n?rn(n):'—'}</td><td><span class="p pg-">${DP[i]||0}</span></td></tr>`);h+='</table>';}
+  document.getElementById('uit-ex').innerHTML=h;
+  t15=[...(ex||Array(15).fill(null))];while(t15.length<15)t15.push(null);rTop15();
+}
+
+function rTop15(){
+  let h='';
+  for(let pos=0;pos<15;pos++){
+    const n=t15[pos];
+    h+=`<div class="fr" style="margin-bottom:5px"><span class="rn ${pos===0?'r1':pos===1?'r2':pos===2?'r3':''}" style="min-width:22px">${pos+1}</span><span class="p pg-" style="min-width:30px;justify-content:center">${DP[pos]||0}</span><div class="sw"><input class="inp" id="t15-${pos}" type="text" placeholder="Naam of rugnummer…" value="${n?rn(n):''}" oninput="oT15(${pos})" onkeydown="kT15(event,${pos})" onfocus="fT15(${pos})" style="width:215px"><div class="sd" id="t15d-${pos}" style="display:none"></div></div>${n?`<span class="p pg-">${n}</span><button class="btn btn-d btn-sm" onclick="clT15(${pos})">✕</button>`:''}</div>`;
+  }
+  document.getElementById('top15').innerHTML=h;
+}
+
+function fT15(pos){dF[pos]=0;shD15(pos);}
+function oT15(pos){dF[pos]=0;shD15(pos);}
+function shD15(pos){
+  const val=document.getElementById(`t15-${pos}`).value;const r=ss(val);const d=document.getElementById(`t15d-${pos}`);
+  if(!r.length){d.style.display='none';return;}
+  d.innerHTML=r.map((x,i)=>`<div class="si${i===(dF[pos]||0)?' hi':''}" id="t15di-${pos}-${i}" onclick="sT15(${pos},${x.num})"><span class="p pg-" style="font-size:10px">${x.num}</span>${rn(x.num)}</div>`).join('');
+  d.style.display='block';
+}
+function kT15(e,pos){
+  const r=ss(document.getElementById(`t15-${pos}`).value);
+  if(e.key==='ArrowDown'){e.preventDefault();dF[pos]=Math.min((dF[pos]||0)+1,r.length-1);shD15(pos);}
+  else if(e.key==='ArrowUp'){e.preventDefault();dF[pos]=Math.max((dF[pos]||0)-1,0);shD15(pos);}
+  else if(e.key==='Enter'){e.preventDefault();if(r[(dF[pos]||0)])sT15(pos,r[(dF[pos]||0)].num);}
+  else if(e.key==='Tab'){e.preventDefault();if(r.length&&document.getElementById(`t15-${pos}`).value.trim()){sT15(pos,r[(dF[pos]||0)]?.num||r[0].num);}else{const nx=document.getElementById(`t15-${pos+1}`);if(nx){nx.focus();nx.select();}}}
+  else if(e.key==='Escape'){document.getElementById(`t15d-${pos}`).style.display='none';}
+}
+function sT15(pos,num){
+  // Geen duplicaten in daguitslag
+  const existingIdx=t15.indexOf(num);
+  if(existingIdx>=0&&existingIdx!==pos){
+    t15[existingIdx]=null; // verwijder van oude plek
+  }
+  // Check DNF/DNS — mag niet in uitslag
+  if(S.wd[num]){
+    const w=S.wd[num];const stage=parseInt((document.getElementById('uit-stg')||{}).value)||1;
+    const eff=w.type==='DNF'?w.stage+1:w.stage;
+    if(eff<=stage){alert(`${rn(num)} heeft een ${w.type} in etappe ${w.stage} en kan niet in de uitslag staan.`);return;}
+  }
+  t15[pos]=num;dF[pos]=0;rTop15();setTimeout(()=>{for(let i=pos+1;i<15;i++){if(!t15[i]){const el=document.getElementById(`t15-${i}`);if(el){el.focus();el.select();break;}}}},50);}
+function clT15(pos){t15[pos]=null;rTop15();}
+
+function saveUit(){
+  const stage=parseInt(document.getElementById('uit-stg').value)||1;
+  if(t15.filter(Boolean).length<1){alert('Vul minimaal 1 renner in.');return;}
+  const uitType=(document.getElementById('uit-type')||{}).value||'normaal';
+  S.stageTypes[stage]=uitType;
+  S.rs[stage]=[...t15];
+  if(uitType==='ttt'){
+    // TTT: sla uitslag op maar reken geen punten
+    if(!S.pts[stage])S.pts[stage]={};
+    for(let i=0;i<TMS.length;i++)S.pts[stage][i]={total:0,bd:[],ttt:true};
+    alert('TTT opgeslagen — telt niet mee voor dag- en totaalstand.');
+  } else {
+    if(!S.pts[stage])S.pts[stage]={};
+    for(let i=0;i<TMS.length;i++){const nums=bStage(i,stage);S.pts[stage][i]=cPts(nums,S.rs[stage]);}
+  }
+  popSels();renderUit();renderDag();renderTot();renderRace();renderRaw();popRidersStg();
+  document.getElementById('s3').classList.remove('act');document.getElementById('s3').classList.add('done');
+  document.getElementById('s4').classList.add('act');
+  document.getElementById('nxe').textContent=stage+1;document.getElementById('nxe2').textContent=stage+1;
+  if(stage>=S.cs)S.cs=stage+1;
+  shDNF(stage);rGeld();saveState();
+}
+
+
+
+// Percentage invoer — accepteert: 5, 5.0, 5,0, 10.5, 10,5
+function onPctInput(e,idx){
+  // Laat vrij typen toe, vervang komma door punt voor display
+  e.target.value=e.target.value.replace(',','.');
+}
+
+function onPctBlurLantaarn(e){
+  var raw=e.target.value.replace(',','.').trim();
+  var pct=parseFloat(raw);
+  if(isNaN(pct))pct=0;
+  pct=Math.min(100,Math.max(0,parseFloat(pct.toFixed(1))));
+  var v=GVK.find(function(x){return x.pos==='lantaarn';});
+  if(v){v.pct=pct;v.manual=true;}
+  e.target.value=pct.toFixed(1);
+  rGeld();
+}
+function onPctBlur(e,idx){
+  const raw=e.target.value.replace(',','.').trim();
+  if(raw===''||raw==='.'){GVK[idx].pct=0;GVK[idx].manual=true;e.target.value='0.0';rGeld();return;}
+  let pct=parseFloat(raw);
+  if(isNaN(pct))pct=0;
+  pct=Math.min(100,Math.max(0,parseFloat(pct.toFixed(1))));
+  GVK[idx].pct=pct;
+  GVK[idx].manual=true;
+  e.target.value=pct.toFixed(1);
+  rGeld();
+}
+function onUitTypeChange(){
+  const type=document.getElementById('uit-type').value;
+  const notice=document.getElementById('ttt-notice');
+  if(notice)notice.style.display=type==='ttt'?'':'none';
+}
+
+function fetchLive(){
+  const stage=parseInt(document.getElementById('uit-stg').value)||1;
+  fetchAndParseStage(stage).then(result=>{
+    if(result){t15=[...result];while(t15.length<15)t15.push(null);rTop15();alert(`✓ Top-15 etappe ${stage} ingeladen!`);}
+    else alert('Geen resultaat gevonden. Controleer of cyclingflash.com bereikbaar is en vul handmatig in.');
+  });
+}
+
+async function fetchAndParseStage(stage){
+  const year=2026;
+  const url=`https://cyclingflash.com/race/tour-de-france-${year}/result/stage-${stage}`;
+  try{
+    const resp=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&timestamp=${Date.now()}`);
+    if(!resp.ok)return null;
+    const data=await resp.json();
+    const html=data.contents||'';
+    return parseCyclingflashResult(html);
+  }catch(e){return null;}
+}
+
+function parseCyclingflashResult(html){
+  // Parse the stage result from cyclingflash HTML
+  const parser=new DOMParser();const doc=parser.parseFromString(html,'text/html');
+  const nums=[];
+  // Try table rows — cyclingflash typically shows rider number and name in table
+  const rows=doc.querySelectorAll('tr');
+  for(const row of rows){
+    const cells=[...row.querySelectorAll('td')];
+    if(cells.length<2)continue;
+    // first cell often contains position number, others have rider details
+    const posCell=cells[0].textContent.trim();
+    if(!/^\d+$/.test(posCell))continue;
+    const pos=parseInt(posCell);
+    if(pos<1||pos>15)continue;
+    // look for rider number in subsequent cells
+    let found=null;
+    for(const cell of cells.slice(1)){
+      const txt=cell.textContent.trim();
+      const numMatch=txt.match(/\b(\d{1,3})\b/);
+      if(numMatch){const n=parseInt(numMatch[1]);if(SL[n]){found=n;break;}}
+      const r=res(txt);if(r.num&&r.st!=='nf'&&r.st!=='empty'){found=r.num;break;}
+    }
+    if(found)nums[pos-1]=found;
+  }
+  // Fallback: try plain text parsing
+  if(nums.filter(Boolean).length<3){
+    const allText=doc.body?doc.body.innerText:'';
+    const lines=allText.split('\n').map(l=>l.trim()).filter(Boolean);
+    let pos=0;
+    for(const line of lines){
+      const m=line.match(/^(\d+)\s+(.+)/);
+      if(m&&parseInt(m[1])===pos+1&&pos<15){
+        const n=parseInt(m[1]);if(SL[n]&&n<250){nums[pos]=n;pos++;}
+        else{const r=res(m[2]);if(r.num){nums[pos]=r.num;pos++;}}
+      }
+    }
+  }
+  return nums.filter(Boolean).length>0?nums:null;
+}
+
+let fetchAbort=false;
+async function fetchAllStages(){
+  if(!confirm('Alle 21 etappes ophalen van cyclingflash.com? Dit duurt ca. 30 seconden.'))return;
+  fetchAbort=false;
+  const prog=document.getElementById('fetch-progress');
+  const bar=document.getElementById('prog-bar');
+  const log=document.getElementById('fetch-log');
+  prog.style.display='block';log.innerHTML='';
+  let done=0;
+  for(let stage=1;stage<=21;stage++){
+    if(fetchAbort)break;
+    log.innerHTML+=`<div class="fetch-row"><span class="fetch-wait">E${stage}…</span></div>`;
+    log.scrollTop=log.scrollHeight;
+    const result=await fetchAndParseStage(stage);
+    done++;bar.style.width=`${(done/21)*100}%`;
+    const lastRow=log.lastElementChild;
+    if(result&&result.filter(Boolean).length>=3){
+      S.rs[stage]=[...result];while(S.rs[stage].length<15)S.rs[stage].push(null);
+      if(!S.pts[stage])S.pts[stage]={};
+      if(S.ok)for(let i=0;i<TMS.length;i++){const nums=bStage(i,stage);S.pts[stage][i]=cPts(nums,S.rs[stage]);}
+      lastRow.innerHTML=`<span class="fetch-ok">✓ E${stage}</span><span style="margin-left:6px;font-size:11px">${rn(result[0])} won</span>`;
+    }else{lastRow.innerHTML=`<span class="fetch-err">✗ E${stage} — geen data</span>`;}
+    await new Promise(r=>setTimeout(r,1200)); // rate limit
+  }
+  popSels();renderUit();renderDag();renderTot();renderRace();renderRaw();popRidersStg();rGeld();
+  log.innerHTML+=`<div style="color:var(--green);font-weight:500;margin-top:4px">✓ Klaar — ${Object.keys(S.rs).length} etappes geladen</div>`;
+}
+
+// ══════════════════════════════════════════
+// DNF/DNS PANEL
+// ══════════════════════════════════════════
+let pD=new Set(),pN=new Set();const wF={dnf:0,dns:0};
+function shDNF(stage){
+  ['check','history','fetch'].forEach(x=>{const el=document.getElementById('wf-'+x);if(el)el.style.display='none';});
+  document.getElementById('wf-dnf').style.display='block';
+  document.querySelectorAll('[id^="wf-tb-"]').forEach(el=>el.classList.remove('on'));
+  document.getElementById('dnf-stage').textContent=stage;
+  document.querySelectorAll('.pl').forEach(el=>el.textContent=stage);
+  document.querySelectorAll('.cl').forEach(el=>el.textContent=stage+1);
+  pD=new Set();pN=new Set();rWL();document.getElementById('mut-prev').innerHTML='';document.getElementById('conf-next').style.display='none';
+  renderQuickList();
+}
+
+function renderQuickList(){
+  const el=document.getElementById('rider-quicklist');if(!el)return;
+  // Show all active riders sorted by num — exclude already withdrawn
+  const activeNums=Object.entries(SL).map(([n])=>parseInt(n))
+    .filter(n=>!S.wd[n])
+    .sort((a,b)=>a-b);
+  el.innerHTML=activeNums.map(n=>{
+    const inDNF=pD.has(n),inDNS=pN.has(n);
+    return `<div style="display:flex;gap:3px">
+      <button onclick="addW('dnf',${n})" title="DNF" style="flex:1;padding:2px 4px;font-size:10px;border-radius:3px;border:1px solid ${inDNF?'var(--red)':'var(--b2)'};background:${inDNF?'rgba(192,57,43,.1)':'white'};cursor:pointer;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--mu)">${n}</span> ${rs(n)}
+      </button>
+      <button onclick="addW('dns',${n})" title="DNS" style="padding:2px 5px;font-size:9px;border-radius:3px;border:1px solid ${inDNS?'var(--red)':'var(--b2)'};background:${inDNS?'rgba(230,126,34,.1)':'white'};cursor:pointer;color:${inDNS?'var(--red)':'var(--mu)'}">DNS</button>
+    </div>`;
+  }).join('');
+}
 function rWL(){
   renderQuickList();
   document.getElementById('dnf-items').innerHTML=[...pD].map(n=>`<div class="fr" style="margin-bottom:4px"><span class="p pr-">${n}</span><span style="font-size:12px">${rn(n)}</span><button class="btn btn-d btn-sm" onclick="rmW('dnf',${n})">✕</button></div>`).join('')||'<span style="font-size:11px;color:var(--mu)">Geen</span>';
   document.getElementById('dns-items').innerHTML=[...pN].map(n=>`<div class="fr" style="margin-bottom:4px"><span class="p pr-">${n}</span><span style="font-size:12px">${rn(n)}</span><button class="btn btn-d btn-sm" onclick="rmW('dns',${n})">✕</button></div>`).join('')||'<span style="font-size:11px;color:var(--mu)">Geen</span>';
 }
-
-function wfNaarDNF(stage){
-  document.getElementById('wf-panel-check').style.display='none';
-  document.getElementById('wf-panel-dnf').style.display='block';
-  var sl=document.getElementById('dnf-stage-label');if(sl)sl.textContent=stage;
-  document.querySelectorAll('.pl').forEach(function(el){el.textContent=stage;});
-  document.querySelectorAll('.cl').forEach(function(el){el.textContent=stage+1;});
-  var nxe2=document.getElementById('nxe2');if(nxe2)nxe2.textContent=stage+1;
-  pD=new Set();pN=new Set();
-  try{rWL();}catch(e){}
-  document.getElementById('mut-prev').innerHTML='';
-  var di=document.getElementById('dnf-items');if(di)di.innerHTML='';
-  var dsi=document.getElementById('dns-items');if(dsi)dsi.innerHTML='';
-  var dinp=document.getElementById('dnf-inp');if(dinp)dinp.value='';
-  var dsinp=document.getElementById('dns-inp');if(dsinp)dsinp.value='';
+function wSrch(type){
+  const inp=document.getElementById(`${type}-inp`);const drop=document.getElementById(`${type}-drop`);wF[type]=0;
+  const r=ss(inp.value);if(!r.length){drop.style.display='none';return;}
+  drop.innerHTML=r.map((x,i)=>`<div class="si${i===0?' hi':''}" id="${type}-di-${i}" onclick="addW('${type}',${x.num})"><span class="p pg-" style="font-size:10px">${x.num}</span>${rn(x.num)}</div>`).join('');
+  drop.style.display='block';
 }
-function shDNF(stage){wfNaarDNF(stage);}
-function wfNaarCheck(){
-  document.getElementById('wf-panel-dnf').style.display='none';
-  document.getElementById('wf-panel-check').style.display='block';
+function wKey(e,type){
+  const inp=document.getElementById(`${type}-inp`);const r=ss(inp.value);
+  const upd=()=>{document.querySelectorAll(`[id^="${type}-di-"]`).forEach((el,i)=>el.classList.toggle('hi',i===wF[type]));};
+  if(e.key==='ArrowDown'){e.preventDefault();wF[type]=Math.min(wF[type]+1,r.length-1);upd();}
+  else if(e.key==='ArrowUp'){e.preventDefault();wF[type]=Math.max(wF[type]-1,0);upd();}
+  else if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();if(r[wF[type]])addW(type,r[wF[type]].num);}
+  else if(e.key==='Escape'){document.getElementById(`${type}-drop`).style.display='none';}
 }
-function wfVaststellen(){
-  // Stel selecties vast voor de huidige etappe (S.cs)
-  var stage=S.cs||1;
-  if(stage===1){
-    // E1: laad basisSelecties, zet ok=true
-    S.sel[1]={};
-    for(var i=0;i<TMS.length;i++)S.sel[1][i]=bBase(i);
-    S.ok=true;
-    document.getElementById('e1-lbl').textContent='✓ E1 vastgesteld';
-    document.getElementById('stage-badge').textContent='E1 VASTGESTELD';
-    wfUpdateSteps();
-    popSels();renderSel();renderUit();saveState();
-    // Toon knop voor uitslag invoeren
-    alert('E1 selecties vastgesteld! Ga naar Uitslag om de E1 uitslag in te voeren.');
-  } else {
-    // E2+: selecties zijn al vastgesteld via wfConfirmNext
-    alert('E'+stage+' selecties zijn al vastgesteld via de DNF/DNS stap. Ga naar Uitslag om de uitslag in te voeren.');
-  }
+function addW(type,num){
+  if(type==='dnf')pD.add(num);else pN.add(num);
+  document.getElementById(`${type}-inp`).value='';document.getElementById(`${type}-drop`).style.display='none';
+  rWL();document.getElementById('mut-prev').innerHTML='';document.getElementById('conf-next').style.display='none';
 }
-// Legacy
-function confirmE1(){wfVaststellen();}
-function confirmEX(stage){if(stage===1){wfVaststellen();}else{wfConfirmNext();}}
-
-function wfUpdateSteps(){
-  // Update voortgangsbalk op basis van huidige staat
-  var cs=S.cs||1;
-  var s1=document.getElementById('s1'),s2=document.getElementById('s2'),
-      s3=document.getElementById('s3'),s4=document.getElementById('s4'),
-      s5=document.getElementById('s5');
-  // Reset
-  [s1,s2,s3,s4,s5].forEach(function(el){if(el){el.className='step';}});
-  if(!S.ok){
-    // Nog niets vastgesteld
-    if(s1)s1.classList.add('act');
-  } else if(cs===1){
-    // E1 vastgesteld, wacht op uitslag E1
-    if(s1)s1.classList.add('done');
-    if(s2)s2.classList.add('done');
-    if(s3)s3.classList.add('act');
-  } else {
-    // cs>=2: E(cs-1) uitslag is verwerkt
-    if(s1)s1.classList.add('done');
-    if(s2)s2.classList.add('done');
-    if(s3)s3.classList.add('done');
-    if(cs===2){
-      if(s4)s4.classList.add('act');
-    } else {
-      if(s4)s4.classList.add('done');
-      if(s5)s5.classList.add('act');
-      if(s5)s5.querySelector('.step-n').textContent='E'+cs;
-    }
+function rmW(type,num){if(type==='dnf')pD.delete(num);else pN.delete(num);rWL();}
+function prevMuts(){
+  const stage=parseInt(document.getElementById('dnf-stage').textContent)||1;
+  let h='<div class="sec" style="font-size:13px;margin-top:0">Mutaties in selecties</div>';let any=false;
+  for(let i=0;i<TMS.length;i++){
+    const base=S.sel[1][i];const aff=[...pD,...pN].filter(n=>base.includes(n));if(!aff.length)continue;any=true;
+    const rv=[...S.rv[i]];const ur=new Set();
+    Object.values(S.wd).forEach(w=>{const sl=base.indexOf(w.num);if(sl<0)return;for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const rw=S.wd[rn2];if(rw)continue;ur.add(ri);break;}});
+    h+=`<div class="card" style="margin-bottom:8px"><div class="cb"><strong>${TMS[i].team}</strong> <span style="color:var(--mu);font-size:11px">${TMS[i].name}</span><table class="tbl" style="margin-top:8px"><tr><th>Plek</th><th>Uitvaller</th><th>Type</th><th>Reserve invaller</th><th>v.a. etappe</th></tr>`;
+    aff.forEach(n=>{
+      const type=pD.has(n)?'DNF':'DNS';let repl=null;
+      for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const tw={...S.wd};pD.forEach(x=>tw[x]={num:x,stage,type:'DNF'});pN.forEach(x=>tw[x]={num:x,stage:stage+1,type:'DNS'});if(tw[rn2])continue;repl={num:rn2,ri};ur.add(ri);break;}
+      const slot2=base.indexOf(n);
+      h+=`<tr><td style="font-weight:600;font-size:11px">${slot2>=0?slot2+1:'—'}</td><td><span class="p pr-" style="font-size:9px">${n}</span> ${rn(n)}</td><td><span class="p ${type==='DNF'?'pr-':'pw-'}" style="font-size:9px">${type}</span></td><td>${repl?`<span class="p pp-" style="font-size:9px">${repl.num}</span> <strong>${rn(repl.num)}</strong>`:'<em style="color:var(--red);font-size:11px">geen reserve</em>'}</td><td style="font-size:10px;color:var(--mu)">E${stage+1}</td></tr>`;
+    });
+    h+=`</table></div></div>`;
   }
-  // Update knop tekst
-  var btn=document.getElementById('btn-confirm-e');
-  if(btn){
-    if(!S.ok)btn.textContent='✓ Selecties E1 vaststellen';
-    else btn.textContent='E'+cs+' selecties al vastgesteld';
-  }
-  // Update badge
-  var badge=document.getElementById('stage-badge');
-  if(badge){
-    if(!S.ok)badge.textContent='SELECTIE E1';
-    else if(cs===1)badge.textContent='E1 VASTGESTELD';
-    else badge.textContent='E'+(cs-1)+' KLAAR → E'+cs;
-  }
-  // Update DNF stap label
-  var nxe=document.getElementById('nxe');if(nxe)nxe.textContent=cs;
+  if(!any)h+='<div class="notice ni">Geen van de renners zit in een actieve selectie.</div>';
+  document.getElementById('mut-prev').innerHTML=h;document.getElementById('conf-next').style.display='inline-flex';
 }
-
-
-function confNext(){wfConfirmNext();}
-function wfConfirmNext(){
-  var stage=parseInt(document.getElementById('dnf-stage-label').textContent)||1;
-  var nxt=stage+1;
-  // Sla DNF/DNS op
-  pD.forEach(function(n){S.wd[n]={num:n,stage:stage,type:'DNF'};});
-  pN.forEach(function(n){S.wd[n]={num:n,stage:nxt,type:'DNS'};});
-  S.hist.push({stage:stage,dnf:new Set([...pD]),dns:new Set([...pN]),ts:new Date().toLocaleTimeString('nl-NL')});
+function confNext(){
+  const stage=parseInt(document.getElementById('dnf-stage').textContent)||1;const nxt=stage+1;
+  pD.forEach(n=>{S.wd[n]={num:n,stage,type:'DNF'};});pN.forEach(n=>{S.wd[n]={num:n,stage:nxt,type:'DNS'};});
+  S.hist.push({stage,dnf:new Set([...pD]),dns:new Set([...pN]),ts:new Date().toLocaleTimeString('nl-NL')});
   document.getElementById('hist-cnt').textContent=S.hist.length;
-  // Bereken selecties voor volgende etappe
-  S.sel[nxt]={};
-  for(var i=0;i<TMS.length;i++)S.sel[nxt][i]=bStage(i,nxt);
-  S.cs=nxt;
-  // Update UI
-  wfUpdateSteps();
-  wfNaarCheck();
-  try{popSels();renderSel();}catch(e){}saveState();
-  alert('DNF/DNS vastgelegd. Selecties E'+nxt+' vastgesteld! Ga naar Uitslag om E'+nxt+' in te voeren.');
+  S.sel[nxt]={};for(let i=0;i<TMS.length;i++)S.sel[nxt][i]=bStage(i,nxt);
+  S.cs=nxt;document.getElementById('stage-badge').textContent=`E${nxt} SELECTIE`;
+  document.getElementById('nxe').textContent=nxt+1;document.getElementById('nxe2').textContent=nxt+1;
+  document.getElementById('wf-dnf').style.display='none';document.getElementById('wf-check').style.display='block';
+  document.querySelectorAll('[id^="wf-tb-"]').forEach(el=>el.classList.toggle('on',el.id==='wf-tb-check'));
+  document.getElementById('s4').classList.remove('act');document.getElementById('s3').classList.remove('done');document.getElementById('s3').classList.add('act');
+  document.getElementById('uit-stg').value=nxt;popSels();renderSel();renderUit();saveState();
+  alert(`✓ Selectie E${nxt} vastgesteld. Voer nu de uitslag van etappe ${nxt} in.`);
 }
 
+// ══════════════════════════════════════════
+// DAGSTAND
+// ══════════════════════════════════════════
 function renderDag(){
   const stage=parseInt((document.getElementById('dag-stg')||{}).value)||1;const p=S.pts[stage];
   if(!p){document.getElementById('dag-content').innerHTML='<div class="notice ni">Nog geen uitslag voor etappe '+stage+'.</div>';return;}

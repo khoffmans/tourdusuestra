@@ -10,15 +10,15 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:13px;}
 .hdr{background:var(--ink);padding:0 20px;display:flex;align-items:center;gap:14px;height:50px;border-bottom:2px solid var(--gold);}
-.hdr-t{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--gl);letter-spacing:-.4px;}
+.hdr-t{font-family:Syne,sans-serif;font-weight:800;font-size:17px;color:var(--gl);letter-spacing:-.4px;}
 .hdr-s{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);margin-top:1px;}
-.hdr-b{margin-left:auto;background:var(--gold);color:var(--ink);font-family:'Syne',sans-serif;font-weight:700;font-size:10px;padding:2px 9px;border-radius:20px;letter-spacing:.04em;}
+.hdr-b{margin-left:auto;background:var(--gold);color:var(--ink);font-family:Syne,sans-serif;font-weight:700;font-size:10px;padding:2px 9px;border-radius:20px;letter-spacing:.04em;}
 .nav{background:var(--ink);display:flex;padding:0 16px;border-bottom:1px solid rgba(212,160,23,.18);overflow-x:auto;}
 .nb{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:9px 13px;color:var(--mu);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;white-space:nowrap;}
 .nb:hover{color:#ddd;}.nb.on{color:var(--gl);border-bottom-color:var(--gold);}
 .pg{display:none;padding:16px 20px;max-width:1200px;margin:0 auto;}.pg.on{display:block;}
 .card{background:white;border:1px solid var(--bo);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
-.ch{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .1s;}
+.ch{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .1s;width:100%;text-align:left;background:none;border:none;font-family:inherit;font-size:inherit;color:inherit;}
 .ch:hover,.ch.open{background:var(--paper);}
 .cb{padding:12px 14px;border-top:1px solid var(--bo);}
 .tbl{width:100%;border-collapse:collapse;font-size:12px;}
@@ -43,7 +43,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .serr{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#922b21;background:#fadbd8;border:1px solid #f1948a;border-radius:3px;padding:1px 5px;}
 .smut{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;color:#6c3483;background:#e8daef;border:1px solid #c39bd3;border-radius:3px;padding:1px 5px;}
 .snt{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#922b21;background:#fadbd8;border:1px solid #f1948a;border-radius:3px;padding:1px 5px;}
-.rn{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;min-width:22px;text-align:center;}
+.rn{font-family:Syne,sans-serif;font-weight:700;font-size:13px;min-width:22px;text-align:center;}
 .r1{color:var(--gold)}.r2{color:var(--silver)}.r3{color:var(--bronze)}
 .pts{font-family:'DM Mono',monospace;font-weight:500;font-size:14px;}
 .btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;border-radius:var(--r);cursor:pointer;border:1px solid transparent;transition:all .12s;display:inline-flex;align-items:center;gap:4px;}
@@ -67,7 +67,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .sd{position:absolute;top:100%;left:0;background:white;border:1px solid var(--b2);border-radius:var(--r);width:255px;max-height:175px;overflow-y:auto;z-index:300;box-shadow:0 4px 14px rgba(0,0,0,.1);}
 .si{padding:5px 9px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:7px;}
 .si:hover,.si.hi{background:var(--paper);}
-.sec{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec{font-family:Syne,sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .sec::after{content:'';flex:1;height:1px;background:var(--bo);}
 .fr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
 .mut-line{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(0,0,0,.04);}
@@ -81,7 +81,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);m
 .fc{padding:3px 10px;border-radius:20px;font-size:11px;border:1px solid var(--b2);background:white;cursor:pointer;color:var(--mu);}
 .fc.on{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:500;}
 .sc{background:white;border:1px solid var(--bo);border-radius:var(--r);padding:8px 12px;text-align:center;}
-.sc .n{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;}
+.sc .n{font-family:Syne,sans-serif;font-size:20px;font-weight:700;}
 .sc .l{font-size:10px;color:var(--mu);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-top:1px;}
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:14px;}
 .log-entry{background:white;border:1px solid var(--bo);border-radius:var(--r);padding:10px 14px;margin-bottom:8px;}
@@ -116,7 +116,7 @@ canvas{display:block;}
 <!-- LOGIN OVERLAY -->
 <div id="login-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,14,12,.85);z-index:1000;align-items:center;justify-content:center;">
   <div style="background:var(--paper);border-radius:12px;padding:32px 36px;min-width:320px;box-shadow:0 8px 40px rgba(0,0,0,.4);text-align:center;">
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--gold);margin-bottom:4px">Tourspel 2026</div>
+    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:var(--gold);margin-bottom:4px">Tourspel 2026</div>
     <div style="font-size:12px;color:var(--mu);margin-bottom:24px">Voer het wachtwoord in om de app te bekijken</div>
     <input id="pw-inp" type="password" class="inp" placeholder="Wachtwoord" style="width:100%;margin-bottom:10px;text-align:center;font-size:14px;" onkeydown="if(event.key==='Enter')tryLogin()">
     <div id="pw-err" style="display:none;color:var(--red);font-size:12px;margin-bottom:8px">Onjuist wachtwoord</div>
@@ -137,7 +137,7 @@ canvas{display:block;}
   </div>
 </div>
 <div id="app-wrapper" style="display:none"><div class="hdr">
-  <div><div class="hdr-t">Tourspel 2026</div><div class="hdr-s" id="hdr-subtitle">Tourspel 2026 · 60 deelnemers</div></div>
+  <div><div class="hdr-t">Tourspel 2026</div><div class="hdr-s" id="hdr-subtitle">Tourspel 2026 · 85 deelnemers</div></div>
   <div class="hdr-b" id="stage-badge">SELECTIE E1</div>
   
 </div>
@@ -185,7 +185,7 @@ canvas{display:block;}
     <div id="chk-list"></div>
     <div class="fr" style="margin-top:14px;justify-content:space-between">
       <button class="btn btn-s ao" onclick="refreshSheets2026()" title="Herlaad inzendingen vanuit Google Sheets">↺ Inzendingen herladen</button>
-      <button class="btn btn-p ao" onclick="confirmE1()" style="margin-left:auto">✓ Selectie E1 vaststellen</button>
+      <button class="btn btn-p ao" id="btn-confirm-e" onclick="confirmEX(S.cs||1)" style="margin-left:auto">✓ Selecties vaststellen</button>
       <span style="font-size:11px;color:var(--mu)" id="e1-lbl"></span>
     </div>
   </div>
@@ -416,13 +416,18 @@ const SL={1:"POGACAR Tadej",2:"DEL TORO Isaac",3:"GROSSCHARTNER Felix",4:"MCNULT
 // TURGIS: was 187, now 181  |  CRAS: was 181, now 183
 // ANDRESEN: was 195, now 192  |  BARGUIL: was 192, now 193
 
+function escHtml(s){
+  if(s===null||s===undefined)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 const NIT={bardet:1,carapaz:1,bernal:1,jakobsen:1,hindley:1,pidcock:1,gaudu:1,welsford:1,pedersen:1,ciccone:1,"del toro":1,landa:1,pinot:1,lafay:1,küng:1,kung:1,uijtdebroeks:1,"geoghegan hart":1,kooij:1,bilbao:1};
 
 const AL={
   // ═══ UAE Team Emirates ═══
   "pogacar":1,"tadej pogacar":1,"t. pogacar":1,
   "del toro":2,"isaac del toro":2,"del toro isaac":2,"i. del toro":2,
-  "grosschartner":3,"felix grosschartner":3,
+  "grosschartner":3,"felix grosschartner":3,"felix gall":null,
   "mcnulty":4,"brandon mcnulty":4,
   "politt":5,"nils politt":5,
   "vermeersch":6,"florian vermeersch":6,
@@ -711,12 +716,26 @@ function res(raw){
   return{num:null,st:'nf',raw};
 }
 
-function rn(n){if(!SL[n])return'#'+n;const {full}=parseName(n);return full;}
+function parseName(n){
+  if(!SL[n])return{first:'',last:'#'+n,full:'#'+n};
+  var words=SL[n].split(' ');
+  var lastParts=[],firstParts=[],inFirst=false;
+  for(var i=0;i<words.length;i++){
+    var w=words[i];
+    if(!inFirst&&w===w.toUpperCase()&&w.length>1&&/^[A-Z]+$/.test(w)){
+      lastParts.push(w);
+    }else{inFirst=true;firstParts.push(w);}
+  }
+  var last=lastParts.map(function(w){return w[0]+w.slice(1).toLowerCase();}).join(' ');
+  var first=firstParts.join(' ');
+  return{first:first,last:last,full:first?first+' '+last:last};
+}
+function rn(n){if(n===0)return'Foutief (0)';if(!SL[n])return'#'+n;var _p=parseName(n);return _p.full;}
 function rs(n){
   if(!SL[n])return'#'+n;
-  const {first,last}=parseName(n);
-  const initials=first.split(' ').map(w=>w[0]+'.').join('');
-  return initials?initials+' '+last:last;
+  var _p=parseName(n);
+  var initials=_p.first.split(' ').filter(function(w){return w.length>0;}).map(function(w){return w[0]+'.';}).join('');
+  return initials?initials+' '+_p.last:_p.last;
 }
 function ss(q,mx=10){if(!q)return[];const lo=q.toLowerCase();return Object.entries(SL).filter(([n,nm])=>nm.toLowerCase().includes(lo)||n.startsWith(q)).slice(0,mx).map(([n,nm])=>({num:parseInt(n),name:nm}));}
 
@@ -737,12 +756,12 @@ const TMS=[
   {team:"Helden oet Helden",name:"John Eijkelberg",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Lipowitz","Evenepoel","Ayuso","TH Johannessen","Pidcock","Philipsen","Kooij","Mads Pedersen","Van der Poel","Tim Merlier","Van Gils"],res:["Girmay","Skjelmose","Carapaz","Arensman","Vacek"]},
   {team:"Helden Brazilian Wax Sprint Dominance",name:"John Eijkelberg",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Lipowitz","Evenepoel","Ayuso","TH Johannessen","Philipsen","Kooij","Merlier","Mads Pedersen","De Lie","Girmay","Pidcock"],res:["Van der Poel","Lenny Martinez","Carapaz","Skjelmose","Arensman"]},
   {team:"Helden Chaos Attack",name:"John Eijkelberg",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Lipowitz","Evenepoel","Ayuso","TH Johannessen","Pidcock","Van der Poel","Van Gils","Vacek","Mads Pedersen","Philipsen","Kooij"],res:["Girmay","Merlier","Carapaz","Arensman","Skjelmose"]},
-  {team:"Harieke",name:"Har Peters",riders:["Pogacar","Vingegaard","Evenepoel","del Toro","Ayuso","Seixas","Arensman","Jorgenson","T.H. Johannessen","Carapaz","Yates","Uijtdebroeks","Skjelmose","Kuss","Vauquelin"],res:["Affini","Hindley","Lipowitz","Pidcock","Gregoire"]},
+  {team:"Harieke",name:"Har Peters",riders:["Pogacar","Vingegaard","Evenepoel","del Toro","Ayuso","Lipowitz","Seixas","Arensman","Jorgenson","T.H. Johannessen","Carapaz","Yates","Uijtdebroeks","Skjelmose","Kuss"],res:["Affini","Hindley","Pidcock","Gregoire","Vauquelin"]},
   {team:"Harieke 2",name:"Har Peters",riders:["Pogacar","Vingegaard","Richard Carapaz","Florian Lipowitz","Mattias Skjelmose","Juan Ayuso","Remco Evenepoel","Paul Seixas","Valentin Paret-Peintre","Matteo Jorgenson","Lenny Martinez","Ben O'Connor","T.H. Johannessen","Adam Yates","Kuss"],res:["Affini","Hindley","S. Kuss","Seixas","Vauquelin"]},
   {team:"Roi du Sud",name:"Marcel Bonten",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Florian Lipowitz","Paul Seixas","Isaac del Toro","Matteo Jorgenson","Richard Carapaz","Jasper Philipsen","Tim Merlier","Pavel Bittner","Biniam Girmay","Lenny Martinez","Sepp Kuss","Arnaud de Lie"],res:["Tiberi","Mads Pedersen","Mathieu van der Poel","Juan Ayuso","Kevin Vauquelin"]},
   {team:"Buis on tour",name:"Colin Keijbeck",riders:["Pogacar","Vingegaard","Seixas","Lipowitz","Del Toro","Evenepoel","Ayuso","Carapaz","van der Poel","Philipsen","Merlier","Pedersen","Kooij","Vauquelin","Adam Yates"],res:["Halland Johannessen","Pidcock","Uijtdebroeks","O'Connor","Skjelmose"]},
   {team:"La Louve",name:"Ilse Bongers",riders:["Tadej Pogacar","Jonas Vingegaard","Paul Seixas","Isaac del Toro","Kevin Vauquelin","Thymen Arensman","Remco Evenepoel","Jasper Philipsen","Florian Lipowitz","Mattias Skjelmose","Juan Ayuso","Matteo Jorgenson","Tom Pidcock","Brandon McNulty","Tim Merlier"],res:["Biniam Girmay","Richard Carapaz","Matej Mohoric","Derek Gee-West","Tobias Foss"]},
-  {team:"Mademoiselle Escargot",name:"Ilse Bongers",riders:["Jonas Vingegaard","Tadej Pogacar","Paul Seixas","Florian Lipowitz","Biniam Girmay","Mathieu van der Poel","Lenny Martinez","Ben Healy","Ben O'Connor","Michael Storer","Olav Kooij","Einer Rubio","Cian Uijtdebroeks","Kevin Vauquelin","Antonio Tiberi"],res:["Remco Evenepoel","Isaac del Toro","Tim Merlier","Hindley","Lennert Van Eetvelt"]},
+  {team:"Mademoiselle Escargot",name:"Ilse Bongers",riders:["Jonas Vingegaard","Tadej Pogacar","Paul Seixas","Florian Lipowitz","Biniam Girmay","Mathieu van der Poel","Lenny Martinez","Ben Healy","Ben O'Connor","Michael Storer","Olav Kooij","Einer Rubio","Cian Uijtdebroeks","Kevin Vauquelin","Antonio Tiberi"],res:["Remco Evenepoel","Isaac del Toro","Tim Merlier","Jai Hindley","Lennert Van Eetvelt"]},
   {team:"L'Equipe du Baguette",name:"Frank van Neer",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Florian Lipowitz","Isaac del Toro","Juan Ayuso","Matteo Jorgenson","Adam Yates","Jasper Philipsen","Tim Merlier","Mathieu van der Poel","Mads Pedersen","Biniam Girmay","Olav Kooij","Paul Seixas"],res:["Richard Carapaz","Thymen Arensman","Michael Storer","Tom Pidcock","Pavel Bittner"]},
   {team:"Ut weurd alles of ut weurd gaar niks",name:"Frank van Neer",riders:["Tadej Pogacar","Jonas Vingegaard","Florian Lipowitz","Isaac del Toro","Remco Evenepoel","Paul Seixas","Matteo Jorgenson","Carlos Rodriguez","Mathieu van der Poel","Jasper Philipsen","Mads Pedersen","Olav Kooij","Tim Merlier","Tom Pidcock","Biniam Girmay"],res:["Juan Ayuso","Adam Yates","Richard Carapaz","Michael Storer","Ben O'Connor"]},
   {team:"Altied windj op de kop",name:"Roger Dohmen",riders:["Tadej Pogacar","Paul Seixas","Jonas Vingegaard","Remco Evenepoel","Juan Ayuso","Florian Lipowitz","Tobias Halland Johannessen","Thymen Arensman","Jasper Philipsen","Tim Merlier","Mathieu van der Poel","Tom Pidcock","Ben Healy","Richard Carapaz","Isaac del Toro"],res:["Mads Pedersen","Biniam Girmay","Matej Mohoric","Kaden Groves","Bryan Coquard"]},
@@ -763,13 +782,13 @@ const TMS=[
   {team:"Femke Fulsens",name:"Funs Meuffels",riders:["Tadej Pogacar","Jonas Vingegaard","Paul Seixas","Isaac del Toro","Florian Lipowitz","Richard Carapaz","Remco Evenepoel","Oscar Onley","Mathieu van der Poel","Mathias Vacek","Jasper Philipsen","Tim Merlier","Biniam Girmay","Thymen Arensman","Kevin Vauquelin"],res:["Olav Kooij","Jordi Meeus","Felix Gall","Jonathan Milan","Soren Waerenskjold"]},
   {team:"Mart -t +k",name:"Mark Peters",riders:["Evenepoel","Pogacar","Vingegaard","Lipowitz","Ayuso","Ben O'Connor","Skjelmose","Carapaz","Van der Poel","Pedersen","Merlier","Philipsen","Kooij","Girmay","Pidcock"],res:["Del Toro","Jorgenson","Martinez","Healy","Bernal"]},
   {team:"Der Bockemeister",name:"Geert Bocken",riders:["Pogacar","Vingegaard","Lipowitz","Ayuso","Evenepoel","Vauquelin","Seixas","Carapaz","Philipsen","Merlier","Kooij","Girmay","De Lie","Pedersen","Pidcock"],res:["Jorgenson","Del Toro","Kuss","Tobias Halland Johannessen","Skjelmose"]},
-  {team:"Vers le bas",name:"Bas van Neer",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Juan Ayuso","Florian Lipowitz","Isaac del Toro","Richard Carapaz","Ben O'Connor","Thymen Arensman","Paul Seixas","Tobias Halland Johannessen","Tom Pidcock","Lenny Martinez","Cian Uijtdebroeks","Mattias Skjelmose"],res:["Adam Yates","Carlos Rodriguez","Santiago Buitrago","Ben O'Connor","Fabio Jakobsen"]},
+  {team:"Vers le bas",name:"Bas van Neer",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Juan Ayuso","Florian Lipowitz","Isaac del Toro","Richard Carapaz","Ben O'Connor","Thymen Arensman","Paul Seixas","Tobias Halland Johannessen","Tom Pidcock","Lenny Martinez","Cian Uijtdebroeks","Mattias Skjelmose"],res:["Adam Yates","Carlos Rodriguez","Mattias Skjelmose","Ben O'Connor","Fabio Jakobsen"]},
   {team:"Jean de la Rue Montagne",name:"Jan van Wegberg",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Juan Ayuso","Richard Carapaz","Florian Lipowitz","Paul Seixas","Isaac del Toro","Jasper Philipsen","Tim Merlier","Olav Kooij","Mads Pedersen","Mathieu van der Poel","Arnaud de Lie","Ben Healy"],res:["Mattias Skjelmose","Tom Pidcock","Sepp Kuss","Thymen Arensman","Lenny Martinez"]},
   {team:"AP Janne III",name:"Jan van Wegberg",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Isaac del Toro","Florian Lipowitz","Jasper Philipsen","Paul Seixas","Tom Pidcock","Mathieu van der Poel","Arnaud de Lie","Mads Pedersen","Tim Merlier","Thymen Arensman","Olav Kooij","Ben Healy"],res:["Tobias Halland Johannessen","Jai Hindley","Richard Carapaz","Juan Ayuso","Cian Uijtdebroeks"]},
   {team:"L'Equipe de Flesj",name:"Jan van Wegberg",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Florian Lipowitz","Paul Seixas","Jasper Philipsen","Tim Merlier","Olav Kooij","Arnaud de Lie","Mads Pedersen","Biniam Girmay","Pascal Ackermann","Max Kanter","Milan Fretin","Filippo Ganna"],res:["Richard Carapaz","Juan Ayuso","Lenny Martinez","Jai Hindley","Soren Waerenskjold"]},
   {team:"The Hillbillies",name:"Geert Bocken",riders:["Pogacar","Vingegaard","Ayuso","Lipowitz","Seixas","Evenepoel","Del Toro","Jorgenson","Philipsen","Merlier","Girmay","Bittner","Pidcock","Vauquelin","Van der Poel"],res:["Carapaz","Hindley","Yates","Bernal","Uijtdebroeks"]},
   {team:"Tete de la Course",name:"Peter Tummers",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Paul Seixas","Juan Ayuso","Florian Lipowitz","Richard Carapaz","Thymen Arensman","Mathieu van der Poel","Jasper Philipsen","Tim Merlier","Biniam Girmay","Mads Pedersen","John Degenkolb","Pavel Bittner"],res:["Adam Yates","Isaac del Toro","Tobias Halland Johannessen","Soren Waerenskjold","Javier Romo"]},
-  {team:"Quincar",name:"Quinn Hamers",riders:["Tadej Pogacar","Thymen Arensman","Paul Seixas","Quinn Simmons","Jonas Vingegaard","Remco Evenepoel","Isaac del Toro","Florian Lipowitz","Jasper Philipsen","Lenny Martinez","Valentin Paret-Peintre","Mads Pedersen","Tom Pidcock","Mathieu van der Poel","Richard Carapaz"],res:["Tobias Halland Johannessen","Juan Ayuso","Pablo Castrillo","Sebastian Berwick","Kuss"]},
+  {team:"Quincar",name:"Quinn Hamers",riders:["Tadej Pogacar","Thymen Arensman","Paul Seixas","Quinn Simmons","Jonas Vingegaard","Remco Evenepoel","Isaac del Toro","Florian Lipowitz","Jasper Philipsen","Lenny Martinez","Valentin Paret-Peintre","Mads Pedersen","Tom Pidcock","Mathieu van der Poel","Richard Carapaz"],res:["Tobias Halland Johannessen","Juan Ayuso","Pablo Castrillo","Sebastian Berwick","Sepp Kuss"]},
   {team:"Ymandth1",name:"Math Janssen",riders:["Pogacar","Seixas","Vingegaard","Lipowitz","Del Toro","Ayuso","Evenepoel","Pidcock","Philipsen","Kooij","Merlier","Kanter","Pedersen","Girmay","Lenny Martinez"],res:["Skjelmose","TH Johannessen","Carapaz","Vauquelin","Tiberi"]},
   {team:"Aan 't elastiek",name:"Ralph Hoedemakers",riders:["T. Pogacar","J. Vingegaard","I. Del Toro","P. Seixas","F. Lipowitz","J. Ayuso","R. Evenepoel","R. Carapaz","T. Pidcock","M. Jorgenson","M. Skjelmose","T.H. Johannessen","C. Uijtdebroeks","L. Martinez","K. Vauquelin"],res:["A. Yates","S. Kuss","B. O'Connor","J. Hindley","D. Piganzoli"]},
   {team:"Twc Asep 1",name:"Roger Dohmen",riders:["Tadej Pogacar","Paul Seixas","Remco Evenepoel","Jonas Vingegaard","Juan Ayuso","Lenny Martinez","Florian Lipowitz","Tobias Halland Johannessen","Jasper Philipsen","Tim Merlier","Milan Fretin","Mathieu van der Poel","Tom Pidcock","Ben Healy","Richard Carapaz"],res:["Isaac del Toro","Mads Pedersen","Biniam Girmay","Matej Mohoric","Fred Wright"]},
@@ -783,8 +802,34 @@ const TMS=[
   {team:"Sra Neknarv",name:"Marijke Vranken",riders:["Pogacar","Vingegaard","Seixas","Evenepoel","Carapaz","Arensman","Ayuso","Bittner","Philipsen","Pedersen","Girmay","Merlier","Kooij","De Lie","Gregoire"],res:["Lipowitz","L. Martinez","TH Johannessen","Del Toro","Skjelmose"]},
   {team:"Mijo Neknarv",name:"David Vranken",riders:["Pogacar","Vingegaard","Seixas","Evenepoel","Ayuso","Kooij","Kanter","Healy","Philipsen","Pedersen","Girmay","Merlier","De Lie","Godon","Vauquelin"],res:["Tiberi","L. Martinez","Del Toro","Arensman","Jorgenson"]},
   {team:"Flitsfits",name:"Hub Meerten",riders:["Tadej Pogacar","Jonas Vingegaard","Florian Lipowitz","Remco Evenepoel","Paul Seixas","Juan Ayuso","Isaac del Toro","Jasper Philipsen","Mathieu van der Poel","Tim Merlier","Mads Pedersen","Biniam Girmay","Lenny Martinez","Kevin Vauquelin","Thymen Arensman"],res:["Cian Uijtdebroeks","Tom Pidcock","Oscar Onley","Richard Carapaz","Olav Kooij"]},
-  {team:"Hija Neknarv",name:"Hannah Vranken",riders:["Pogacar","Vingegaard","Evenepoel","Arensman","Skjelmose","Carapaz","Fretin","Pidcock","Philipsen","Pedersen","Girmay","Vauquelin","Kanter","Van der Poel","Godon"],res:["Seixas","Uijtdebroeks","L. Martinez","TH Johannessen","Lipowitz"]}
+  {team:"Hija Neknarv",name:"Hannah Vranken",riders:["Pogacar","Vingegaard","Evenepoel","Arensman","Skjelmose","Carapaz","Fretin","Pidcock","Philipsen","Pedersen","Girmay","Vauquelin","Kanter","Van der Poel","Godon"],res:["Seixas","Uijtdebroeks","L. Martinez","TH Johannessen","Lipowitz"]},
+  {team:"Snemmel 1",name:"Maurice Lemmens",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Lipowitz","Evenepoel","TH Johannessen","Ayuso","Gregoire","Van der Poel","Philipsen","Kooij","Girmay","Pedersen","Merlier"],res:["Pidcock","Carapaz","Jorgenson","Uijtdebroeks","Lenny Martinez"]},
+  {team:"Sansational",name:"Sandra Minkenberg",riders:["Pogacar","Vingegaard","Del Toro","Seixas","Evenepoel","Lipowitz","Ayuso","Tobias Johannessen","Vauquelin","Godon","Pedersen","Girmay","Kooij","Merlier","Philipsen"],res:["Pidcock","Healy","O'Connor","Carapaz","Uijtdebroeks"]},
+  {team:"Snemmel 2",name:"Maurice Lemmens",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Lipowitz","Evenepoel","Ayuso","Pidcock","Vauquelin","Van der Poel","Gregoire","Kooij","Merlier","Philipsen","Pedersen"],res:["TH Johannessen","Carapaz","Lenny Martinez","Jorgenson","Skjelmose"]},
+  {team:"Tadej Pogacar not a super agressive rider",name:"Joep Gerats",riders:["Tadej Pogacar","Jonas Vingegaard","Paul Seixas","Isaac del Toro","Remco Evenepoel","Florian Lipowitz","Juan Ayuso","Matteo Jorgenson","Jasper Philipsen","Tim Merlier","Mads Pedersen","Olav Kooij","Biniam Girmay","Mathieu van der Poel","Tom Pidcock"],res:["Tobias Halland Johannessen","Mattias Skjelmose","Kevin Vauquelin","Cian Uijtdebroeks","Richard Carapaz"]},
+  {team:"Jan Linders E-sport",name:"Daan Janssen",riders:["11","51","21","101","12","181","105","112","88","44","35","25","13"],res:["41","52","53","81"]},
+  {team:"Cassanova",name:"Cas Bocken",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Evenepoel","Lipowitz","Uijtdebroeks","Pidcock","Van der Poel","Vauquelin","Philipsen","Merlier","Girmay","Mads Pedersen","Kooij"],res:["Tobias Johannessen","Ayuso","Godon","Lenny Martinez","Carapaz"]},
+  {team:"La Petite Hoff",name:"Kelly Hoffmans",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Juan Ayuso","Lenny Martinez","Isaac del Toro","Paul Seixas","Richard Carapaz","Jasper Philipsen","Mathieu van der Poel","Biniam Girmay","Mads Pedersen","Tim Merlier","Matteo Jorgenson","Valentin Paret-Peintre"],res:["Florian Lipowitz","Warren Barguil","Tom Pidcock","Ben O'Connor","Thymen Arensman"]},
+  {team:"Mathje van der Pool",name:"Joep Gerats",riders:["Tadej Pogacar","Jonas Vingegaard","Remco Evenepoel","Paul Seixas","Isaac del Toro","Florian Lipowitz","Juan Ayuso","Tobias Halland Johannessen","Jasper Philipsen","Tim Merlier","Mads Pedersen","Olav Kooij","Biniam Girmay","Mathieu van der Poel","Tom Pidcock"],res:["Matteo Jorgenson","Cian Uijtdebroeks","Kevin Vauquelin","Jai Hindley","Antonio Tiberi"]},
+  {team:"Je Gat",name:"Luc Beerens",riders:["Pogacar","Vingegaard","Del Toro","Seixas","Lipowitz","Evenepoel","Ayuso","Vauquelin","Turgis","Kanter","Mads Pedersen","Philipsen","Kooij","Godon","Pidcock"],res:["Lenny Martinez","Carapaz","Arensman","Hindley","TH Johannessen"]},
+  {team:"Kyannietmeerbeter",name:"Kyan Bocken",riders:["Pogacar","Vingegaard","Evenepoel","Seixas","Del Toro","Lipowitz","Tobias Johannessen","Vauquelin","Carapaz","Van der Poel","Philipsen","Merlier","Kooij","Pedersen","Girmay"],res:["Pidcock","Healy","O'Connor","Arensman","Alaphilippe"]},
+  {team:"Haopelik valle ze optied in",name:"Toine Bocken",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Evenepoel","Lipowitz","Ayuso","Vauquelin","Godon","Gregoire","Van der Poel","Pidcock","Philipsen","Pedersen","Girmay"],res:["Merlier","Kooij","Healy","Tobias Johannessen","Carapaz"]},
+  {team:"Mister Spaghetti",name:"Kevin Hoffmans",riders:["Pogacar","Vingegaard","Del Toro","Seixas","Evenepoel","Lipowitz","Ayuso","Tobias Halland Johannessen","Pedersen","Philipsen","Carapaz","Girmay","De Lie","Pidcock","Van der Poel"],res:["Healy","Jorgenson","Skjelmose","Lenny Martinez","Healy"]},
+  {team:"La biere hiere",name:"Kevin Hoffmans",riders:["Pogacar","Vingegaard","Del Toro","Seixas","Lipowitz","Evenepoel","Ayuso","Vauquelin","Van der Poel","Godon","Carapaz","Pedersen","Merlier","Philipsen","Girmay"],res:["Skjelmose","Tobias H. Johannessen","Jorgenson","Arensman","Kuss"]},
+  {team:"Hugo Fleauris",name:"Floris Hoffmans",riders:["Pogacar","Vingegaard","Seixas","Del Toro","Ayuso","Lipowitz","Evenepoel","Jorgenson","Pedersen","Van der Poel","Godon","Philipsen","Pidcock","Girmay","Gregoire"],res:["Carapaz","Tiberi","Van Eetvelt","Tobias H. Johannessen","Adam Yates"]},
+  {team:"Kastelino",name:"Alois Huizinga",riders:["Pogacar","Vingegaard","Seixas","Arensman","Ayuso","Del Toro","Evenepoel","Van der Poel","Pedersen","Girmay","Philipsen","Merlier","De Lie","Carapaz","Healy"],res:["Pidcock","Skjelmose","Martinez","Yates","Kooij"]},
+  {team:"Numero Un",name:"Karel Viehoff",riders:["Pogacar","Vingegaard","Lipowitz","Evenepoel","Seixas","Johannessen","Ayuso","Del Toro","Van der Poel","Skjelmose","Pedersen","Vauquelin","Philipsen","Merlier","Girmay"],res:["Carapaz","Tiberi","O'Connor","Arensman","Healy"]},
+  {team:"ASEP (J)",name:"Jean Dohmen",riders:["Pogacar","Vingegaard","Del Toro","Lipowitz","Ayuso","Seixas","Uijtdebroeks","Johannessen","Philipsen","Kooij","Merlier","Pidcock","Carapaz","Van der Poel","Skjelmose"],res:["Evenepoel","Arensman","Healy","Martinez","Vauquelin"]},
+  {team:"Quizo I",name:"Jan Goossens",riders:["Pogacar","Vingegaard","Evenepoel","Del Toro","Ayuso","Lipowitz","Seixas","Tiberi","Philipsen","Healy","Merlier","Bernal","Girmay","De Lie","O'Connor"],res:["Carapaz","Pidcock","Martinez","Skjelmose","Arensman"]},
+  {team:"Quizo II",name:"Jan Goossens",riders:["Pogacar","Vingegaard","Del Toro","Seixas","Lipowitz","Ayuso","Martinez","Carapaz","Pedersen","Merlier","Girmay","Hindley","Kuss","Vauquelin","Arensman"],res:["Evenepoel","Bauhaus","Pidcock","Yates","O'Connor"]},
+  {team:"Team Fremmel",name:"Frans Storken",riders:["Pogacar","Vingegaard","Seixas","Ayuso","Carapaz","Del Toro","Evenepoel","Arensman","Kooij","Philipsen","Merlier","Pedersen","Girmay","Ganna","Groves"],res:["Healy","McNulty","Godon","Skjelmose","Pidcock"]},
+  {team:"Tour du Loet",name:"Jos Schrijnewerkers",riders:["Pogacar","Vingegaard","Del Toro","Seixas","Lipowitz","Evenepoel","Ayuso","Carapaz","Van der Poel","Philipsen","Merlier","Girmay","Pedersen","Mohoric","Healy"],res:["Johannessen","Kuss","Tiberi","Vauquelin","Arensman"]},
+  {team:"Frans Maessen",name:"John Engelbert",riders:["Pogacar","Vingegaard","Seixas","Vauquelin","Evenepoel","Lipowitz","Gregoire","Martinez","Merlier","Philipsen","Kooij","Godon","Waerenskjold","Girmay","Pedersen"],res:["Ayuso","Del Toro","Valentin Paret-Peintre","Uijtdebroeks","Storer"]},
+  {team:"Gerrie Kneteman",name:"John Engelbert",riders:["Pogacar","Seixas","Vingegaard","Johannessen","Lipowitz","Vauquelin","Ayuso","Del Toro","Philipsen","Merlier","Kooij","Waerenskjold","De Lie","Bauhaus","Girmay"],res:["Valentin Paret-Peintre","Evenepoel","Gregoire","Martinez","Van Wilder"]},
+  {team:"Gerben Karstens",name:"John Engelbert",riders:["Merlier","Philipsen","Kooij","Waerenskjold","Girmay","Godon","De Lie","Bauhaus","Armirail","Ackermann","Pedersen","Pogacar","Seixas","Vingegaard","Lipowitz"],res:["Evenepoel","Johannessen","Vauquelin","Gregoire","Ayuso"]},
+  {team:"FOJO",name:"Niekie Storken",riders:["Pogacar","Vingegaard","Evenepoel","Ayuso","Vauquelin","Lipowitz","Seixas","Del Toro","Merlier","Philipsen","Kooij","Pedersen","Girmay","Van der Poel","Godon"],res:["Carapaz","Tiberi","Pidcock","Gregoire","Healy"]}
 ];
+const VRAGEN={"0": {"uitvaller": "Tobias Halland Johannessen", "plek": "45", "parijs": 127, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "1": {"uitvaller": "Ramses Debruyne", "plek": "34", "parijs": 152, "puntentrui": "Jasper Philipsen", "bergtrui": "Richard Carapaz"}, "2": {"uitvaller": "Gradek", "plek": "1e", "parijs": 0, "puntentrui": "Frits Biesterbos", "bergtrui": "Julius van den Berg"}, "3": {"uitvaller": "Philipsen", "plek": "1e", "parijs": 146, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "4": {"uitvaller": "Jasper Philipsen", "plek": "18", "parijs": 172, "puntentrui": "Jasper Philipsen", "bergtrui": "Jonas Vingegaard"}, "5": {"uitvaller": "Matej Mohoric", "plek": "Laatste", "parijs": 147, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "6": {"uitvaller": "Sean Quinn", "plek": "34", "parijs": 146, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "7": {"uitvaller": "Jonas Rickaert", "plek": "23", "parijs": 153, "puntentrui": "Mads Pedersen", "bergtrui": "Tadej Pogacar"}, "8": {"uitvaller": "Quinn Simmons", "plek": "81", "parijs": 142, "puntentrui": "Jasper Philipsen", "bergtrui": "Lenny Martinez"}, "9": {"uitvaller": "Quinn Simmons", "plek": "6e", "parijs": 149, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "10": {"uitvaller": "Merlier", "plek": "Top 20", "parijs": 150, "puntentrui": "Philipsen", "bergtrui": "Carapaz"}, "11": {"uitvaller": "Merlier", "plek": "Top 20", "parijs": 150, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "12": {"uitvaller": "Merlier", "plek": "Top 20", "parijs": 150, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "13": {"uitvaller": "Affini", "plek": "35", "parijs": 149, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "14": {"uitvaller": "Affini", "plek": "35", "parijs": 149, "puntentrui": "Jasper Philipsen", "bergtrui": "Pogacar"}, "15": {"uitvaller": "Milan Fretin", "plek": "16", "parijs": 158, "puntentrui": "Olav Kooij", "bergtrui": "Richard Carapaz"}, "16": {"uitvaller": "Campenaerts", "plek": "48", "parijs": 158, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "17": {"uitvaller": "Lennert Van Eetvelt", "plek": "6e", "parijs": 165, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "18": {"uitvaller": "Hindley", "plek": "8e", "parijs": 166, "puntentrui": "Jasper Philipsen", "bergtrui": "Thymen Arensman"}, "19": {"uitvaller": "Pavel Bittner", "plek": "8e", "parijs": 161, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "20": {"uitvaller": "Tom Pidcock", "plek": "1e", "parijs": 156, "puntentrui": "Tim Merlier", "bergtrui": "Jonas Vingegaard"}, "21": {"uitvaller": "Tim Merlier", "plek": "5", "parijs": 155, "puntentrui": "Jasper Philipsen", "bergtrui": "Richard Carapaz"}, "22": {"uitvaller": "Cees Bol", "plek": "17e", "parijs": 165, "puntentrui": "Mads Pedersen", "bergtrui": "Richard Carapaz"}, "23": {"uitvaller": "Arnaud de Lie", "plek": "17", "parijs": 187, "puntentrui": "Mads Pedersen", "bergtrui": "Thymen Arensman"}, "24": {"uitvaller": "Pogacar", "plek": "1", "parijs": 194, "puntentrui": "Girmay", "bergtrui": "Carapaz"}, "25": {"uitvaller": "Jegat", "plek": "Eerste 70", "parijs": 150, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "26": {"uitvaller": "De Lie", "plek": "Eerste 60", "parijs": 152, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "27": {"uitvaller": "Kooij", "plek": "Eerste 100", "parijs": 144, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "28": {"uitvaller": "Arnaud de Lie", "plek": "6e", "parijs": 138, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "29": {"uitvaller": "Jose Felix Parra", "plek": "33", "parijs": 155, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "30": {"uitvaller": "Kooij", "plek": "25", "parijs": 162, "puntentrui": "Philipsen", "bergtrui": "Martinez"}, "31": {"uitvaller": "Egan Bernal", "plek": "54", "parijs": 149, "puntentrui": "Jasper Philipsen", "bergtrui": "Pogacar"}, "32": {"uitvaller": "Filippo Ganna", "plek": "Top 10", "parijs": 0, "puntentrui": "Biniam Girmay", "bergtrui": "Tadej Pogacar"}, "33": {"uitvaller": "Mathieu van der Poel", "plek": "Top 20", "parijs": 167, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "34": {"uitvaller": "Mads Pedersen", "plek": "Top 30", "parijs": 163, "puntentrui": "Mads Pedersen", "bergtrui": "Tadej Pogacar"}, "35": {"uitvaller": "Joshua Tarling", "plek": "Top 59", "parijs": 159, "puntentrui": "Mathieu van der Poel", "bergtrui": "Jonas Vingegaard"}, "36": {"uitvaller": "Soren Waerenskjold", "plek": "23", "parijs": 176, "puntentrui": "Tim Merlier", "bergtrui": "Pogacar"}, "37": {"uitvaller": "Nils Politt", "plek": "11", "parijs": 156, "puntentrui": "Pedersen", "bergtrui": "Pogacar"}, "38": {"uitvaller": "Frank van den Broek", "plek": "7", "parijs": 160, "puntentrui": "Mads Pedersen", "bergtrui": "Pogacar"}, "39": {"uitvaller": "Fabio Jakobsen", "plek": "11", "parijs": 189, "puntentrui": "Wout van Aert", "bergtrui": "Tadej Pogacar"}, "40": {"uitvaller": "Piet Allegaert", "plek": "11", "parijs": 139, "puntentrui": "Pedersen", "bergtrui": "Pogacar"}, "41": {"uitvaller": "Frits Biesterbos", "plek": "22", "parijs": 8, "puntentrui": "Bernard Hinault", "bergtrui": "Lipowitz"}, "42": {"uitvaller": "Kamil Gradek", "plek": "33", "parijs": 111, "puntentrui": "Pedersen", "bergtrui": "Lenny Martinez"}, "43": {"uitvaller": "Fretin", "plek": "3", "parijs": 161, "puntentrui": "Pedersen", "bergtrui": "Pogacar"}, "44": {"uitvaller": "Stefano Oldani", "plek": "22", "parijs": 143, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "45": {"uitvaller": "Sepp Kuss", "plek": "25", "parijs": 123, "puntentrui": "Jasper Philipsen", "bergtrui": "Lipowitz"}, "46": {"uitvaller": "Merlier", "plek": "1", "parijs": 155, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "47": {"uitvaller": "A. De Lie", "plek": "46", "parijs": 145, "puntentrui": "J. Philipsen", "bergtrui": "T. Pogacar"}, "48": {"uitvaller": "Fred Wright", "plek": "5", "parijs": 178, "puntentrui": "Jasper Philipsen", "bergtrui": "Lenny Martinez"}, "49": {"uitvaller": "Godon", "plek": "2", "parijs": 155, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "50": {"uitvaller": "J. Vingegaard", "plek": "62", "parijs": 144, "puntentrui": "M. Pedersen", "bergtrui": "R. Carapaz"}, "51": {"uitvaller": "Arnaud de Lie", "plek": "10", "parijs": 0, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "52": {"uitvaller": "B. Girmay", "plek": "2", "parijs": 144, "puntentrui": "J. Philipsen", "bergtrui": "T. Pogacar"}, "53": {"uitvaller": "Pablo Tombe", "plek": "11", "parijs": 0, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "54": {"uitvaller": "De Lie", "plek": "1", "parijs": 138, "puntentrui": "J. Philipsen", "bergtrui": "R. Carapaz"}, "55": {"uitvaller": "John Eijkelenberg", "plek": "1", "parijs": 154, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "56": {"uitvaller": "Wilbert Smeets", "plek": "1", "parijs": 155, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "57": {"uitvaller": "Jo Widdershoven", "plek": "1", "parijs": 156, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "58": {"uitvaller": "Piet Allegaert", "plek": "21", "parijs": 203, "puntentrui": "Tim Merlier", "bergtrui": "Tadej Pogacar"}, "59": {"uitvaller": "Jannie Slangen", "plek": "1", "parijs": 157, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "60": {"uitvaller": "Kooij", "plek": "Top 10", "parijs": 153, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "61": {"uitvaller": "Sansational", "plek": "Laatste", "parijs": 158, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "62": {"uitvaller": "Degenkolb", "plek": "10", "parijs": 153, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "63": {"uitvaller": "Arnaud de Lie", "plek": "3", "parijs": 157, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "64": {"uitvaller": "1", "plek": "22", "parijs": 178, "puntentrui": "1", "bergtrui": "1"}, "65": {"uitvaller": "Pogacar", "plek": "40", "parijs": 167, "puntentrui": "Pogacar", "bergtrui": "Carapaz"}, "66": {"uitvaller": "Jasper Philipsen", "plek": "45", "parijs": 181, "puntentrui": "Jasper Philipsen", "bergtrui": "Richard Carapaz"}, "67": {"uitvaller": "Arnaud de Lie", "plek": "4", "parijs": 157, "puntentrui": "Jasper Philipsen", "bergtrui": "Tadej Pogacar"}, "68": {"uitvaller": "Jegat", "plek": "Eerste 80", "parijs": 141, "puntentrui": "Pogacar", "bergtrui": "Valentin Paret-Peintre"}, "69": {"uitvaller": "Alaphilippe", "plek": "Top 10", "parijs": 154, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "70": {"uitvaller": "Puncheur", "plek": "Alles of niks", "parijs": 161, "puntentrui": "Philipsen", "bergtrui": "Pogacar"}, "71": {"uitvaller": "De Lie", "plek": "7", "parijs": 151, "puntentrui": "Pedersen", "bergtrui": "Martinez"}, "72": {"uitvaller": "Walker", "plek": "25", "parijs": 159, "puntentrui": "Philipsen", "bergtrui": "Carapaz"}, "73": {"uitvaller": "Kooij", "plek": "15", "parijs": 160, "puntentrui": "Philipsen", "bergtrui": "Carapaz"}};
 
 const DP=[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6];
 const GP=[100,90,80,70,60,50,40,30];
@@ -886,44 +931,69 @@ async function refreshSheets2026(){
   const sheetId='1yLXeFLI2mYWTPUmcu5bwC56hJMiMD80BQ7Yz9rwiiMg';
   const statusEl=document.getElementById('e1-lbl');
   if(statusEl)statusEl.textContent='Ophalen…';
+  const sheetUrl='https://docs.google.com/spreadsheets/d/'+sheetId+'/export?format=csv&gid=0';
+  const proxies=[
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/'
+  ];
+  let csv='';
+  for(const proxy of proxies){
+    try{
+      const resp=await fetch(proxy+encodeURIComponent(sheetUrl));
+      if(!resp.ok)continue;
+      const text=await resp.text();
+      if(text&&text.length>100&&!text.startsWith('<')){csv=text;break;}
+    }catch(e){continue;}
+  }
   try{
-    const url='https://docs.google.com/spreadsheets/d/'+sheetId+'/gviz/tq?tqx=out:csv&timestamp='+Date.now();
-    const resp=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url));
-    const data=await resp.json();
-    const csv=data.contents||'';
     const teams=parseSheets2026(csv);
     if(teams.length>0){
       TMS.length=0;
       teams.forEach(function(t){TMS.push(t);});
-      for(var i=0;i<TMS.length;i++) bBase(i);
+      for(var i=0;i<TMS.length;i++)bBase(i);
       rChkSum();rChkList();
+      var hdr=document.querySelector('.hdr-s,[id="hdr-subtitle"]');
+      if(hdr)hdr.textContent='Tourspel 2026 · '+teams.length+' deelnemers';
       if(statusEl)statusEl.textContent='✓ '+teams.length+' teams geladen op '+new Date().toLocaleTimeString('nl-NL');
-      document.querySelector('.hdr-s').textContent='Tourspel 2026 · '+teams.length+' deelnemers';
+      saveState();
     }else{
-      if(statusEl)statusEl.textContent='Geen teams gevonden';
+      if(statusEl)statusEl.textContent=csv?'Kon teams niet parsen ('+csv.length+' bytes ontvangen)':'Geen data ontvangen van proxy';
     }
   }catch(e){if(statusEl)statusEl.textContent='Fout: '+e.message;}
 }
 
+
 function parseSheets2026(csv){
+  if(!csv||csv.length<50)return[];
   var lines=csv.split('\n'),teams=[];
   for(var li=0;li<lines.length;li++){
-    var line=lines[li];
+    var line=lines[li].replace(/\r$/,'');
     if(!line.trim())continue;
+    // Robuuste CSV parser
     var cols=[],cur='',inQ=false;
     for(var i=0;i<line.length;i++){
       var c=line[i];
-      if(c==='"'){inQ=!inQ;}
-      else if(c===','&&!inQ){cols.push(cur.trim());cur='';}
+      if(c==='"'){
+        if(inQ&&line[i+1]==='"'){cur+='"';i++;}
+        else inQ=!inQ;
+      } else if(c===','&&!inQ){cols.push(cur.trim());cur='';}
       else cur+=c;
     }
     cols.push(cur.trim());
-    if(!cols[1]||cols[0].toLowerCase().includes('tijdstempel'))continue;
     if(cols.length<7)continue;
-    var team=(cols[1]||'').trim(),name=(cols[2]||'').trim();
-    if(!team||!name||name.toLowerCase().includes('test'))continue;
-    var riders=cols.slice(6,21).map(function(r){return r.trim();}).filter(Boolean);
-    var reserves=cols.slice(21,26).map(function(r){return r.trim();}).filter(Boolean);
+    var col0=(cols[0]||'').toLowerCase();
+    if(col0.includes('tijdstempel')||col0.includes('timestamp'))continue;
+    var team=(cols[1]||'').replace(/^["'\s]+|["'\s]+$/g,'');
+    var name=(cols[2]||'').replace(/^["'\s]+|["'\s]+$/g,'');
+    if(!team||!name)continue;
+    // Verwijder spaties aan begin/einde van rennersnamen
+    var riders=cols.slice(6,21).map(function(r){
+      return r.replace(/^["'\s]+|["'\s]+$/g,'');
+    }).filter(function(r){return r.length>1;});
+    var reserves=cols.slice(21,26).map(function(r){
+      return r.replace(/^["'\s]+|["'\s]+$/g,'');
+    }).filter(function(r){return r.length>1;});
     if(riders.length>=5)teams.push({team:team,name:name,riders:riders,res:reserves});
   }
   return teams;
@@ -1012,6 +1082,7 @@ function tryLogin(){
     document.querySelectorAll('.ao').forEach(el=>el.style.removeProperty('display'));
     document.querySelectorAll('.ro').forEach(el=>el.style.display='none');
     document.getElementById('pw-err').style.display='none';
+    initUI();
   }else{
     document.getElementById('pw-err').style.display='block';
     document.getElementById('pw-inp').value='';document.getElementById('pw-inp').focus();
@@ -1049,6 +1120,9 @@ function init(){
 }
 
 function initUI(){
+  // Update vaststellen knop tekst
+  var btn=document.getElementById('btn-confirm-e');
+  if(btn)btn.textContent='✓ Selecties E'+(S.cs||1)+' vaststellen';
   if(IS_ADMIN)document.getElementById('app-wrapper').style.display='block';
 
   rChkSum();rChkList();popSels();rGCIn();rGeld();
@@ -1141,108 +1215,142 @@ function rChkSum(){let ok=0,wn=0,er=0,mu=0;for(let i=0;i<TMS.length;i++){const s
     <div class="sc"><div class="n" style="color:var(--green)">${S.approved.size}</div><div class="l">Geaccordeerd</div></div>
     <div class="sc"><div class="n" style="color:var(--mu)">${TMS.length-S.approved.size}</div><div class="l">Nog te accorderen</div></div>`;}
 function rChkList(){
-  if(document.getElementById('approve-count-label'))
-    document.getElementById('approve-count-label').textContent=(S.approved?S.approved.size:0)+'/'+TMS.length+' geaccordeerd';
-  let h='';
-  for(let ti=0;ti<TMS.length;ti++){
-    const t=TMS[ti],st=tSt(ti),mut=hMut(ti);
+  var countEl=document.getElementById('approve-count-label');
+  if(countEl)countEl.textContent=(S.approved?S.approved.size:0)+'/'+TMS.length+' geaccordeerd';
+  var h='';
+  for(var ti=0;ti<TMS.length;ti++){
+    var t=TMS[ti];
+    var st=tSt(ti);
+    var mut=hMut(ti);
     if(chkFilt==='ok'&&(st!=='ok'||mut))continue;
     if(chkFilt==='issues'&&st==='ok'&&!mut)continue;
     if(chkFilt==='mut'&&!mut)continue;
-    const open=chkOpen.has(ti);
-    const isApproved=S.approved&&S.approved.has(ti);
-
-    // Status badge
-    let stB='';
-    if(st==='ok')stB='<span class="sok">\u2713 ok</span>';
-    else if(st==='warn')stB='<span class="swarn">\u26a0 spelfout/check</span>';
-    else stB='<span class="serr">\u2715 onbekend</span>';
-
-    // Accordeer knop — geen template literal, gewone string
-    let approveBtn='';
+    var isApproved=S.approved&&S.approved.has(ti);
+    var stBg=isApproved?'#e8f5e9':'white';
+    var stBdr=isApproved?'3px solid var(--green)':'1px solid var(--bo)';
+    var stLabel=st==='ok'
+      ?'<span class="sok">&#10003; ok</span>'
+      :st==='warn'
+        ?'<span class="swarn">&#9888; check</span>'
+        :'<span class="serr">&#10005; onbekend</span>';
+    var approveBtn='';
     if(IS_ADMIN){
-      const abg=isApproved?'var(--green)':'white';
-      const afc=isApproved?'white':'var(--mu)';
-      const abc=isApproved?'var(--green)':'var(--b2)';
-      const abt=isApproved?'\u2713 Akkoord':'\u25a1 Accorderen';
-      approveBtn='<button onclick="toggleApprove('+ti+',event)" class="btn btn-sm" style="margin-left:6px;padding:2px 8px;font-size:10px;font-weight:500;background:'+abg+';color:'+afc+';border:1px solid '+abc+';">'+abt+'</button>';
+      approveBtn=isApproved
+        ?'<button type="button" onclick="toggleApprove('+ti+',event)" style="margin-left:6px;padding:2px 8px;font-size:10px;font-weight:500;background:var(--green);color:white;border:1px solid var(--green);border-radius:4px;cursor:pointer;">&#10003; Akkoord</button>'
+        :'<button type="button" onclick="toggleApprove('+ti+',event)" style="margin-left:6px;padding:2px 8px;font-size:10px;font-weight:500;background:white;color:var(--mu);border:1px solid var(--b2);border-radius:4px;cursor:pointer;">&#9633; Accorderen</button>';
     }
-
-    const borderStyle=isApproved?'border-left:3px solid var(--green);':'';
-    h+='<div class="card" style="'+borderStyle+'">';
-    h+='<div class="ch'+(open?' open':'')+'" onclick="togChk('+ti+')">';
-    h+='<div style="flex:1"><strong style="font-family:\'Syne\',sans-serif;font-size:13px">'+t.team+'</strong> <span style="color:var(--mu);font-size:11px">'+t.name+'</span></div>';
-    h+='<div style="display:flex;align-items:center;gap:5px">'+stB+(mut?'<span class="smut" style="margin-left:5px">\u21d4 reserve</span>':'')+approveBtn+'</div>';
-    h+='<span class="arr">'+(open?'\u25b2':'\u25bc')+'</span>';
+    h+='<div id="card-'+ti+'" class="card" style="margin-bottom:8px;border:'+stBdr+';border-radius:var(--r);overflow:hidden;background:'+stBg+';">';
+    // Card header als echte button
+    h+='<button type="button" id="hdr-'+ti+'" onclick="togChk('+ti+')" style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;background:none;border:none;text-align:left;font-family:inherit;font-size:inherit;color:inherit;">';
+    h+='<div style="flex:1;min-width:0;overflow:hidden;">';
+    h+='<strong style="font-size:13px;">'+escHtml(t.team)+'</strong>';
+    h+=' <span style="color:var(--mu);font-size:11px;">'+escHtml(t.name)+'</span>';
     h+='</div>';
-
-    if(open){
-      h+='<div class="cb"><table class="tbl">';
-      h+='<tr><th>#</th><th>Inzending</th><th>Herkend als</th><th>Rug</th><th>Status</th></tr>';
-
-      // Renners 1-15
-      for(let slot=0;slot<15;slot++){
-        const rawR=t.riders[slot];
-        const kR=ti+'_'+slot;
-        const ovR=kR in S.ov;
-        const resolvedR=ovR?{num:S.ov[kR],st:'manual'}:res(rawR);
-        const numR=resolvedR.num;
-        let scR='';
-        if(resolvedR.st==='ok')scR='<span class="sok">\u2713</span>';
-        else if(resolvedR.st==='alias')scR='<span class="swarn">~ spelfout</span>';
-        else if(resolvedR.st==='amb')scR='<span class="swarn">? ambigu</span>';
-        else if(resolvedR.st==='nf')scR='<span class="serr">\u2715 onbekend</span>';
-        else if(resolvedR.st==='nt')scR='<span class="snt">\u2715 niet in Tour</span>';
-        else if(resolvedR.st==='manual')scR='<span class="smut">\u270e</span>';
-        const rawDisp=rawR.length>20?rawR.slice(0,19)+'\u2026':rawR;
-        const bgR=resolvedR.st==='nf'?'background:rgba(192,57,43,.04)':resolvedR.st==='nt'?'background:rgba(230,126,34,.04)':'';
-        const numDispR=numR?'<span class="p '+(ovR?'pp-':'pg-')+'">'+numR+'</span>':'<span class="p pgr">?</span>';
-        const nameDispR=numR?'<strong>'+rn(numR)+'</strong>':'<span style="color:var(--mu)">—</span>';
-        h+='<tr style="'+bgR+'">';
-        h+='<td style="color:var(--mu);font-size:10px">'+(slot+1)+'</td>';
-        h+='<td style="color:var(--mu);font-size:11px;max-width:110px">'+rawDisp+'</td>';
-        h+='<td>'+nameDispR+'</td>';
-        h+='<td>'+numDispR+'</td>';
-        h+='<td style="display:flex;align-items:center;gap:5px">'+scR+'<button class="btn btn-s btn-sm" onclick="doEdit(event,'+ti+','+slot+')">&#9998;</button></td>';
-        h+='</tr>';
-      }
-
-      // Reserves header
-      h+='<tr><td colspan="5" style="background:var(--paper);padding:4px 7px;font-size:9px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em">Reserves</td></tr>';
-
-      for(let ri=0;ri<t.res.length;ri++){
-        const rawRes=t.res[ri];
-        const kRes=ti+'_r'+ri;
-        const ovRes=kRes in S.ov;
-        const resolvedRes=ovRes?{num:S.ov[kRes],st:'manual'}:res(rawRes);
-        const numRes=resolvedRes.num;
-        let scRes='';
-        if(resolvedRes.st==='ok')scRes='<span class="sok">\u2713</span>';
-        else if(resolvedRes.st==='alias')scRes='<span class="swarn">~ spelfout</span>';
-        else if(resolvedRes.st==='amb')scRes='<span class="swarn">? ambigu</span>';
-        else if(resolvedRes.st==='nf')scRes='<span class="serr">\u2715 onbekend</span>';
-        else if(resolvedRes.st==='nt')scRes='<span class="snt">\u2715 niet in Tour</span>';
-        else if(resolvedRes.st==='manual')scRes='<span class="smut">\u270e</span>';
-        const rawResDisp=rawRes.length>20?rawRes.slice(0,19)+'\u2026':rawRes;
-        const numResDisp=numRes?'<span class="p '+(ovRes?'pp-':'pb-')+'">'+numRes+'</span>':'<span class="p pgr">?</span>';
-        const nameResDisp=numRes?rn(numRes):'<span style="color:var(--mu)">—</span>';
-        h+='<tr style="background:rgba(26,82,118,.02)">';
-        h+='<td style="color:var(--mu);font-size:10px">R'+(ri+1)+'</td>';
-        h+='<td style="color:var(--mu);font-size:11px">'+rawResDisp+'</td>';
-        h+='<td style="font-size:12px">'+nameResDisp+'</td>';
-        h+='<td>'+numResDisp+'</td>';
-        h+='<td style="display:flex;align-items:center;gap:5px">'+scRes+'<button class="btn btn-s btn-sm" onclick="doEditRes(event,'+ti+','+ri+')">&#9998;</button></td>';
-        h+='</tr>';
-      }
-
-      h+='</table></div>';
-    }
+    h+='<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+stLabel;
+    if(mut)h+='<span class="smut" style="margin-left:4px;">&#8596;</span>';
+    h+=approveBtn;
+    h+='</div>';
+    h+='<span id="arr-'+ti+'" style="margin-left:8px;font-size:11px;">&#9660;</span>';
+    h+='</button>';
+    // Card body - leeg totdat uitgeklapt
+    h+='<div id="cb-'+ti+'" style="display:none;border-top:1px solid var(--bo);"></div>';
     h+='</div>';
   }
-  document.getElementById('chk-list').innerHTML=h;
+  var el=document.getElementById('chk-list');
+  if(el)el.innerHTML=h;
+  // Reset rendered state bij herrender
+  chkOpen.forEach(function(ti){
+    var cb=document.getElementById('cb-'+ti);
+    var arr=document.getElementById('arr-'+ti);
+    if(cb){cb.innerHTML=buildCardContent(ti);cb.dataset.rendered='1';cb.style.display='block';}
+    if(arr)arr.innerHTML='&#9650;';
+  });
 }
 
-function togChk(i){chkOpen.has(i)?chkOpen.delete(i):chkOpen.add(i);rChkList();}
+function buildCardContent(ti){
+  var t=TMS[ti];
+  var h='<div style="padding:8px 14px 14px;">';
+  // Header rij (compact)
+  h+='<div style="font-size:9px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;display:grid;grid-template-columns:20px 1fr 1fr 36px 80px;gap:4px;padding:4px 0;border-bottom:1px solid var(--bo);margin-bottom:4px;">';
+  h+='<div>#</div><div>Inzending</div><div>Herkend als</div><div>Rug</div><div>Status</div></div>';
+
+  function makeRow(slot, rawR, isRes){
+    var kR=isRes?(ti+'_r'+slot):(ti+'_'+slot);
+    var ovR=kR in S.ov;
+    var resolvedR=ovR?{num:S.ov[kR],st:'manual'}:res(rawR);
+    var numR=resolvedR.num;
+    var bgR='';
+    if(numR===0)bgR='background:rgba(150,150,150,.06);';
+    else if(resolvedR.st==='nf')bgR='background:rgba(192,57,43,.04);';
+    else if(resolvedR.st==='nt')bgR='background:rgba(230,126,34,.04);';
+
+    var stIcon='';
+    if(numR===0)stIcon='<span style="color:var(--mu);font-size:10px;">—</span>';
+    else if(resolvedR.st==='ok'||resolvedR.st==='manual')stIcon='<span style="color:var(--green);font-size:11px;">&#10003;</span>';
+    else if(resolvedR.st==='alias')stIcon='<span style="color:#A04000;font-size:10px;">~</span>';
+    else if(resolvedR.st==='amb')stIcon='<span style="color:#A04000;font-size:10px;">?</span>';
+    else if(resolvedR.st==='nf')stIcon='<span style="color:var(--red);font-size:10px;">&#10005;</span>';
+    else if(resolvedR.st==='nt')stIcon='<span style="color:var(--red);font-size:10px;">&#216;</span>';
+
+    var rawDisp=escHtml(rawR.length>18?rawR.slice(0,17)+'\u2026':rawR);
+    var nameDisp=numR===0?'<span style="color:var(--mu);font-size:10px;font-style:italic;">foutief</span>'
+      :(numR?'<span style="font-size:11px;font-weight:500;">'+escHtml(rn(numR))+'</span>'
+            :'<span style="color:var(--mu);font-size:10px;">&#8212;</span>');
+    var numDisp=numR?('<span style="font-size:10px;font-weight:600;color:'+(isRes?'var(--pur)':'var(--ink)')+';">'+numR+'</span>')
+                    :'<span style="color:var(--mu);font-size:10px;">?</span>';
+    var label=isRes?('R'+(slot+1)):(slot+1);
+    var editBtn=IS_ADMIN?('<button onclick="doEditSlot(event,'+ti+','+JSON.stringify(kR)+')" type="button" style="background:none;border:none;cursor:pointer;padding:1px 4px;font-size:12px;color:var(--mu);">&#9998;</button>'):'';
+
+    return '<div style="display:grid;grid-template-columns:20px 1fr 1fr 36px 80px;gap:4px;align-items:center;padding:2px 0;border-bottom:1px solid rgba(0,0,0,.03);'+bgR+'">'
+      +'<div style="font-size:10px;color:var(--mu);">'+label+'</div>'
+      +'<div style="font-size:10px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+rawDisp+'</div>'
+      +'<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nameDisp+'</div>'
+      +'<div>'+numDisp+'</div>'
+      +'<div style="display:flex;align-items:center;gap:2px;">'+stIcon+editBtn+'</div>'
+      +'</div>';
+  }
+
+  // Renners 1-15
+  for(var slot=0;slot<15;slot++){
+    var rawR=t.riders[slot]||'';
+    h+=makeRow(slot,rawR,false);
+  }
+  // Reserves
+  if(t.res&&t.res.length>0){
+    h+='<div style="font-size:9px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;padding:6px 0 2px;">Reserves</div>';
+    for(var ri=0;ri<t.res.length;ri++){
+      var rawRes=t.res[ri]||'';
+      h+=makeRow(ri,rawRes,true);
+    }
+  }
+  h+='</div>';
+  return h;
+}
+
+
+function togChk(ti){
+  // Toggle de open class op de card
+  var card=document.getElementById('card-'+ti);
+  if(!card)return;
+  var cb=document.getElementById('cb-'+ti);
+  var arr=document.getElementById('arr-'+ti);
+  if(chkOpen.has(ti)){
+    chkOpen.delete(ti);
+    if(cb)cb.style.display='none';
+    if(arr)arr.innerHTML='&#9660;';
+    card.classList.remove('open');
+  }else{
+    chkOpen.add(ti);
+    // Render content als nog niet gedaan
+    if(cb&&!cb.dataset.rendered){
+      cb.innerHTML=buildCardContent(ti);
+      cb.dataset.rendered='1';
+    }
+    if(cb)cb.style.display='block';
+    if(arr)arr.innerHTML='&#9650;';
+    card.classList.add('open');
+  }
+}
 
 function doEditRes(evt,ti,si){
   evt.stopPropagation();
@@ -1275,6 +1383,20 @@ function confirmE1(){
   document.getElementById('stage-badge').textContent='E1 VASTGESTELD';
   popSels();renderSel();renderUit();saveState();
 }
+function confirmEX(stage){
+  // Sla selecties op voor een willekeurige etappe op basis van huidige overrides
+  if(!S.ok){alert('Stel eerst E1 vast');return;}
+  S.sel[stage]={};
+  for(var i=0;i<TMS.length;i++){
+    S.sel[stage][i]=bBase(i);
+  }
+  var lbl=document.getElementById('e'+stage+'-lbl');
+  if(lbl)lbl.textContent='✓ Vastgesteld '+new Date().toLocaleTimeString('nl-NL');
+  saveState();
+  renderSel();
+  alert('Selecties etappe '+stage+' vastgesteld');
+}
+
 function popSels(){
   ['uit-stg','dag-stg','sel-stg'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;el.innerHTML='';
@@ -1296,7 +1418,7 @@ function renderSel(){
     const nums=bStage(i,stage);const open=selOpen.has(i);
     let tp=0;for(let sg=1;sg<=stage;sg++){const p=(S.pts[sg]||{})[i];if(p)tp+=p.total;}if(S.gcP[i])tp+=S.gcP[i].total;
     const chain=gChain(i).filter(m=>m.eff<=stage);
-    h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togSel(${i})"><div style="flex:1"><span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ink);color:var(--gl);border-radius:3px;padding:1px 4px">E${stage}</span><strong style="font-family:'Syne',sans-serif;font-size:13px;margin-left:7px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>${tp>0?`<span class="pts" style="margin-right:10px">${tp}<span style="font-size:10px;color:var(--mu)"> pts</span></span>`:''}${chain.length?`<span class="p pp-" style="margin-right:6px">${chain.length} mut.</span>`:''}<span class="arr">${open?'▲':'▼'}</span></div>`;
+    h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togSel(${i})"><div style="flex:1"><span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ink);color:var(--gl);border-radius:3px;padding:1px 4px">E${stage}</span><strong style="font-family:Syne,sans-serif;font-size:13px;margin-left:7px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>${tp>0?`<span class="pts" style="margin-right:10px">${tp}<span style="font-size:10px;color:var(--mu)"> pts</span></span>`:''}${chain.length?`<span class="p pp-" style="margin-right:6px">${chain.length} mut.</span>`:''}<span class="arr">${open?'▲':'▼'}</span></div>`;
     if(open){
       const ur=new Set(chain.filter(m=>m.repl).map(m=>m.repl.ri));
       h+=`<div class="cb"><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Actieve selectie E${stage}</div><div class="rg">`;
@@ -1851,6 +1973,7 @@ function initGVK(){
 let GVK=initGVK();
 
 function rGeld(){
+  if(!GVK||!GVK.length)GVK=initGVK();
   const n=parseInt(document.getElementById('g-n').value)||0;const tot=n*5;
   document.getElementById('g-tot').textContent=`€ ${tot.toLocaleString('nl-NL',{minimumFractionDigits:2})}`;
   const pctE=parseInt(document.getElementById('g-pct-etappe').value)||0;
@@ -2052,7 +2175,7 @@ function renderRaw(){
     if(!stages.length){h='<div class="notice ni">Nog geen etappe-uitslagen ingevoerd.</div>';}
     else{
       stages.forEach(s=>{
-        h+=`<div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin:12px 0 6px;border-bottom:1px solid var(--bo);padding-bottom:4px">Etappe ${s}</div>`;
+        h+=`<div style="font-family:Syne,sans-serif;font-weight:700;font-size:13px;margin:12px 0 6px;border-bottom:1px solid var(--bo);padding-bottom:4px">Etappe ${s}</div>`;
         h+=`<table class="tbl raw-tbl"><tr><th>Team</th><th>Scorende renners &amp; punten</th><th>Subtotaal</th></tr>`;
         const order=[...Array(TMS.length).keys()].sort((a,b)=>((S.pts[s]||{})[b]||{total:0}).total-((S.pts[s]||{})[a]||{total:0}).total);
         order.forEach(ti=>{
@@ -2358,6 +2481,42 @@ function renderStat(){
     h+=`</div>`;
   }
 
+  // Extra vragen uit het formulier
+  if(typeof VRAGEN !== 'undefined'){
+    // Puntentrui voorspellingen
+    var puntentruiCount={};
+    var bergtruiCount={};
+    var uitvallerCount={};
+    var plekSum=0,plekN=0;
+    var parijsSum=0,parijsN=0;
+    Object.values(VRAGEN).forEach(function(v){
+      if(v.puntentrui){puntentruiCount[v.puntentrui]=(puntentruiCount[v.puntentrui]||0)+1;}
+      if(v.bergtrui){bergtruiCount[v.bergtrui]=(bergtruiCount[v.bergtrui]||0)+1;}
+      if(v.uitvaller){uitvallerCount[v.uitvaller]=(uitvallerCount[v.uitvaller]||0)+1;}
+      var p=parseInt(v.parijs);if(!isNaN(p)&&p>0){parijsSum+=p;parijsN++;}
+    });
+    var sortedPunten=Object.entries(puntentruiCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    var sortedBerg=Object.entries(bergtruiCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    var sortedUitvallers=Object.entries(uitvallerCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+    h+='<div class="sec" style="font-size:13px;margin-top:16px">Voorspellingen deelnemers</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:12px">';
+    // Puntentrui
+    h+='<div><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Puntentrui</div><table class="tbl"><tr><th>Renner</th><th>Votes</th></tr>';
+    sortedPunten.forEach(function(e){h+='<tr><td>'+escHtml(e[0])+'</td><td><strong>'+e[1]+'</strong></td></tr>';});
+    h+='</table></div>';
+    // Bergtrui
+    h+='<div><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Bergklassement</div><table class="tbl"><tr><th>Renner</th><th>Votes</th></tr>';
+    sortedBerg.forEach(function(e){h+='<tr><td>'+escHtml(e[0])+'</td><td><strong>'+e[1]+'</strong></td></tr>';});
+    h+='</table></div>';
+    // Eerste uitvaller
+    h+='<div><div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Eerste uitvaller</div><table class="tbl"><tr><th>Renner</th><th>Votes</th></tr>';
+    sortedUitvallers.forEach(function(e){h+='<tr><td>'+escHtml(e[0])+'</td><td><strong>'+e[1]+'</strong></td></tr>';});
+    h+='</table></div>';
+    h+='</div>';
+    if(parijsN>0)h+='<div class="notice ni" style="font-size:12px;">Gemiddelde verwachting finishers in Parijs: <strong>'+Math.round(parijsSum/parijsN)+'</strong> renners (op basis van '+parijsN+' voorspellingen)</div>';
+  }
+
   document.getElementById('stat-content').innerHTML=h;
 }
 
@@ -2525,6 +2684,41 @@ function renderSprint(){renderNeven('sprint','sprint-content');}
 
 
 init();
+
+
+
+function doEditSlot(evt,ti,key){
+  evt.stopPropagation();
+  var parts=key.split('_');
+  var isRes=parts[1]&&parts[1][0]==='r';
+  var slot=isRes?parseInt(parts[1].slice(1)):parseInt(parts[1]);
+  var t=TMS[ti];
+  var raw=isRes?(t.res[slot]||''):(t.riders[slot]||'');
+  var cur=key in S.ov?S.ov[key]:null;
+  var msg='Renner: '+raw+'\n\nVoer rugnummer in (0 = foutief/onbekend, leeg = reset naar auto):';
+  var inp=prompt(msg, cur!==null?String(cur):'');
+  if(inp===null)return; // cancelled
+  inp=inp.trim();
+  if(inp===''){
+    delete S.ov[key];
+  } else {
+    var n=parseInt(inp);
+    if(isNaN(n)||n<0){alert('Ongeldig rugnummer');return;}
+    if(n>0&&!SL[n]){alert('Rugnummer '+n+' staat niet in de startlijst');return;}
+    S.ov[key]=n;
+  }
+  saveState();
+  // Re-render de kaart
+  var cb=document.getElementById('cb-'+ti);
+  if(cb&&cb.dataset.rendered){cb.innerHTML=buildCardContent(ti);}
+  rChkSum();
+}
+
+// Legacy wrappers
+function doEdit(evt,ti,slot){doEditSlot(evt,ti,ti+'_'+slot);}
+function doEditRes(evt,ti,ri){doEditSlot(evt,ti,ti+'_r'+ri);}
+
+
 </script>
 
 <!-- STATISTIEKEN -->

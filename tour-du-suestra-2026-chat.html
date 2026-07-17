@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tour du Suëstra 2026 — Live Chat</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='25' cy='70' r='20' fill='none' stroke='%23d4a017' stroke-width='8'/><circle cx='75' cy='70' r='20' fill='none' stroke='%23d4a017' stroke-width='8'/><circle cx='25' cy='70' r='4' fill='%23d4a017'/><circle cx='75' cy='70' r='4' fill='%23d4a017'/><path d='M25 70 L45 35 L60 35 L75 70' fill='none' stroke='%23d4a017' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/><path d='M45 35 L55 55 L75 70' fill='none' stroke='%23d4a017' stroke-width='5' stroke-linecap='round'/><circle cx='55' cy='32' r='7' fill='%23d4a017'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -107,6 +108,10 @@
   .inp-emoji-btn:hover,.inp-gif-btn:hover{border-color:var(--gold);color:var(--gold);}
   
   .typing-indicator{font-size:11px;color:var(--mu);padding:2px 10px;min-height:16px;}
+  .inp-foto-btn{background:var(--paper);color:var(--mu);border:1.5px solid var(--b2);
+    width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .inp-foto-btn:hover{border-color:var(--gold);}
+  .bubble img.foto{border-radius:10px;max-width:220px;max-height:220px;display:block;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -129,6 +134,9 @@
     <div class="hdr-sub">Live chat tijdens de koers</div>
   </div>
   <div class="hdr-live"><div class="hdr-dot"></div> Live</div>
+  <button onclick="requestNotif().then(()=>{if(notifEnabled)this.textContent='🔔 Aan';else this.textContent='🔕 Uit';})" 
+    style="background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" 
+    title="Notificaties aan/uit">🔔</button>
   <div class="online-count" id="online-count"></div>
 </div>
 
@@ -151,6 +159,9 @@
   <div class="inp-row">
     <button class="inp-btn inp-emoji-btn" onclick="toggleEmoji()" title="Emoji">😊</button>
     <button class="inp-btn inp-gif-btn" onclick="toggleGif()" title="GIF">GIF</button>
+    <label class="inp-btn inp-foto-btn" title="Foto sturen" style="cursor:pointer">
+      📷<input type="file" accept="image/*" style="display:none" onchange="sendFoto(this)">
+    </label>
     <textarea class="inp-txt" id="inp-txt" placeholder="Stuur een bericht..." rows="1"
       oninput="autoResize(this);onTyping()"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
@@ -231,6 +242,7 @@ window.joinChat=function(){
   localStorage.setItem('chat_avatar',myAvatar);
   localStorage.setItem('chat_id',myId);
   document.getElementById('name-overlay').style.display='none';
+  requestNotif();
   startChat();
 };
 
@@ -281,6 +293,15 @@ function startChat(){
 // ── Berichten renderen ──
 let lastRenderedIds=[];
 function renderMsgs(msgs){
+  // Geluid + notificatie bij nieuwe berichten
+  if(lastMsgCount>0&&msgs.length>lastMsgCount){
+    const newest=msgs[msgs.length-1];
+    if(newest.senderId!==myId){
+      playToeter();
+      showNotif(newest.name,newest.gif?'stuurde een GIF':newest.foto?'stuurde een foto':newest.text||'',newest.avatar||'🚴');
+    }
+  }
+  lastMsgCount=msgs.length;
   const container=document.getElementById('msgs');
   const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
   shownDays=new Set();
@@ -332,10 +353,11 @@ function createMsgEl(msg){
 
   // Bubble
   const bubble=document.createElement('div');
-  if(msg.gif){
+  if(msg.gif||msg.foto){
     bubble.className='bubble gif-bubble';
     const img=document.createElement('img');
-    img.src=msg.gif;img.alt='gif';img.loading='lazy';
+    img.src=msg.gif||msg.foto;img.alt=msg.foto?'foto':'gif';img.loading='lazy';
+    if(msg.foto){img.className='foto';img.onclick=()=>{window.open(img.src,'_blank');};}
     bubble.appendChild(img);
   }else{
     bubble.className='bubble';
@@ -461,8 +483,10 @@ window.toggleGif=function(){
   const panel=document.getElementById('gif-panel');
   panel.style.display=panel.style.display==='none'?'block':'none';
   if(panel.style.display==='block'){
+    document.getElementById('gif-search').value='';
     document.getElementById('gif-search').focus();
-    searchGif(); // Laad standaard fietsen gifs
+    // Laad trending GIFs
+    loadTrendingGifs();
   }
 };
 
@@ -493,7 +517,7 @@ window.searchGif=function(){
   },400);
 };
 
-async function sendGif(url){
+async function sendGif(url,preview){
   if(!myName){return;}
   document.getElementById('gif-panel').style.display='none';
   await push(ref(db,CHAT_REF),{
@@ -546,6 +570,122 @@ document.addEventListener('click',(e)=>{
     gp.style.display='none';
   }
 });
+
+
+// ── GELUID: Tour-toeter (Web Audio API) ──
+function playToeter(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Toeter = twee tonen snel na elkaar (fanfare-achtig)
+    const tones=[{f:440,t:0,d:.12},{f:554,t:.1,d:.12},{f:659,t:.22,d:.25}];
+    tones.forEach(({f,t,d})=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type='sawtooth';osc.frequency.value=f;
+      gain.gain.setValueAtTime(0,ctx.currentTime+t);
+      gain.gain.linearRampToValueAtTime(.18,ctx.currentTime+t+.01);
+      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+d);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+d+.05);
+    });
+  }catch(e){}
+}
+
+// ── NOTIFICATIES ──
+let notifEnabled=false;
+let lastMsgCount=0;
+
+async function requestNotif(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='granted'){notifEnabled=true;return;}
+  if(Notification.permission!=='denied'){
+    const p=await Notification.requestPermission();
+    notifEnabled=(p==='granted');
+  }
+}
+
+function showNotif(name,text,avatar){
+  if(!notifEnabled||document.hasFocus())return;
+  const n=new Notification('Tour du Suëstra 2026 🚴',{
+    body:avatar+' '+name+': '+text,
+    icon:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='25' cy='70' r='20' fill='none' stroke='%23d4a017' stroke-width='8'/><circle cx='75' cy='70' r='20' fill='none' stroke='%23d4a017' stroke-width='8'/><path d='M25 70 L45 35 L60 35 L75 70' fill='none' stroke='%23d4a017' stroke-width='6' stroke-linecap='round'/><circle cx='55' cy='32' r='7' fill='%23d4a017'/></svg>",
+    tag:'chat-msg',
+    silent:true
+  });
+  setTimeout(()=>n.close(),4000);
+}
+
+// ── GIF ZOEKEN VIA GIPHY ──
+const GIPHY_KEY='hpvZycHYSuMCPeYGMEJEwFWGHMDNyqpZ'; // gratis public beta key
+let gifTimer2=null;
+window.searchGif=function(){
+  clearTimeout(gifTimer2);
+  gifTimer2=setTimeout(async()=>{
+    const q=document.getElementById('gif-search').value.trim()||'tour de france cycling';
+    const tip=document.getElementById('gif-tip');
+    const grid=document.getElementById('gif-grid');
+    tip.textContent='Laden…';grid.innerHTML='';
+    try{
+      const url=`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(q)}&limit=15&rating=g&lang=nl`;
+      const r=await fetch(url);
+      const d=await r.json();
+      if(!d.data||!d.data.length){
+        // Probeer trending als fallback
+        const r2=await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=12&rating=g`);
+        const d2=await r2.json();
+        if(!d2.data||!d2.data.length){tip.textContent='Geen GIFs gevonden';return;}
+        renderGifs(d2.data);return;
+      }
+      renderGifs(d.data);
+    }catch(e){tip.textContent='Kon GIFs niet laden — check je verbinding';}
+  },400);
+};
+
+
+async function loadTrendingGifs(){
+  const tip=document.getElementById('gif-tip');
+  const grid=document.getElementById('gif-grid');
+  tip.textContent='Laden…';grid.innerHTML='';
+  try{
+    const r=await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=15&rating=g`);
+    const d=await r.json();
+    if(d.data&&d.data.length){renderGifs(d.data);tip.textContent='';}
+    else tip.textContent='Typ om GIFs te zoeken';
+  }catch(e){tip.textContent='Typ om GIFs te zoeken 🔍';}
+}
+
+function renderGifs(items){
+  const grid=document.getElementById('gif-grid');
+  const tip=document.getElementById('gif-tip');
+  grid.innerHTML='';tip.textContent='';
+  items.forEach(g=>{
+    const preview=g.images.fixed_height_small?.url||g.images.downsized?.url;
+    const full=g.images.downsized?.url||g.images.fixed_height?.url;
+    if(!preview)return;
+    const img=document.createElement('img');
+    img.className='gif-item';
+    img.src=preview;img.alt='gif';img.loading='lazy';
+    img.onclick=()=>sendGif(full,preview);
+    grid.appendChild(img);
+  });
+  if(!items.length)tip.textContent='Geen resultaten';
+}
+
+// ── FOTO STUREN ──
+window.sendFoto=async function(input){
+  const file=input.files[0];if(!file||!myName)return;
+  if(file.size>3*1024*1024){alert('Foto mag maximaal 3MB zijn');return;}
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const dataUrl=e.target.result;
+    await push(ref(db,CHAT_REF),{
+      name:myName,avatar:myAvatar,senderId:myId,
+      foto:dataUrl,ts:serverTimestamp()
+    });
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+};
 
 // Enter op naam invoer
 document.getElementById('name-inp').addEventListener('keydown',e=>{

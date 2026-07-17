@@ -669,7 +669,7 @@ canvas{display:block;}
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
     <div>
-      <div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Etappeprijzen (<span id="g-etappe-pot">€ 112,50</span>) — per etappe</div>
+      <div style="font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Etappeprijzen (<span id="g-etappe-pot"></span>) — totaal voor 21 etappes</div>
       <div id="g-etappe-verd"></div>
     </div>
     <div>
@@ -2355,7 +2355,7 @@ function rGCRes(){
 // GELD — etappe + klassement
 // ══════════════════════════════════════════
 // Etappe: fixed 50/30/20 voor plekken 1/2/3 (niet aanpasbaar)
-const GVE_FIXED=[50,30,20]; // pct voor 1e/2e/3e per etappe
+const GVE_FIXED=[50,30,20]; // pct voor 1e/2e/3e (van totale etappepot/21)
 // Klassement: 30 plaatsen — lineair verdeeld, handmatig aanpasbaar
 function initGVK(){
   var pcts=[19.40,14.55,10.67,7.76,6.31,5.34,4.66,4.07,3.69,3.10,2.72,2.43,2.13,1.94,1.75,1.55,1.36,1.26,1.16,1.16];
@@ -2380,7 +2380,7 @@ function rGeld(){
   // Etappe verdeling — fixed 50/30/20
   let ve=`<div style="font-size:10px;color:var(--mu);margin-bottom:6px">Per etappe (vast: 50% / 30% / 20%)</div>`;
   const labels=['1e','2e','3e'];
-  GVE_FIXED.forEach((pct,idx)=>{const e=potE*pct/100;ve+=`<div class="pct-row"><div style="min-width:30px;font-weight:600">${labels[idx]}</div><div class="pct-bar" style="width:${Math.max(pct*2,4)}px"></div><span style="font-family:'DM Mono',monospace;font-size:11px;min-width:30px">${pct}%</span><strong style="min-width:70px;text-align:right">€ ${e.toLocaleString('nl-NL',{minimumFractionDigits:2})}</strong></div>`;});
+  GVE_FIXED.forEach((pct,idx)=>{const e=(potE/21)*pct/100;ve+=`<div class="pct-row"><div style="min-width:30px;font-weight:600">${labels[idx]}</div><div class="pct-bar" style="width:${Math.max(pct*2,4)}px"></div><span style="font-family:'DM Mono',monospace;font-size:11px;min-width:30px">${pct}%</span><strong style="min-width:70px;text-align:right">€ ${e.toLocaleString('nl-NL',{minimumFractionDigits:2})}</strong></div>`;});
   document.getElementById('g-etappe-verd').innerHTML=ve;
 
   // Klassement verdeling — 30 plaatsen, lineair aanpasbaar
@@ -2451,7 +2451,7 @@ function rGeld(){
         // Alleen prijzen voor plekken 0,1,2 (1e,2e,3e)
         let totalPrijs=0;
         for(let p2=pos;p2<end;p2++){
-          if(p2<GVE_FIXED.length) totalPrijs+=potE*(GVE_FIXED[p2]||0)/100;
+          if(p2<GVE_FIXED.length) totalPrijs+=(potE/21)*(GVE_FIXED[p2]||0)/100;
         }
         if(totalPrijs>0){
           // Verdeel gelijkmatig over ALLE teams in de groep

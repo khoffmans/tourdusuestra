@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tour du Suëstra 2026 — Live Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1a2e;--paper:#fafaf8;--gold:#d4a017;--gl:#f5c842;
+    --green:#27ae60;--red:#c0392b;--pur:#8e44ad;
+    --b1:#e8e6e0;--b2:#d4d0c8;--bo:#e0ddd5;
+    --mu:#888580;--r:10px;
+    --chat-bg:#f0ede6;
+    --bubble-me:#d4a017;--bubble-other:#fff;
+    --bubble-me-txt:#1a1a2e;--bubble-other-txt:#1a1a2e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--chat-bg);color:var(--ink);height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+
+  /* ── HEADER ── */
+  .hdr{background:var(--ink);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .hdr-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--gl);}
+  .hdr-sub{font-size:11px;color:rgba(255,255,255,.5);margin-left:2px;}
+  .hdr-live{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;color:#4ade80;}
+  .hdr-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+  .online-count{font-size:11px;color:rgba(255,255,255,.4);margin-left:8px;}
+
+  /* ── NAAM OVERLAY ── */
+  .name-overlay{position:fixed;inset:0;background:rgba(26,26,46,.85);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .name-card{background:var(--paper);border-radius:16px;padding:32px;width:100%;max-width:360px;text-align:center;}
+  .name-card h2{font-family:'Syne',sans-serif;font-size:22px;color:var(--gold);margin-bottom:6px;}
+  .name-card p{font-size:13px;color:var(--mu);margin-bottom:20px;}
+  .name-inp{width:100%;padding:12px 14px;border:2px solid var(--b2);border-radius:8px;font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+  .name-inp:focus{border-color:var(--gold);}
+  .name-btn{width:100%;margin-top:12px;padding:12px;background:var(--gold);color:var(--ink);border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:opacity .15s;}
+  .name-btn:hover{opacity:.85;}
+  .name-avatars{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;}
+  .avatar-opt{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+  .avatar-opt.sel{border-color:var(--gold);transform:scale(1.1);}
+
+  /* ── BERICHTENLIJST ── */
+  .msgs{flex:1;overflow-y:auto;padding:12px 10px 4px;display:flex;flex-direction:column;gap:3px;scroll-behavior:smooth;}
+  .msgs::-webkit-scrollbar{width:4px;}
+  .msgs::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
+
+  /* ── DAG SCHEIDER ── */
+  .day-sep{text-align:center;font-size:10px;color:var(--mu);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:10px 0 4px;position:relative;}
+  .day-sep::before,.day-sep::after{content:'';position:absolute;top:50%;width:30%;height:1px;background:var(--b2);}
+  .day-sep::before{left:0;} .day-sep::after{right:0;}
+
+  /* ── BERICHT ── */
+  .msg{display:flex;flex-direction:column;max-width:82%;gap:2px;animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .msg.me{align-self:flex-end;align-items:flex-end;}
+  .msg.other{align-self:flex-start;align-items:flex-start;}
+  .msg-sender{font-size:10px;color:var(--mu);font-weight:600;margin-left:6px;margin-bottom:1px;}
+  .msg.me .msg-sender{margin-left:0;margin-right:6px;}
+  .bubble{padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.45;word-break:break-word;position:relative;}
+  .msg.me .bubble{background:var(--gold);color:var(--ink);border-bottom-right-radius:4px;}
+  .msg.other .bubble{background:#fff;color:var(--ink);border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .bubble.gif-bubble{background:transparent!important;box-shadow:none!important;padding:2px!important;}
+  .bubble.gif-bubble img{border-radius:12px;max-width:200px;max-height:200px;display:block;}
+  .msg-time{font-size:9px;color:var(--mu);margin:0 6px;}
+  
+  /* ── EMOJI REACTIONS ── */
+  .reactions{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}
+  .react-btn{background:rgba(255,255,255,.7);border:1px solid var(--b2);border-radius:20px;padding:2px 7px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:3px;transition:all .1s;}
+  .react-btn:hover,.react-btn.mine{background:var(--gl);border-color:var(--gold);}
+  .react-btn span{font-size:10px;color:var(--mu);font-weight:600;}
+  .react-add{background:none;border:1px dashed var(--b2);border-radius:20px;padding:2px 6px;font-size:12px;cursor:pointer;color:var(--mu);}
+  .react-add:hover{border-color:var(--gold);color:var(--gold);}
+
+  /* ── EMOJI PICKER ── */
+  .emoji-panel{background:#fff;border:1px solid var(--bo);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.12);padding:10px;display:flex;flex-wrap:wrap;gap:4px;position:absolute;bottom:44px;left:10px;z-index:50;width:280px;}
+  .emoji-panel button{font-size:22px;background:none;border:none;cursor:pointer;padding:3px;border-radius:6px;transition:transform .1s;}
+  .emoji-panel button:hover{transform:scale(1.25);}
+
+  /* ── GIF PICKER ── */
+  .gif-panel{position:absolute;bottom:64px;left:0;right:0;background:#fff;border-top:1px solid var(--bo);padding:10px;z-index:50;max-height:260px;overflow-y:auto;}
+  .gif-search{width:100%;padding:8px 12px;border:1.5px solid var(--b2);border-radius:8px;font-size:13px;outline:none;margin-bottom:8px;}
+  .gif-search:focus{border-color:var(--gold);}
+  .gif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+  .gif-item{border-radius:8px;overflow:hidden;cursor:pointer;aspect-ratio:1;object-fit:cover;transition:transform .1s;}
+  .gif-item:hover{transform:scale(1.04);}
+  .gif-tip{font-size:11px;color:var(--mu);text-align:center;padding:8px;}
+
+  /* ── INVOER ── */
+  .inp-bar{background:#fff;border-top:1px solid var(--bo);padding:10px 10px 12px;flex-shrink:0;position:relative;}
+  .inp-row{display:flex;align-items:flex-end;gap:8px;}
+  .inp-txt{flex:1;border:1.5px solid var(--b2);border-radius:20px;padding:9px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;resize:none;max-height:100px;overflow-y:auto;line-height:1.4;transition:border-color .15s;}
+  .inp-txt:focus{border-color:var(--gold);}
+  .inp-btn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:all .12s;}
+  .inp-send{background:var(--gold);color:var(--ink);}
+  .inp-send:hover{opacity:.85;}
+  .inp-send:disabled{background:var(--b2);cursor:not-allowed;}
+  .inp-emoji-btn,.inp-gif-btn{background:var(--paper);color:var(--mu);border:1.5px solid var(--b2);}
+  .inp-emoji-btn:hover,.inp-gif-btn:hover{border-color:var(--gold);color:var(--gold);}
+  
+  .typing-indicator{font-size:11px;color:var(--mu);padding:2px 10px;min-height:16px;}
+</style>
+</head>
+<body>
+
+<!-- NAAM OVERLAY -->
+<div class="name-overlay" id="name-overlay">
+  <div class="name-card">
+    <h2>🚴 Tour du Suëstra</h2>
+    <p>Kies je avatar en voer je naam in om mee te chatten</p>
+    <div class="name-avatars" id="avatar-opts"></div>
+    <input class="name-inp" id="name-inp" type="text" placeholder="Je naam..." maxlength="20" autocomplete="off">
+    <button class="name-btn" onclick="joinChat()">Deelnemen →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">Tour du Suëstra 2026</div>
+    <div class="hdr-sub">Live chat tijdens de koers</div>
+  </div>
+  <div class="hdr-live"><div class="hdr-dot"></div> Live</div>
+  <div class="online-count" id="online-count"></div>
+</div>
+
+<!-- BERICHTEN -->
+<div class="msgs" id="msgs"></div>
+<div class="typing-indicator" id="typing-ind"></div>
+
+<!-- EMOJI PICKER -->
+<div class="emoji-panel" id="emoji-panel" style="display:none"></div>
+
+<!-- GIF PICKER -->
+<div class="gif-panel" id="gif-panel" style="display:none">
+  <input class="gif-search" id="gif-search" type="text" placeholder="Zoek een gif... (bijv. wielrennen 🚴)" oninput="searchGif()">
+  <div class="gif-grid" id="gif-grid"></div>
+  <div class="gif-tip" id="gif-tip">Typ om GIFs te zoeken via Tenor</div>
+</div>
+
+<!-- INVOER -->
+<div class="inp-bar">
+  <div class="inp-row">
+    <button class="inp-btn inp-emoji-btn" onclick="toggleEmoji()" title="Emoji">😊</button>
+    <button class="inp-btn inp-gif-btn" onclick="toggleGif()" title="GIF">GIF</button>
+    <textarea class="inp-txt" id="inp-txt" placeholder="Stuur een bericht..." rows="1"
+      oninput="autoResize(this);onTyping()"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+    <button class="inp-btn inp-send" id="send-btn" onclick="sendMsg()" title="Verstuur">➤</button>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getDatabase,ref,push,onValue,set,remove,serverTimestamp,onDisconnect,off}
+  from'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ══ FIREBASE CONFIG ══════════════════════════════════
+// Vervang dit met jouw Firebase project configuratie
+// (zelfde project als Oppasrooster Floris, of maak een nieuw gratis project aan)
+const firebaseConfig={
+  apiKey:"JOUW_API_KEY",
+  authDomain:"JOUW_PROJECT.firebaseapp.com",
+  databaseURL:"https://JOUW_PROJECT-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"JOUW_PROJECT",
+  storageBucket:"JOUW_PROJECT.appspot.com",
+  messagingSenderId:"JOUW_SENDER_ID",
+  appId:"JOUW_APP_ID"
+};
+// ═════════════════════════════════════════════════════
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const CHAT_REF='chat2026';
+const REACT_REF='reactions2026';
+const ONLINE_REF='online2026';
+const TYPING_REF='typing2026';
+const GIPHY_KEY='SjZwGMpkINWmMVrC7bpALvzLV14arCn7'; // Gratis Tenor/Giphy demo key
+
+const EMOJIS=['👍','❤️','😂','😮','😢','🔥','🚴','🏆','💛','👏','🎉','⚡','💪','🐐','😬','🤩','👀','🥇'];
+const AVATARS=['🚴','🏆','⚡','🦁','🐺','🦊','🐻','🦅','🐆','🦄','🏅','🎯'];
+
+let myName='',myAvatar='🚴',myId='',myColor='';
+let typingTimer=null,lastTyping=0;
+let shownDays=new Set();
+let reactionListeners={};
+let selectedEmoji='';
+
+const COLORS=['#d4a017','#27ae60','#c0392b','#8e44ad','#2980b9','#e67e22','#16a085','#e91e63'];
+
+// Kleur consistent per naam
+function nameColor(name){
+  let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))%COLORS.length;
+  return COLORS[h];
+}
+
+// ── Avatar keuze ──
+function initAvatars(){
+  const wrap=document.getElementById('avatar-opts');
+  AVATARS.forEach((av,i)=>{
+    const btn=document.createElement('button');
+    btn.className='avatar-opt'+(i===0?' sel':'');
+    btn.textContent=av;
+    btn.onclick=()=>{
+      document.querySelectorAll('.avatar-opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      myAvatar=av;
+    };
+    wrap.appendChild(btn);
+  });
+}
+initAvatars();
+
+// ── Deelnemen ──
+window.joinChat=function(){
+  const n=document.getElementById('name-inp').value.trim();
+  if(!n){document.getElementById('name-inp').focus();return;}
+  myName=n;
+  myId='u_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  myColor=nameColor(n);
+  localStorage.setItem('chat_name',n);
+  localStorage.setItem('chat_avatar',myAvatar);
+  localStorage.setItem('chat_id',myId);
+  document.getElementById('name-overlay').style.display='none';
+  startChat();
+};
+
+// Herstel naam als al eerder ingelogd
+const savedName=localStorage.getItem('chat_name');
+const savedAvatar=localStorage.getItem('chat_avatar');
+if(savedName){
+  document.getElementById('name-inp').value=savedName;
+  myAvatar=savedAvatar||'🚴';
+  document.querySelectorAll('.avatar-opt').forEach(b=>{
+    if(b.textContent===myAvatar)b.classList.add('sel');
+    else b.classList.remove('sel');
+  });
+}
+
+// ── Chat starten ──
+function startChat(){
+  // Online aanwezigheid
+  const onRef=ref(db,ONLINE_REF+'/'+myId);
+  set(onRef,{name:myName,avatar:myAvatar,ts:serverTimestamp()});
+  onDisconnect(onRef).remove();
+
+  // Online teller
+  onValue(ref(db,ONLINE_REF),(snap)=>{
+    const n=snap.size||0;
+    document.getElementById('online-count').textContent=n>0?n+' online':'';
+  });
+
+  // Berichten laden
+  onValue(ref(db,CHAT_REF),(snap)=>{
+    const msgs=[];
+    snap.forEach(child=>{msgs.push({id:child.key,...child.val()});});
+    renderMsgs(msgs);
+  });
+
+  // Typing indicator
+  onValue(ref(db,TYPING_REF),(snap)=>{
+    const typers=[];
+    snap.forEach(child=>{
+      const v=child.val();
+      if(child.key!==myId&&v.name&&Date.now()-v.ts<4000)typers.push(v.name);
+    });
+    document.getElementById('typing-ind').textContent=
+      typers.length?typers.join(', ')+(typers.length===1?' is':' zijn')+' aan het typen…':'';
+  });
+}
+
+// ── Berichten renderen ──
+let lastRenderedIds=[];
+function renderMsgs(msgs){
+  const container=document.getElementById('msgs');
+  const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
+  shownDays=new Set();
+  
+  // Rebuild only on changes (door simpel ID vergelijk)
+  const ids=msgs.map(m=>m.id).join(',');
+  if(ids===lastRenderedIds&&!document.getElementById('react-dirty'))return;
+  lastRenderedIds=ids;
+  
+  // Verwijder oude reaction listeners
+  Object.keys(reactionListeners).forEach(k=>{off(reactionListeners[k]);});
+  reactionListeners={};
+  container.innerHTML='';
+
+  msgs.forEach(msg=>{
+    // Dag scheider
+    const d=new Date(msg.ts||Date.now());
+    const dayKey=d.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
+    if(!shownDays.has(dayKey)){
+      shownDays.add(dayKey);
+      const sep=document.createElement('div');
+      sep.className='day-sep';sep.textContent=dayKey;
+      container.appendChild(sep);
+    }
+    container.appendChild(createMsgEl(msg));
+  });
+
+  if(wasAtBottom)container.scrollTop=container.scrollHeight;
+}
+
+function createMsgEl(msg){
+  const isMe=msg.senderId===myId;
+  const wrap=document.createElement('div');
+  wrap.className='msg '+(isMe?'me':'other');
+  wrap.id='msg-'+msg.id;
+
+  // Naam + avatar
+  if(!isMe){
+    const sender=document.createElement('div');
+    sender.className='msg-sender';
+    sender.textContent=msg.avatar+' '+msg.name;
+    sender.style.color=nameColor(msg.name);
+    wrap.appendChild(sender);
+  }
+
+  // Bubble
+  const bubble=document.createElement('div');
+  if(msg.gif){
+    bubble.className='bubble gif-bubble';
+    const img=document.createElement('img');
+    img.src=msg.gif;img.alt='gif';img.loading='lazy';
+    img.style.borderRadius='12px';img.style.maxWidth='200px';img.style.maxHeight='200px';
+    bubble.appendChild(img);
+  }else{
+    bubble.className='bubble';
+    bubble.textContent=msg.text||'';
+  }
+  wrap.appendChild(bubble);
+
+  // Tijd
+  const time=document.createElement('div');
+  time.className='msg-time';
+  const d=new Date(msg.ts||Date.now());
+  time.textContent=d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+  wrap.appendChild(time);
+
+  // Reacties
+  const reactWrap=document.createElement('div');
+  reactWrap.className='reactions';
+  reactWrap.id='react-'+msg.id;
+  wrap.appendChild(reactWrap);
+
+  // Reactie-knop
+  const addBtn=document.createElement('button');
+  addBtn.className='react-add';addBtn.title='Reageer';
+  addBtn.textContent='＋😊';
+  addBtn.onclick=(e)=>{e.stopPropagation();showReactPicker(msg.id,addBtn);};
+  reactWrap.appendChild(addBtn);
+
+  // Live reacties laden
+  const rRef=ref(db,REACT_REF+'/'+msg.id);
+  reactionListeners[msg.id]=rRef;
+  onValue(rRef,(snap)=>{
+    const counts={};const mine={};
+    snap.forEach(child=>{
+      const v=child.val();
+      counts[v.emoji]=(counts[v.emoji]||0)+1;
+      if(v.userId===myId)mine[v.emoji]=child.key;
+    });
+    updateReactions(msg.id,counts,mine);
+  });
+
+  return wrap;
+}
+
+function updateReactions(msgId,counts,mine){
+  const wrap=document.getElementById('react-'+msgId);
+  if(!wrap)return;
+  // Verwijder bestaande react btns (maar niet de + knop)
+  Array.from(wrap.querySelectorAll('.react-btn')).forEach(b=>b.remove());
+  const addBtn=wrap.querySelector('.react-add');
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([emoji,cnt])=>{
+    const btn=document.createElement('button');
+    btn.className='react-btn'+(mine[emoji]?' mine':'');
+    btn.innerHTML=emoji+'<span>'+cnt+'</span>';
+    btn.onclick=async(e)=>{
+      e.stopPropagation();
+      if(mine[emoji]){
+        await remove(ref(db,REACT_REF+'/'+msgId+'/'+mine[emoji]));
+      }else{
+        await push(ref(db,REACT_REF+'/'+msgId),{emoji,userId:myId,ts:serverTimestamp()});
+      }
+    };
+    wrap.insertBefore(btn,addBtn);
+  });
+}
+
+// ── Reactie picker ──
+let reactPickerTarget=null;
+function showReactPicker(msgId,anchor){
+  const panel=document.getElementById('emoji-panel');
+  if(reactPickerTarget===msgId&&panel.dataset.mode==='react'){
+    panel.style.display='none';reactPickerTarget=null;return;
+  }
+  reactPickerTarget=msgId;
+  panel.dataset.mode='react';
+  panel.innerHTML='';
+  EMOJIS.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.textContent=em;
+    btn.onclick=async()=>{
+      await push(ref(db,REACT_REF+'/'+msgId),{emoji:em,userId:myId,ts:serverTimestamp()});
+      panel.style.display='none';reactPickerTarget=null;
+    };
+    panel.appendChild(btn);
+  });
+  // Positie
+  const rect=anchor.getBoundingClientRect();
+  panel.style.position='fixed';
+  panel.style.bottom=(window.innerHeight-rect.top+4)+'px';
+  panel.style.left=Math.min(rect.left,window.innerWidth-290)+'px';
+  panel.style.display='flex';
+}
+
+// ── Emoji picker (voor invoerveld) ──
+window.toggleEmoji=function(){
+  const panel=document.getElementById('emoji-panel');
+  if(panel.dataset.mode==='input'&&panel.style.display!=='none'){
+    panel.style.display='none';return;
+  }
+  panel.dataset.mode='input';
+  panel.innerHTML='';
+  EMOJIS.concat(['😀','😁','😎','🤔','😴','🥱','😡','🥳','🤯','👋','🤝','🙏','🎊','🌈','🌟','💥']).forEach(em=>{
+    const btn=document.createElement('button');
+    btn.textContent=em;
+    btn.onclick=()=>{
+      const inp=document.getElementById('inp-txt');
+      const pos=inp.selectionStart;
+      inp.value=inp.value.slice(0,pos)+em+inp.value.slice(inp.selectionEnd);
+      inp.selectionStart=inp.selectionEnd=pos+em.length;
+      inp.focus();
+      panel.style.display='none';
+    };
+    panel.appendChild(btn);
+  });
+  panel.style.position='';panel.style.bottom='';panel.style.left='';
+  panel.style.display='flex';
+};
+
+// ── GIF picker ──
+let gifTimer=null;
+window.toggleGif=function(){
+  const panel=document.getElementById('gif-panel');
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  if(panel.style.display==='block'){
+    document.getElementById('gif-search').focus();
+    searchGif(); // Laad standaard fietsen gifs
+  }
+};
+
+window.searchGif=function(){
+  clearTimeout(gifTimer);
+  gifTimer=setTimeout(async()=>{
+    const q=document.getElementById('gif-search').value||'wielrennen tour de france';
+    const tip=document.getElementById('gif-tip');
+    const grid=document.getElementById('gif-grid');
+    tip.textContent='Laden…';grid.innerHTML='';
+    try{
+      // Tenor API (gratis)
+      const url=`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyBo3OW2YDFbN1B3ggB3K9ZCM5j_U29T5P4&limit=12&media_filter=gif`;
+      const r=await fetch(url);
+      const d=await r.json();
+      if(!d.results||!d.results.length){tip.textContent='Geen GIFs gevonden';return;}
+      tip.textContent='';
+      d.results.forEach(g=>{
+        const img=document.createElement('img');
+        img.className='gif-item';
+        img.src=g.media_formats.tinygif?.url||g.media_formats.gif?.url;
+        img.loading='lazy';
+        const gifUrl=g.media_formats.gif?.url||img.src;
+        img.onclick=()=>sendGif(gifUrl);
+        grid.appendChild(img);
+      });
+    }catch(e){tip.textContent='Kon GIFs niet laden';}
+  },400);
+};
+
+async function sendGif(url){
+  if(!myName){return;}
+  document.getElementById('gif-panel').style.display='none';
+  await push(ref(db,CHAT_REF),{
+    name:myName,avatar:myAvatar,senderId:myId,
+    gif:url,ts:serverTimestamp()
+  });
+}
+
+// ── Bericht sturen ──
+window.sendMsg=async function(){
+  const inp=document.getElementById('inp-txt');
+  const txt=inp.value.trim();
+  if(!txt||!myName)return;
+  inp.value='';autoResize(inp);
+  document.getElementById('emoji-panel').style.display='none';
+  document.getElementById('gif-panel').style.display='none';
+  await push(ref(db,CHAT_REF),{
+    name:myName,avatar:myAvatar,senderId:myId,
+    text:txt,ts:serverTimestamp()
+  });
+  // Clear typing
+  set(ref(db,TYPING_REF+'/'+myId),null);
+};
+
+// ── Typing indicator ──
+window.onTyping=function(){
+  const now=Date.now();
+  if(now-lastTyping>2000){
+    lastTyping=now;
+    set(ref(db,TYPING_REF+'/'+myId),{name:myName,ts:now});
+  }
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>set(ref(db,TYPING_REF+'/'+myId),null),3000);
+};
+
+// ── Auto resize textarea ──
+window.autoResize=function(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,100)+'px';
+};
+
+// ── Sluit panelen bij klik buiten ──
+document.addEventListener('click',(e)=>{
+  const ep=document.getElementById('emoji-panel');
+  const gp=document.getElementById('gif-panel');
+  if(!ep.contains(e.target)&&!e.target.classList.contains('inp-emoji-btn')&&!e.target.classList.contains('react-add')){
+    ep.style.display='none';reactPickerTarget=null;
+  }
+  if(!gp.contains(e.target)&&!e.target.classList.contains('inp-gif-btn')){
+    gp.style.display='none';
+  }
+});
+
+// Enter op naam invoer
+document.getElementById('name-inp').addEventListener('keydown',e=>{
+  if(e.key==='Enter')window.joinChat();
+});
+</script>
+</body>
+</html>

@@ -478,45 +478,6 @@ window.toggleEmoji=function(){
 };
 
 // ── GIF picker ──
-let gifTimer=null;
-window.toggleGif=function(){
-  const panel=document.getElementById('gif-panel');
-  panel.style.display=panel.style.display==='none'?'block':'none';
-  if(panel.style.display==='block'){
-    document.getElementById('gif-search').value='';
-    document.getElementById('gif-search').focus();
-    // Laad trending GIFs
-    loadTrendingGifs();
-  }
-};
-
-window.searchGif=function(){
-  clearTimeout(gifTimer);
-  gifTimer=setTimeout(async()=>{
-    const q=document.getElementById('gif-search').value||'wielrennen tour de france';
-    const tip=document.getElementById('gif-tip');
-    const grid=document.getElementById('gif-grid');
-    tip.textContent='Laden…';grid.innerHTML='';
-    try{
-      // Tenor API (gratis)
-      const url=`https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=AIzaSyBo3OW2YDFbN1B3ggB3K9ZCM5j_U29T5P4&limit=12&media_filter=gif`;
-      const r=await fetch(url);
-      const d=await r.json();
-      if(!d.results||!d.results.length){tip.textContent='Geen GIFs gevonden';return;}
-      tip.textContent='';
-      d.results.forEach(g=>{
-        const img=document.createElement('img');
-        img.className='gif-item';
-        img.src=g.media_formats.tinygif?.url||g.media_formats.gif?.url;
-        img.loading='lazy';
-        const gifUrl=g.media_formats.gif?.url||img.src;
-        img.onclick=()=>sendGif(gifUrl);
-        grid.appendChild(img);
-      });
-    }catch(e){tip.textContent='Kon GIFs niet laden';}
-  },400);
-};
-
 async function sendGif(url,preview){
   if(!myName){return;}
   document.getElementById('gif-panel').style.display='none';
@@ -614,6 +575,16 @@ function showNotif(name,text,avatar){
   });
   setTimeout(()=>n.close(),4000);
 }
+
+window.toggleGif=function(){
+  const panel=document.getElementById('gif-panel');
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  if(panel.style.display==='block'){
+    document.getElementById('gif-search').value='';
+    document.getElementById('gif-search').focus();
+    loadTrendingGifs();
+  }
+};
 
 // ── GIF ZOEKEN VIA GIPHY ──
 const GIPHY_KEY='hpvZycHYSuMCPeYGMEJEwFWGHMDNyqpZ'; // gratis public beta key

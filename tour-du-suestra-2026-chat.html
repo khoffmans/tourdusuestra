@@ -170,14 +170,9 @@
 </div>
 
 <!-- FIREBASE -->
-<script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getDatabase,ref,push,onValue,set,remove,serverTimestamp,onDisconnect,off}
-  from'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
-// ══ FIREBASE CONFIG ══════════════════════════════════
-// Vervang dit met jouw Firebase project configuratie
-// (zelfde project als Oppasrooster Floris, of maak een nieuw gratis project aan)
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
 const firebaseConfig={
   apiKey:"AIzaSyCFHqr0ARX_GjbwgVpflDoj3QqJgVLxxe8",
   authDomain:"tourspelchat.firebaseapp.com",
@@ -187,149 +182,179 @@ const firebaseConfig={
   messagingSenderId:"170999514226",
   appId:"1:170999514226:web:6e1e4fbaaaece188deaeeb"
 };
-// ═════════════════════════════════════════════════════
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
 
-const app=initializeApp(firebaseConfig);
-const db=getDatabase(app);
+// Helper wrappers om compat API te gebruiken
+function ref(path){return db.ref(path);}
+function push(r,v){return r.push(v);}
+function onValue(r,cb){r.on('value',cb);}
+function off(r){r.off();}
+function set(r,v){return r.set(v);}
+function remove(r){return r.remove();}
+function serverTimestamp(){return firebase.database.ServerValue.TIMESTAMP;}
+function onDisconnect(r){return r.onDisconnect();}
+
 const CHAT_REF='chat2026';
 const REACT_REF='reactions2026';
 const ONLINE_REF='online2026';
 const TYPING_REF='typing2026';
-const GIPHY_KEY='SjZwGMpkINWmMVrC7bpALvzLV14arCn7'; // Gratis Tenor/Giphy demo key
+const GIPHY_KEY='hpvZycHYSuMCPeYGMEJEwFWGHMDNyqpZ';
 
 const EMOJIS=['👍','❤️','😂','😮','😢','🔥','🚴','🏆','💛','👏','🎉','⚡','💪','🐐','😬','🤩','👀','🥇'];
 const AVATARS=['🚴','🏆','⚡','🦁','🐺','🦊','🐻','🦅','🐆','🦄','🏅','🎯'];
-
-let myName='',myAvatar='🚴',myId='',myColor='';
-let typingTimer=null,lastTyping=0;
-let shownDays=new Set();
-let reactionListeners={};
-let selectedEmoji='';
-
 const COLORS=['#d4a017','#27ae60','#c0392b','#8e44ad','#2980b9','#e67e22','#16a085','#e91e63'];
 
-// Kleur consistent per naam
+let myName='',myAvatar='🚴',myId='',notifEnabled=false;
+let lastMsgCount=0,typingTimer=null,lastTyping=0;
+let shownDays=new Set(),reactionListeners={};
+let gifTimer=null;
+
 function nameColor(name){
   let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))%COLORS.length;
   return COLORS[h];
 }
 
-// ── Avatar keuze ──
+// ── AVATAR KEUZE ──
 function initAvatars(){
   const wrap=document.getElementById('avatar-opts');
   AVATARS.forEach((av,i)=>{
     const btn=document.createElement('button');
     btn.className='avatar-opt'+(i===0?' sel':'');
-    btn.textContent=av;
+    btn.textContent=av;btn.type='button';
     btn.onclick=()=>{
       document.querySelectorAll('.avatar-opt').forEach(b=>b.classList.remove('sel'));
-      btn.classList.add('sel');
-      myAvatar=av;
+      btn.classList.add('sel');myAvatar=av;
     };
     wrap.appendChild(btn);
   });
 }
 initAvatars();
 
-// ── Deelnemen ──
-window.joinChat=function(){
-  const n=document.getElementById('name-inp').value.trim();
-  if(!n){document.getElementById('name-inp').focus();return;}
-  myName=n;
-  myId='u_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  myColor=nameColor(n);
-  localStorage.setItem('chat_name',n);
-  localStorage.setItem('chat_avatar',myAvatar);
-  localStorage.setItem('chat_id',myId);
-  document.getElementById('name-overlay').style.display='none';
-  requestNotif();
-  startChat();
-};
-
-// Herstel naam als al eerder ingelogd
+// Herstel naam
 const savedName=localStorage.getItem('chat_name');
 const savedAvatar=localStorage.getItem('chat_avatar');
 if(savedName){
   document.getElementById('name-inp').value=savedName;
-  myAvatar=savedAvatar||'🚴';
-  document.querySelectorAll('.avatar-opt').forEach(b=>{
-    if(b.textContent===myAvatar)b.classList.add('sel');
-    else b.classList.remove('sel');
-  });
+  if(savedAvatar){
+    myAvatar=savedAvatar;
+    document.querySelectorAll('.avatar-opt').forEach(b=>{
+      b.classList.toggle('sel',b.textContent===savedAvatar);
+    });
+  }
 }
 
-// ── Chat starten ──
+// ── DEELNEMEN ──
+function joinChat(){
+  const n=document.getElementById('name-inp').value.trim();
+  if(!n){document.getElementById('name-inp').focus();return;}
+  myName=n;
+  myId='u_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  localStorage.setItem('chat_name',n);
+  localStorage.setItem('chat_avatar',myAvatar);
+  document.getElementById('name-overlay').style.display='none';
+  requestNotif();
+  startChat();
+}
+
+// ── NOTIFICATIES ──
+async function requestNotif(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='granted'){notifEnabled=true;return;}
+  if(Notification.permission!=='denied'){
+    const p=await Notification.requestPermission();
+    notifEnabled=(p==='granted');
+  }
+}
+
+// ── GELUID ──
+function playToeter(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [{f:440,t:0,d:.12},{f:554,t:.1,d:.12},{f:659,t:.22,d:.25}].forEach(({f,t,d})=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type='sawtooth';osc.frequency.value=f;
+      gain.gain.setValueAtTime(0,ctx.currentTime+t);
+      gain.gain.linearRampToValueAtTime(.18,ctx.currentTime+t+.01);
+      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+d);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+d+.05);
+    });
+  }catch(e){}
+}
+
+function showNotif(name,text,avatar){
+  if(!notifEnabled||document.hasFocus())return;
+  const n=new Notification('Tour du Suëstra 🚴',{
+    body:avatar+' '+name+': '+(text||''),
+    tag:'chat-msg',silent:true
+  });
+  setTimeout(()=>n.close(),4000);
+}
+
+// ── CHAT STARTEN ──
 function startChat(){
   // Online aanwezigheid
-  const onRef=ref(db,ONLINE_REF+'/'+myId);
-  set(onRef,{name:myName,avatar:myAvatar,ts:serverTimestamp()});
+  const onRef=ref(ONLINE_REF+'/'+myId);
+  set(onRef,{name:myName,avatar:myAvatar});
   onDisconnect(onRef).remove();
 
   // Online teller
-  onValue(ref(db,ONLINE_REF),(snap)=>{
-    const n=snap.size||0;
+  onValue(ref(ONLINE_REF),(snap)=>{
+    let n=0;snap.forEach(()=>n++);
     document.getElementById('online-count').textContent=n>0?n+' online':'';
   });
 
-  // Berichten laden
-  onValue(ref(db,CHAT_REF),(snap)=>{
+  // Berichten
+  onValue(ref(CHAT_REF),(snap)=>{
     const msgs=[];
     snap.forEach(child=>{msgs.push({id:child.key,...child.val()});});
     renderMsgs(msgs);
   });
 
-  // Typing indicator
-  onValue(ref(db,TYPING_REF),(snap)=>{
+  // Typing
+  onValue(ref(TYPING_REF),(snap)=>{
     const typers=[];
     snap.forEach(child=>{
       const v=child.val();
-      if(child.key!==myId&&v.name&&Date.now()-v.ts<4000)typers.push(v.name);
+      if(child.key!==myId&&v&&v.name&&Date.now()-v.ts<4000)typers.push(v.name);
     });
     document.getElementById('typing-ind').textContent=
-      typers.length?typers.join(', ')+(typers.length===1?' is':' zijn')+' aan het typen…':'';
+      typers.length?typers.join(', ')+(typers.length===1?' typt…':' typen…'):'';
   });
 }
 
-// ── Berichten renderen ──
-let lastRenderedIds=[];
+// ── BERICHTEN RENDEREN ──
+let lastIds='';
 function renderMsgs(msgs){
-  // Geluid + notificatie bij nieuwe berichten
   if(lastMsgCount>0&&msgs.length>lastMsgCount){
-    const newest=msgs[msgs.length-1];
-    if(newest.senderId!==myId){
-      playToeter();
-      showNotif(newest.name,newest.gif?'stuurde een GIF':newest.foto?'stuurde een foto':newest.text||'',newest.avatar||'🚴');
-    }
+    const n=msgs[msgs.length-1];
+    if(n.senderId!==myId){playToeter();showNotif(n.name,n.gif?'GIF':n.foto?'foto':n.text,n.avatar||'🚴');}
   }
   lastMsgCount=msgs.length;
-  const container=document.getElementById('msgs');
-  const wasAtBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
-  shownDays=new Set();
-  
-  // Rebuild only on changes (door simpel ID vergelijk)
   const ids=msgs.map(m=>m.id).join(',');
-  if(ids===lastRenderedIds&&!document.getElementById('react-dirty'))return;
-  lastRenderedIds=ids;
-  
-  // Verwijder oude reaction listeners
-  Object.keys(reactionListeners).forEach(k=>{off(reactionListeners[k]);});
-  reactionListeners={};
-  container.innerHTML='';
+  if(ids===lastIds)return;
+  lastIds=ids;
 
+  Object.keys(reactionListeners).forEach(k=>{off(ref(REACT_REF+'/'+k));});
+  reactionListeners={};
+
+  const container=document.getElementById('msgs');
+  const atBottom=container.scrollHeight-container.scrollTop-container.clientHeight<80;
+  shownDays=new Set();
+  container.innerHTML='';
   msgs.forEach(msg=>{
-    // Dag scheider
     const d=new Date(msg.ts||Date.now());
-    const dayKey=d.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
-    if(!shownDays.has(dayKey)){
-      shownDays.add(dayKey);
+    const day=d.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
+    if(!shownDays.has(day)){
+      shownDays.add(day);
       const sep=document.createElement('div');
-      sep.className='day-sep';sep.textContent=dayKey;
+      sep.className='day-sep';sep.textContent=day;
       container.appendChild(sep);
     }
     container.appendChild(createMsgEl(msg));
   });
-
-  if(wasAtBottom)container.scrollTop=container.scrollHeight;
+  if(atBottom)container.scrollTop=container.scrollHeight;
 }
 
 function createMsgEl(msg){
@@ -338,26 +363,23 @@ function createMsgEl(msg){
   wrap.className='msg '+(isMe?'me':'other');
   wrap.id='msg-'+msg.id;
 
-  // Naam + avatar
   if(!isMe){
     const sender=document.createElement('div');
     sender.className='msg-sender';
-    sender.textContent=msg.avatar+' '+msg.name;
-    sender.style.color=nameColor(msg.name);
+    sender.textContent=(msg.avatar||'🚴')+' '+msg.name;
+    sender.style.color=nameColor(msg.name||'');
     wrap.appendChild(sender);
   }
 
-  // Eén rij: bubble + tijd + reacties
   const row=document.createElement('div');
   row.className='msg-row';
 
-  // Bubble
   const bubble=document.createElement('div');
   if(msg.gif||msg.foto){
     bubble.className='bubble gif-bubble';
     const img=document.createElement('img');
     img.src=msg.gif||msg.foto;img.alt=msg.foto?'foto':'gif';img.loading='lazy';
-    if(msg.foto){img.className='foto';img.onclick=()=>{window.open(img.src,'_blank');};}
+    if(msg.foto){img.className='foto';img.onclick=()=>window.open(img.src,'_blank');}
     bubble.appendChild(img);
   }else{
     bubble.className='bubble';
@@ -365,35 +387,28 @@ function createMsgEl(msg){
   }
   row.appendChild(bubble);
 
-  // Tijd
   const time=document.createElement('div');
   time.className='msg-time';
   const d=new Date(msg.ts||Date.now());
   time.textContent=d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
   row.appendChild(time);
 
-  // Reacties inline
   const reactWrap=document.createElement('div');
   reactWrap.className='reactions';
   reactWrap.id='react-'+msg.id;
-
-  // Reactie-knop
   const addBtn=document.createElement('button');
-  addBtn.className='react-add';addBtn.title='Reageer';
-  addBtn.textContent='😊';
+  addBtn.className='react-add';addBtn.textContent='😊';addBtn.type='button';
   addBtn.onclick=(e)=>{e.stopPropagation();showReactPicker(msg.id,addBtn);};
   reactWrap.appendChild(addBtn);
   row.appendChild(reactWrap);
-
   wrap.appendChild(row);
 
-  // Live reacties laden
-  const rRef=ref(db,REACT_REF+'/'+msg.id);
-  reactionListeners[msg.id]=rRef;
-  onValue(rRef,(snap)=>{
-    const counts={};const mine={};
+  reactionListeners[msg.id]=true;
+  onValue(ref(REACT_REF+'/'+msg.id),(snap)=>{
+    const counts={},mine={};
     snap.forEach(child=>{
       const v=child.val();
+      if(!v)return;
       counts[v.emoji]=(counts[v.emoji]||0)+1;
       if(v.userId===myId)mine[v.emoji]=child.key;
     });
@@ -406,45 +421,39 @@ function createMsgEl(msg){
 function updateReactions(msgId,counts,mine){
   const wrap=document.getElementById('react-'+msgId);
   if(!wrap)return;
-  // Verwijder bestaande react btns (maar niet de + knop)
   Array.from(wrap.querySelectorAll('.react-btn')).forEach(b=>b.remove());
   const addBtn=wrap.querySelector('.react-add');
   Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([emoji,cnt])=>{
     const btn=document.createElement('button');
+    btn.type='button';
     btn.className='react-btn'+(mine[emoji]?' mine':'');
     btn.innerHTML=emoji+'<span>'+cnt+'</span>';
     btn.onclick=async(e)=>{
       e.stopPropagation();
-      if(mine[emoji]){
-        await remove(ref(db,REACT_REF+'/'+msgId+'/'+mine[emoji]));
-      }else{
-        await push(ref(db,REACT_REF+'/'+msgId),{emoji,userId:myId,ts:serverTimestamp()});
-      }
+      if(mine[emoji])await remove(ref(REACT_REF+'/'+msgId+'/'+mine[emoji]));
+      else await push(ref(REACT_REF+'/'+msgId),{emoji,userId:myId,ts:serverTimestamp()});
     };
     wrap.insertBefore(btn,addBtn);
   });
 }
 
-// ── Reactie picker ──
-let reactPickerTarget=null;
+// ── REACTIE PICKER ──
+let reactTarget=null;
 function showReactPicker(msgId,anchor){
   const panel=document.getElementById('emoji-panel');
-  if(reactPickerTarget===msgId&&panel.dataset.mode==='react'){
-    panel.style.display='none';reactPickerTarget=null;return;
+  if(reactTarget===msgId&&panel.dataset.mode==='react'){
+    panel.style.display='none';reactTarget=null;return;
   }
-  reactPickerTarget=msgId;
-  panel.dataset.mode='react';
-  panel.innerHTML='';
+  reactTarget=msgId;panel.dataset.mode='react';panel.innerHTML='';
   EMOJIS.forEach(em=>{
     const btn=document.createElement('button');
-    btn.textContent=em;
+    btn.type='button';btn.textContent=em;
     btn.onclick=async()=>{
-      await push(ref(db,REACT_REF+'/'+msgId),{emoji:em,userId:myId,ts:serverTimestamp()});
-      panel.style.display='none';reactPickerTarget=null;
+      await push(ref(REACT_REF+'/'+msgId),{emoji:em,userId:myId,ts:serverTimestamp()});
+      panel.style.display='none';reactTarget=null;
     };
     panel.appendChild(btn);
   });
-  // Positie
   const rect=anchor.getBoundingClientRect();
   panel.style.position='fixed';
   panel.style.bottom=(window.innerHeight-rect.top+4)+'px';
@@ -452,131 +461,31 @@ function showReactPicker(msgId,anchor){
   panel.style.display='flex';
 }
 
-// ── Emoji picker (voor invoerveld) ──
-window.toggleEmoji=function(){
+// ── EMOJI PICKER (invoer) ──
+function toggleEmoji(){
   const panel=document.getElementById('emoji-panel');
   if(panel.dataset.mode==='input'&&panel.style.display!=='none'){
     panel.style.display='none';return;
   }
-  panel.dataset.mode='input';
-  panel.innerHTML='';
-  EMOJIS.concat(['😀','😁','😎','🤔','😴','🥱','😡','🥳','🤯','👋','🤝','🙏','🎊','🌈','🌟','💥']).forEach(em=>{
+  panel.dataset.mode='input';panel.innerHTML='';
+  [...EMOJIS,'😀','😁','😎','🤔','😴','🥱','😡','🥳','🤯','👋','🤝','🙏','🎊','🌈','🌟','💥'].forEach(em=>{
     const btn=document.createElement('button');
-    btn.textContent=em;
+    btn.type='button';btn.textContent=em;
     btn.onclick=()=>{
       const inp=document.getElementById('inp-txt');
       const pos=inp.selectionStart;
       inp.value=inp.value.slice(0,pos)+em+inp.value.slice(inp.selectionEnd);
       inp.selectionStart=inp.selectionEnd=pos+em.length;
-      inp.focus();
-      panel.style.display='none';
+      inp.focus();panel.style.display='none';
     };
     panel.appendChild(btn);
   });
   panel.style.position='';panel.style.bottom='';panel.style.left='';
   panel.style.display='flex';
-};
-
-// ── GIF picker ──
-async function sendGif(url,preview){
-  if(!myName){return;}
-  document.getElementById('gif-panel').style.display='none';
-  await push(ref(db,CHAT_REF),{
-    name:myName,avatar:myAvatar,senderId:myId,
-    gif:url,ts:serverTimestamp()
-  });
 }
 
-// ── Bericht sturen ──
-window.sendMsg=async function(){
-  const inp=document.getElementById('inp-txt');
-  const txt=inp.value.trim();
-  if(!txt||!myName)return;
-  inp.value='';autoResize(inp);
-  document.getElementById('emoji-panel').style.display='none';
-  document.getElementById('gif-panel').style.display='none';
-  await push(ref(db,CHAT_REF),{
-    name:myName,avatar:myAvatar,senderId:myId,
-    text:txt,ts:serverTimestamp()
-  });
-  // Clear typing
-  set(ref(db,TYPING_REF+'/'+myId),null);
-};
-
-// ── Typing indicator ──
-window.onTyping=function(){
-  const now=Date.now();
-  if(now-lastTyping>2000){
-    lastTyping=now;
-    set(ref(db,TYPING_REF+'/'+myId),{name:myName,ts:now});
-  }
-  clearTimeout(typingTimer);
-  typingTimer=setTimeout(()=>set(ref(db,TYPING_REF+'/'+myId),null),3000);
-};
-
-// ── Auto resize textarea ──
-window.autoResize=function(el){
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,100)+'px';
-};
-
-// ── Sluit panelen bij klik buiten ──
-document.addEventListener('click',(e)=>{
-  const ep=document.getElementById('emoji-panel');
-  const gp=document.getElementById('gif-panel');
-  if(!ep.contains(e.target)&&!e.target.classList.contains('inp-emoji-btn')&&!e.target.classList.contains('react-add')){
-    ep.style.display='none';reactPickerTarget=null;
-  }
-  if(!gp.contains(e.target)&&!e.target.classList.contains('inp-gif-btn')){
-    gp.style.display='none';
-  }
-});
-
-
-// ── GELUID: Tour-toeter (Web Audio API) ──
-function playToeter(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    // Toeter = twee tonen snel na elkaar (fanfare-achtig)
-    const tones=[{f:440,t:0,d:.12},{f:554,t:.1,d:.12},{f:659,t:.22,d:.25}];
-    tones.forEach(({f,t,d})=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.type='sawtooth';osc.frequency.value=f;
-      gain.gain.setValueAtTime(0,ctx.currentTime+t);
-      gain.gain.linearRampToValueAtTime(.18,ctx.currentTime+t+.01);
-      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+t+d);
-      osc.connect(gain);gain.connect(ctx.destination);
-      osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+d+.05);
-    });
-  }catch(e){}
-}
-
-// ── NOTIFICATIES ──
-let notifEnabled=false;
-let lastMsgCount=0;
-
-async function requestNotif(){
-  if(!('Notification' in window))return;
-  if(Notification.permission==='granted'){notifEnabled=true;return;}
-  if(Notification.permission!=='denied'){
-    const p=await Notification.requestPermission();
-    notifEnabled=(p==='granted');
-  }
-}
-
-function showNotif(name,text,avatar){
-  if(!notifEnabled||document.hasFocus())return;
-  const n=new Notification('Tour du Suëstra 2026 🚴',{
-    body:avatar+' '+name+': '+text,
-    icon:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='25' cy='70' r='20' fill='none' stroke='%23d4a017' stroke-width='8'/><circle cx='75' cy='70' r='20' fill='none' stroke='%23d4a017' stroke-width='8'/><path d='M25 70 L45 35 L60 35 L75 70' fill='none' stroke='%23d4a017' stroke-width='6' stroke-linecap='round'/><circle cx='55' cy='32' r='7' fill='%23d4a017'/></svg>",
-    tag:'chat-msg',
-    silent:true
-  });
-  setTimeout(()=>n.close(),4000);
-}
-
-window.toggleGif=function(){
+// ── GIF PICKER ──
+function toggleGif(){
   const panel=document.getElementById('gif-panel');
   panel.style.display=panel.style.display==='none'?'block':'none';
   if(panel.style.display==='block'){
@@ -584,34 +493,7 @@ window.toggleGif=function(){
     document.getElementById('gif-search').focus();
     loadTrendingGifs();
   }
-};
-
-// ── GIF ZOEKEN VIA GIPHY ──
-const GIPHY_KEY='hpvZycHYSuMCPeYGMEJEwFWGHMDNyqpZ'; // gratis public beta key
-let gifTimer2=null;
-window.searchGif=function(){
-  clearTimeout(gifTimer2);
-  gifTimer2=setTimeout(async()=>{
-    const q=document.getElementById('gif-search').value.trim()||'tour de france cycling';
-    const tip=document.getElementById('gif-tip');
-    const grid=document.getElementById('gif-grid');
-    tip.textContent='Laden…';grid.innerHTML='';
-    try{
-      const url=`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(q)}&limit=15&rating=g&lang=nl`;
-      const r=await fetch(url);
-      const d=await r.json();
-      if(!d.data||!d.data.length){
-        // Probeer trending als fallback
-        const r2=await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=12&rating=g`);
-        const d2=await r2.json();
-        if(!d2.data||!d2.data.length){tip.textContent='Geen GIFs gevonden';return;}
-        renderGifs(d2.data);return;
-      }
-      renderGifs(d.data);
-    }catch(e){tip.textContent='Kon GIFs niet laden — check je verbinding';}
-  },400);
-};
-
+}
 
 async function loadTrendingGifs(){
   const tip=document.getElementById('gif-tip');
@@ -620,9 +502,26 @@ async function loadTrendingGifs(){
   try{
     const r=await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_KEY}&limit=15&rating=g`);
     const d=await r.json();
-    if(d.data&&d.data.length){renderGifs(d.data);tip.textContent='';}
-    else tip.textContent='Typ om GIFs te zoeken';
+    if(d.data&&d.data.length)renderGifs(d.data);
+    else tip.textContent='Typ om GIFs te zoeken 🔍';
   }catch(e){tip.textContent='Typ om GIFs te zoeken 🔍';}
+}
+
+function searchGif(){
+  clearTimeout(gifTimer);
+  gifTimer=setTimeout(async()=>{
+    const q=document.getElementById('gif-search').value.trim();
+    if(!q){loadTrendingGifs();return;}
+    const tip=document.getElementById('gif-tip');
+    const grid=document.getElementById('gif-grid');
+    tip.textContent='Laden…';grid.innerHTML='';
+    try{
+      const r=await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_KEY}&q=${encodeURIComponent(q)}&limit=15&rating=g`);
+      const d=await r.json();
+      if(d.data&&d.data.length)renderGifs(d.data);
+      else tip.textContent='Geen resultaten';
+    }catch(e){tip.textContent='Kon GIFs niet laden';}
+  },400);
 }
 
 function renderGifs(items){
@@ -634,34 +533,71 @@ function renderGifs(items){
     const full=g.images.downsized?.url||g.images.fixed_height?.url;
     if(!preview)return;
     const img=document.createElement('img');
-    img.className='gif-item';
-    img.src=preview;img.alt='gif';img.loading='lazy';
-    img.onclick=()=>sendGif(full,preview);
+    img.className='gif-item';img.src=preview;img.alt='gif';img.loading='lazy';
+    img.onclick=()=>{
+      document.getElementById('gif-panel').style.display='none';
+      push(ref(CHAT_REF),{name:myName,avatar:myAvatar,senderId:myId,gif:full,ts:serverTimestamp()});
+    };
     grid.appendChild(img);
   });
-  if(!items.length)tip.textContent='Geen resultaten';
 }
 
 // ── FOTO STUREN ──
-window.sendFoto=async function(input){
+function sendFoto(input){
   const file=input.files[0];if(!file||!myName)return;
-  if(file.size>3*1024*1024){alert('Foto mag maximaal 3MB zijn');return;}
+  if(file.size>3*1024*1024){alert('Max 3MB');return;}
   const reader=new FileReader();
-  reader.onload=async(e)=>{
-    const dataUrl=e.target.result;
-    await push(ref(db,CHAT_REF),{
-      name:myName,avatar:myAvatar,senderId:myId,
-      foto:dataUrl,ts:serverTimestamp()
-    });
+  reader.onload=(e)=>{
+    push(ref(CHAT_REF),{name:myName,avatar:myAvatar,senderId:myId,foto:e.target.result,ts:serverTimestamp()});
   };
   reader.readAsDataURL(file);
   input.value='';
-};
+}
 
-// Enter op naam invoer
-document.getElementById('name-inp').addEventListener('keydown',e=>{
-  if(e.key==='Enter')window.joinChat();
+// ── BERICHT STUREN ──
+function sendMsg(){
+  const inp=document.getElementById('inp-txt');
+  const txt=inp.value.trim();
+  if(!txt||!myName)return;
+  inp.value='';autoResize(inp);
+  document.getElementById('emoji-panel').style.display='none';
+  document.getElementById('gif-panel').style.display='none';
+  push(ref(CHAT_REF),{name:myName,avatar:myAvatar,senderId:myId,text:txt,ts:serverTimestamp()});
+  set(ref(TYPING_REF+'/'+myId),null);
+}
+
+// ── TYPING ──
+function onTyping(){
+  const now=Date.now();
+  if(now-lastTyping>2000){lastTyping=now;set(ref(TYPING_REF+'/'+myId),{name:myName,ts:now});}
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>set(ref(TYPING_REF+'/'+myId),null),3000);
+}
+
+// ── TEXTAREA AUTO RESIZE ──
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,100)+'px';
+}
+
+// ── SLUIT PANELEN ──
+document.addEventListener('click',(e)=>{
+  const ep=document.getElementById('emoji-panel');
+  const gp=document.getElementById('gif-panel');
+  if(!ep.contains(e.target)&&!e.target.closest('.inp-emoji-btn')&&!e.target.closest('.react-add')){
+    ep.style.display='none';reactTarget=null;
+  }
+  if(!gp.contains(e.target)&&!e.target.closest('.inp-gif-btn')){
+    gp.style.display='none';
+  }
 });
+
+// ── KEYBOARD BINDINGS ──
+document.getElementById('name-inp').addEventListener('keydown',e=>{if(e.key==='Enter')joinChat();});
+document.getElementById('inp-txt').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+});
+document.getElementById('inp-txt').addEventListener('input',function(){autoResize(this);onTyping();});
 </script>
 </body>
 </html>

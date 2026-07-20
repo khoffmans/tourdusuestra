@@ -719,19 +719,15 @@ canvas{display:block;}
   </div>
 
   <div id="race-legend" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
-  <div class="race-wrap" style="position:relative">
-    <canvas id="race-canvas"></canvas>
-    <canvas id="race-canvas-hover" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+  <div id="race-wrap-inner" style="position:relative">
+    <canvas id="race-canvas" style="display:none"></canvas>
+    <canvas id="race-canvas-hover" style="position:absolute;top:0;left:0;pointer-events:none;display:none"></canvas>
   </div>
   <div id="race-tooltip" style="display:none;position:fixed;background:white;border:1px solid var(--bo);border-radius:6px;padding:8px 12px;font-size:11px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:500;pointer-events:none"></div>
 
   <div style="margin-top:16px" class="no-print">
     <div style="font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Top-10 per etappe</div>
-    <div id="top10-log" style="overflow-x:auto"></div>
-  </div>
-</div>
-
-<script>
+    <div id="top10-log" style="overflow-x:a
 // ══════════════════════════════════════════
 // STARTLIJST (bijgewerkt met correcte nummering)
 // ══════════════════════════════════════════
@@ -1198,8 +1194,56 @@ function bBase(ti){
   return nums;
 }
 
+function getSel(stage,ti){
+  // S.sel keys kunnen strings zijn (na JSON parse) of numbers
+  const s=S.sel[stage]||S.sel[String(stage)];
+  if(!s)return null;
+  return s[ti]||s[String(ti)];
+}
+function gChain(ti){
+  // Bouw de keten van mutaties voor een team, met het nieuwe wisselbeleid:
+  // per ronde (effectief moment) worden plekken gesorteerd op index
+  const base=S.sel[1]?[...S.sel[1][ti]]:[...bBase(ti)];
+  const rv=[...S.rv[ti]];const ur=new Set();const result=[];
+  const simBase=[...base];
+
+  // Groepeer alle wissels per effectief moment
+  const ws=Object.values(S.wd)
+    .map(w=>({...w,eff:w.type==='DNF'?w.stage+1:w.stage}))
+    .sort((a,b)=>a.eff-b.eff);
+  const momenten=[...new Set(ws.map(w=>w.eff))].sort((a,b)=>a-b);
+
+  for(const moment of momenten){
+    const ronde=ws.filter(w=>w.eff===moment);
+    const vrij=[];
+    for(const w of ronde){
+      const si=simBase.indexOf(w.num);
+      if(si>=0)vrij.push({si,w});
+    }
+    if(!vrij.length)continue;
+    // Sorteer op plek (laag index = hogere plek)
+    vrij.sort((a,b)=>a.si-b.si);
+    // Markeer leeg
+    for(const {si} of vrij)simBase[si]=null;
+    // Wijs reserves toe
+    for(const {si,w} of vrij){
+      let repl=null;
+      for(let ri=0;ri<rv.length;ri++){
+        if(ur.has(ri))continue;
+        const rn2=rv[ri];if(!rn2)continue;
+        if(simBase.some((n,ix)=>n===rn2&&ix!==si))continue;
+        const rw=S.wd[rn2];
+        if(rw&&(rw.type==='DNF'?rw.stage+1:rw.stage)<=moment)continue;
+        repl={num:rn2,ri};ur.add(ri);break;
+      }
+      if(repl)simBase[si]=repl.num;
+      result.push({slot:si,outNum:w.num,stage:w.stage,type:w.type,eff:moment,repl});
+    }
+  }
+  return result;
+}
 function bStage(ti,stage){
-  const base=[...(S.sel[1]?S.sel[1][ti]:bBase(ti))];
+  const _s1=getSel(1,ti);const base=[...(_s1?_s1:bBase(ti))];
   const rv=[...S.rv[ti]];
   const ur=new Set(); // gebruikte reserve-indices
 
@@ -1791,7 +1835,7 @@ function renderSel(){
     const t=TMS[i];if(q&&!t.team.toLowerCase().includes(q.toLowerCase())&&!t.name.toLowerCase().includes(q.toLowerCase()))continue;
     const nums=bStage(i,stage);const open=selOpen.has(i);
     let tp=0;for(let sg=1;sg<=stage;sg++){const p=(S.pts[sg]||{})[i];if(p)tp+=p.total;}if(S.gcP[i])tp+=S.gcP[i].total;
-    const chain=gChain(i).filter(m=>m.eff<=stage);
+    const chain=(typeof gChain==="function"?gChain(i):[]).filter(m=>m.eff<=stage);
     h+=`<div class="card"><div class="ch${open?' open':''}" onclick="togSel(${i})"><div style="flex:1"><span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ink);color:var(--gl);border-radius:3px;padding:1px 4px">E${stage}</span><strong style="font-family:Syne,sans-serif;font-size:13px;margin-left:7px">${t.team}</strong> <span style="color:var(--mu);font-size:11px">${t.name}</span></div>${tp>0?`<span class="pts" style="margin-right:10px">${tp}<span style="font-size:10px;color:var(--mu)"> pts</span></span>`:''}${chain.length?`<span class="p pp-" style="margin-right:6px">${chain.length} mut.</span>`:''}<span class="arr">${open?'▲':'▼'}</span></div>`;
     if(open){
       const ur=new Set(chain.filter(m=>m.repl).map(m=>m.repl.ri));
@@ -2203,7 +2247,7 @@ function prevMuts(){
 
   for(let i=0;i<TMS.length;i++){
     // Gebruik de huidige vastgestelde selectie (laatste bekende)
-    const curSel=S.sel[stage]&&S.sel[stage][i]?[...S.sel[stage][i]]:(S.sel[1]?[...S.sel[1][i]]:[...bBase(i)]);
+    const _cs=getSel(stage,i)||getSel(1,i);const curSel=_cs?[..._cs]:[...bBase(i)];
     
     // Welke uitvallers van deze ronde zitten in dit team?
     // DNF na `stage` (eff=stage+1=nxt) + DNS in etappe nxt (eff=nxt)
@@ -2642,7 +2686,7 @@ function renderRaw(){
 // ══════════════════════════════════════════
 // KAMELENRACE — verbeterd
 // ══════════════════════════════════════════
-let raceVisible=new Set(Array.from({length:77},(_,i)=>i));
+let raceVisible=new Set(Array.from({length:TMS.length},(_,i)=>i));
 
 function toggleAllTeams(){
   if(raceVisible.size===TMS.length)raceVisible=new Set();
@@ -2660,138 +2704,208 @@ function renderRace(){
   TMS.forEach((t,i)=>{
     const on=raceVisible.has(i);
     const col=COLORS[i%COLORS.length];
-    lg+=`<span onclick="toggleTeam(${i})" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;border:1px solid ${on?col:'var(--b2)'};background:${on?col+'18':'transparent'};font-size:10px;color:${on?col:'var(--mu)'}">
-      <span style="width:8px;height:8px;border-radius:50%;background:${on?col:'#ccc'};flex-shrink:0;display:inline-block"></span>${t.team}</span>`;
+    lg+=`<span onclick="toggleTeam(${i})" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:10px;border:1px solid ${on?col:'#ccc'};font-size:10px;color:${on?col:'#aaa'}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${on?col:'#ccc'}"></span>${t.team}</span>`;
   });
   document.getElementById('race-legend').innerHTML=lg;
 
   if(!stages.length){
-    document.getElementById('top10-log').innerHTML='<div class="notice ni">Nog geen etappe-uitslagen ingevoerd.</div>';
+    document.getElementById('race-wrap-inner').innerHTML='<div class="notice ni">Nog geen etappe-uitslagen.</div>';
     return;
   }
 
+  // Bereken cumulatieve punten per team per etappe
+  const cumPts={};
+  TMS.forEach((_,i)=>{cumPts[i]=[0];});
+  stages.forEach(s=>{
+    TMS.forEach((_,i)=>{
+      const prev=cumPts[i][cumPts[i].length-1];
+      const ep=(S.pts[s]||{})[i];
+      cumPts[i].push(prev+(ep?ep.total:0));
+    });
+  });
+
+  // Rangschikking per etappe
+  const rankings=stages.map((s,si)=>{
+    return TMS.map((_,i)=>({i,pts:cumPts[i][si+1]}))
+      .sort((a,b)=>b.pts-a.pts)
+      .map((x,rank)=>({...x,rank}));
+  });
+
+  const wrap=document.getElementById('race-wrap-inner');
+
+  if(mode==='rank'){
+    // ── KLASSEMENTSVERLOOP: fietsjes bewegen verticaal ──
+    renderRaceAnim(stages,rankings,rankLimit,cumPts,wrap);
+  } else {
+    // ── PUNTENVERLOOP: canvas lijndiagram ──
+    renderRaceCanvas(stages,cumPts,wrap);
+  }
+
+  // Top-10 log
+  renderTop10Log(stages);
+}
+
+function renderRaceAnim(stages,rankings,rankLimit,cumPts,wrap){
+  // SVG-gebaseerde animatie: teams als fietsjes op een rijstrook
+  const W=wrap.offsetWidth||700;
+  const LANE_H=24;
+  const H=rankLimit*LANE_H+60;
+  const PAD_L=140,PAD_R=80,PAD_T=40,PAD_B=20;
+  const CW=W-PAD_L-PAD_R;
+
+  let stageIdx=0;
+  const maxStage=stages.length-1;
+
+  function buildFrame(si){
+    const frame=rankings[si];
+    const visTeams=frame.filter(x=>raceVisible.has(x.i)&&x.rank<rankLimit);
+    const etappe=stages[si];
+
+    let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:Inter,sans-serif">`;
+
+    // Achtergrond banen
+    for(let r=0;r<rankLimit;r++){
+      const y=PAD_T+r*LANE_H;
+      svg+=`<rect x="0" y="${y}" width="${W}" height="${LANE_H}" fill="${r%2===0?'#f8f6f2':'#f0ede6'}" rx="0"/>`;
+      svg+=`<text x="4" y="${y+LANE_H/2+4}" font-size="9" fill="#aaa">${r+1}</text>`;
+    }
+
+    // Teams
+    visTeams.forEach(({i,pts,rank})=>{
+      if(rank>=rankLimit)return;
+      const col=COLORS[i%COLORS.length];
+      const y=PAD_T+rank*LANE_H+LANE_H/2;
+      const maxPts=Math.max(...TMS.map((_,j)=>cumPts[j][si+1]));
+      const x=PAD_L+(maxPts>0?pts/maxPts*CW:0);
+
+      // Fietsicoon (SVG wielrenner)
+      const s=10;
+      svg+=`<g transform="translate(${x-s},${y-s})">
+        <!-- wiel achter -->
+        <circle cx="4" cy="14" r="5" fill="none" stroke="${col}" stroke-width="1.5"/>
+        <!-- wiel voor -->
+        <circle cx="16" cy="14" r="5" fill="none" stroke="${col}" stroke-width="1.5"/>
+        <!-- frame -->
+        <line x1="4" y1="14" x2="10" y2="6" stroke="${col}" stroke-width="1.5"/>
+        <line x1="10" y1="6" x2="16" y2="14" stroke="${col}" stroke-width="1.5"/>
+        <line x1="10" y1="6" x2="10" y2="14" stroke="${col}" stroke-width="1.5"/>
+        <line x1="4" y1="14" x2="10" y2="14" stroke="${col}" stroke-width="1.5"/>
+        <!-- zadel -->
+        <line x1="8" y1="6" x2="12" y2="6" stroke="${col}" stroke-width="1.5"/>
+        <!-- hoofd -->
+        <circle cx="16" cy="3" r="2.5" fill="${col}"/>
+        <!-- stuur -->
+        <line x1="16" y1="6" x2="18" y2="4" stroke="${col}" stroke-width="1.5"/>
+      </g>`;
+
+      // Teamnaam rechts
+      svg+=`<text x="${x+14}" y="${y+4}" font-size="9" fill="${col}" font-weight="600" clip-path="url(#cp)">${TMS[i].team}</text>`;
+      // Punten
+      svg+=`<text x="${W-PAD_R+4}" y="${y+4}" font-size="9" fill="${col}">${pts}</text>`;
+    });
+
+    // Etappe label
+    svg+=`<text x="${PAD_L}" y="18" font-size="11" fill="#555" font-weight="600">E${etappe} — Stand na etappe ${si+1}/${stages.length}</text>`;
+    svg+=`</svg>`;
+    return svg;
+  }
+
+  wrap.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+      <button class="btn btn-s btn-sm" id="race-prev" onclick="raceStep(-1)">◀ Vorig</button>
+      <span id="race-stage-label" style="font-size:12px;color:var(--mu);font-weight:600"></span>
+      <button class="btn btn-s btn-sm" id="race-next" onclick="raceStep(1)">Volgend ▶</button>
+      <button class="btn btn-s btn-sm" id="race-play" onclick="racePlay()" style="margin-left:auto">▶ Afspelen</button>
+    </div>
+    <div id="race-frame" style="overflow-x:auto">${buildFrame(0)}</div>`;
+
+  window._raceBuildFrame=buildFrame;
+  window._raceStages=stages;
+  window._raceIdx=0;
+  window._raceMax=stages.length-1;
+  updateRaceLabel();
+}
+
+function raceStep(d){
+  const ni=Math.max(0,Math.min((window._raceIdx||0)+d,window._raceMax||0));
+  window._raceIdx=ni;
+  document.getElementById('race-frame').innerHTML=window._raceBuildFrame(ni);
+  updateRaceLabel();
+  if(window._raceTimer){clearInterval(window._raceTimer);window._raceTimer=null;document.getElementById('race-play').textContent='▶ Afspelen';}
+}
+
+function racePlay(){
+  if(window._raceTimer){clearInterval(window._raceTimer);window._raceTimer=null;document.getElementById('race-play').textContent='▶ Afspelen';return;}
+  if(window._raceIdx>=window._raceMax)window._raceIdx=0;
+  document.getElementById('race-play').textContent='⏸ Pauze';
+  window._raceTimer=setInterval(()=>{
+    window._raceIdx++;
+    document.getElementById('race-frame').innerHTML=window._raceBuildFrame(window._raceIdx);
+    updateRaceLabel();
+    if(window._raceIdx>=window._raceMax){clearInterval(window._raceTimer);window._raceTimer=null;document.getElementById('race-play').textContent='▶ Afspelen';}
+  },800);
+}
+
+function updateRaceLabel(){
+  const el=document.getElementById('race-stage-label');
+  if(el&&window._raceStages)el.textContent=`Etappe ${window._raceIdx+1} / ${window._raceStages.length}`;
+}
+
+function renderRaceCanvas(stages,cumPts,wrap){
+  // Lijndiagram op canvas
+  const W=Math.max((wrap.offsetWidth||500)-4,500);
+  const H=420;
   const canvas=document.getElementById('race-canvas');
-  const W=Math.max((canvas.parentElement||document.body).offsetWidth-4,500);
-  const H=mode==='rank'?Math.max(rankLimit*22+80,300):420;
   canvas.width=W;canvas.height=H;
   const hover=document.getElementById('race-canvas-hover');
   hover.width=W;hover.height=H;
-  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
+  wrap.innerHTML=''; // clear animatie als die er was
+  wrap.appendChild(canvas);
+  wrap.appendChild(hover);
 
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
   const PAD={l:52,r:160,t:20,b:36};
   const cw=W-PAD.l-PAD.r,ch=H-PAD.t-PAD.b;
 
+  const allPts=TMS.flatMap((_,i)=>cumPts[i]);
+  const maxV=Math.max(...allPts,1);
+  const xs=stages.map((_,si)=>PAD.l+si/(Math.max(stages.length-1,1))*cw);
+  const yf=v=>PAD.t+ch-(v/maxV)*ch;
+
   // Grid
-  ctx.font='9px DM Mono,monospace';
+  ctx.strokeStyle='#e8e6e0';ctx.lineWidth=1;
+  for(let g=0;g<=5;g++){const y=PAD.t+ch*(1-g/5);ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cw,y);ctx.stroke();
+    ctx.fillStyle='#aaa';ctx.font='9px Inter';ctx.fillText(Math.round(maxV*g/5),4,y+3);}
+  stages.forEach((s,si)=>{const x=xs[si];ctx.beginPath();ctx.moveTo(x,PAD.t);ctx.lineTo(x,PAD.t+ch);ctx.stroke();
+    ctx.fillStyle='#aaa';ctx.font='9px Inter';ctx.fillText('E'+s,x-5,PAD.t+ch+12);});
 
-  if(mode==='total'){
-    // Compute max points
-    const allPts=TMS.map((_,ti)=>stages.map(s=>totPts(ti,s)));
-    const maxPts=Math.max(...allPts.flat(),1);
-    const xStep=cw/Math.max(stages.length,1);
-    const yScale=ch/maxPts;
-
-    // Grid lines
-    for(let g=0;g<=5;g++){
-      const y=PAD.t+ch-(g/5)*ch;
-      ctx.strokeStyle='rgba(0,0,0,0.06)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cw,y);ctx.stroke();
-      ctx.fillStyle='#aaa';ctx.textAlign='right';
-      ctx.fillText(Math.round(g/5*maxPts),PAD.l-4,y+3);
-    }
-    ctx.fillStyle='#888';ctx.textAlign='center';
-    stages.forEach((s,i)=>ctx.fillText('E'+s,PAD.l+(i+0.5)*xStep,PAD.t+ch+14));
-
-    // Lines per team
-    const visible=[...raceVisible];
-    visible.forEach(ti=>{
-      const col=COLORS[ti%COLORS.length];
-      ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
-      let first=true;
-      stages.forEach((s,i)=>{
-        const p=totPts(ti,s);
-        const x=PAD.l+(i+0.5)*xStep,y=PAD.t+ch-p*yScale;
-        if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
-      });
-      ctx.stroke();
-      // Endpoint
-      const lastP=totPts(ti,stages[stages.length-1]);
-      const lx=PAD.l+(stages.length-0.5)*xStep,ly=PAD.t+ch-lastP*yScale;
-      ctx.fillStyle=col;ctx.font='bold 10px DM Sans,sans-serif';ctx.textAlign='left';
-      ctx.fillText(TMS[ti].team.slice(0,14),PAD.l+cw+6,ly+3);
-      // Dots at each stage
-      stages.forEach((s,i)=>{
-        const p=totPts(ti,s);const x=PAD.l+(i+0.5)*xStep,y=PAD.t+ch-p*yScale;
-        ctx.beginPath();ctx.arc(x,y,3,0,2*Math.PI);ctx.fillStyle=col;ctx.fill();
-      });
-    });
-
-  } else {
-    // RANK MODE — filter to rankLimit
-    const n=TMS.length;
-    const visRanks=Math.min(rankLimit,n);
-    const yStep=ch/Math.max(visRanks-1,1);
-
-    // Grid
-    for(let rank=1;rank<=visRanks;rank++){
-      const y=PAD.t+(rank-1)*yStep;
-      ctx.strokeStyle='rgba(0,0,0,0.05)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cw,y);ctx.stroke();
-      ctx.fillStyle=rank<=3?['#D4A017','#8A8A8A','#8B5A2B'][rank-1]:'#aaa';
-      ctx.font=rank<=3?'bold 10px DM Mono,monospace':'9px DM Mono,monospace';
-      ctx.textAlign='right';ctx.fillText(rank,PAD.l-4,y+3);
-    }
-    ctx.fillStyle='#888';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
-    stages.forEach((s,i)=>ctx.fillText('E'+s,PAD.l+(i+0.5)*(cw/Math.max(stages.length,1)),PAD.t+ch+14));
-
-    const xStep=cw/Math.max(stages.length,1);
-
-    TMS.forEach((t,ti)=>{
-      if(!raceVisible.has(ti))return;
-      const col=COLORS[ti%COLORS.length];
-      ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();
-      let first=true,lastVisible=null;
-      stages.forEach((s,i)=>{
-        const rank=getRankAtStage(ti,s);
-        if(rank>visRanks)return;
-        const x=PAD.l+(i+0.5)*xStep,y=PAD.t+(rank-1)*yStep;
-        if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
-        lastVisible={x,y,rank};
-      });
-      ctx.stroke();
-      if(lastVisible){
-        ctx.fillStyle=col;ctx.font='bold 10px DM Sans,sans-serif';ctx.textAlign='left';
-        ctx.fillText(t.team.slice(0,14),PAD.l+cw+6,lastVisible.y+3);
-        // Highlight top 3 positions
-        stages.forEach((s,i)=>{
-          const rank=getRankAtStage(ti,s);
-          if(rank>visRanks)return;
-          const x=PAD.l+(i+0.5)*xStep,y=PAD.t+(rank-1)*yStep;
-          ctx.beginPath();ctx.arc(x,y,rank<=3?5:3,0,2*Math.PI);
-          ctx.fillStyle=col;ctx.fill();
-        });
-      }
-    });
-  }
-
-  // Top-10 log tabel
-  let logH=`<table class="tbl" style="font-size:10px"><tr><th style="min-width:40px">E</th>`;
-  for(let r=1;r<=Math.min(10,TMS.length);r++)logH+=`<th>Nr ${r}</th>`;
-  logH+=`</tr>`;
-  stages.forEach(s=>{
-    logH+=`<tr><td><span class="p pg-" style="font-size:9px">E${s}</span></td>`;
-    const rkd=ranked(TMS.map((_,ti)=>({i:ti,pts:totPts(ti,s)})));
-    for(let r=1;r<=Math.min(10,TMS.length);r++){
-      const e=rkd.find(x=>x.rank===r);
-      const col=e?COLORS[e.i%COLORS.length]:'#ccc';
-      logH+=`<td style="white-space:nowrap;font-size:10px;color:${col};font-weight:500">${e?TMS[e.i].team.slice(0,12):'—'}</td>`;
-    }
-    logH+=`</tr>`;
+  // Lijnen per team
+  TMS.forEach((_,i)=>{
+    if(!raceVisible.has(i))return;
+    const col=COLORS[i%COLORS.length];
+    ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.beginPath();
+    stages.forEach((s,si)=>{const x=xs[si];const y=yf(cumPts[i][si+1]);si===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
+    // Label rechts
+    const lastY=yf(cumPts[i][stages.length]);
+    ctx.fillStyle=col;ctx.font='9px Inter';ctx.fillText(TMS[i].team.slice(0,18),PAD.l+cw+4,lastY+3);
   });
-  logH+=`</table>`;
-  document.getElementById('top10-log').innerHTML=logH;
 }
 
+function renderTop10Log(stages){
+  let h='<div style="overflow-x:auto"><table class="tbl"><tr><th>Etappe</th>';
+  for(let p=0;p<10;p++)h+=`<th>${p+1}e</th>`;
+  h+='</tr>';
+  stages.forEach(s=>{
+    h+=`<tr><td style="font-weight:600">E${s}</td>`;
+    const day=S.rs[s]||[];
+    for(let p=0;p<10;p++){const n=day[p];h+=`<td style="font-size:10px">${n?rs(n):'—'}</td>`;}
+    h+='</tr>';
+  });
+  h+='</table></div>';
+  document.getElementById('top10-log').innerHTML=h;
+}
 function getRankAtStage(ti,stage){
   const entries=TMS.map((_,i)=>({i,pts:totPts(i,stage)}));
   return (ranked(entries).find(e=>e.i===ti)||{rank:TMS.length}).rank;
@@ -3359,6 +3473,9 @@ function doEditSlot(evt,ti,key){
 // Legacy wrappers
 function doEdit(evt,ti,slot){doEditSlot(evt,ti,ti+'_'+slot);}
 function doEditRes(evt,ti,ri){doEditSlot(evt,ti,ti+'_r'+ri);}
+
+
+i){doEditSlot(evt,ti,ti+'_r'+ri);}
 
 
 </script>

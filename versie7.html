@@ -1200,100 +1200,53 @@ function bBase(ti){
 
 function bStage(ti,stage){
   const base=[...(S.sel[1]?S.sel[1][ti]:bBase(ti))];
-  const rv=[...S.rv[ti]];const ur=new Set();
+  const rv=[...S.rv[ti]];
+  const ur=new Set(); // gebruikte reserve-indices
 
-  // Bepaal welke renners uitgevallen zijn en actief zijn voor dit team
+  // Alle uitvallers die effect hebben op of voor deze etappe,
+  // gegroepeerd per ronde (= effectief etappemoment)
   const ws=Object.values(S.wd)
     .filter(w=>(w.type==='DNF'?w.stage+1:w.stage)<=stage)
-    .sort((a,b)=>{
-      const ea=a.type==='DNF'?a.stage+1:a.stage,eb=b.type==='DNF'?b.stage+1:b.stage;
-      return ea-eb;
-    });
+    .map(w=>({...w,eff:w.type==='DNF'?w.stage+1:w.stage}))
+    .sort((a,b)=>a.eff-b.eff);
 
-  // Stap 1: markeer alle uit te vallen plekken (base[si]=null tijdelijk)
-  // en registreer hoeveel reserves al ingezet waren VOOR elke groep gelijktijdige wissels
-  // We doorlopen per etappe-moment (effectieve etappe)
-  const moments=[...new Set(ws.map(w=>w.type==='DNF'?w.stage+1:w.stage))].sort((a,b)=>a-b);
+  // Verwerk per ronde (uniek effectief moment)
+  const momenten=[...new Set(ws.map(w=>w.eff))].sort((a,b)=>a-b);
 
-  for(const moment of moments){
-    // Uitvallers die op dit moment actief worden
-    const fallers=ws.filter(w=>(w.type==='DNF'?w.stage+1:w.stage)===moment);
+  for(const moment of momenten){
+    const rondeWissels=ws.filter(w=>w.eff===moment);
 
-    // Verzamel alle open plekken voor dit team op dit moment
-    const openPlekken=[];
-    for(const w of fallers){
+    // Zoek welke plekken in dit team vrijkomen
+    const vrijePlekken=[];
+    for(const w of rondeWissels){
       const si=base.indexOf(w.num);
-      if(si<0)continue; // niet in dit team
-      openPlekken.push(si);
+      if(si>=0)vrijePlekken.push(si);
     }
-    if(!openPlekken.length)continue;
+    if(!vrijePlekken.length)continue;
 
-    // NIEUW BELEID: sorteer open plekken van hoog naar laag (lage index = hogere plek)
-    openPlekken.sort((a,b)=>a-b);
+    // STAP 1: sorteer vrijgekomen plekken (lage index = hogere plek = eerste reserve)
+    vrijePlekken.sort((a,b)=>a-b);
 
-    // Ken reserves toe in volgorde aan gesorteerde plekken
-    for(const si of openPlekken){
-      base[si]=null; // markeer als open
-      let repl=null;
+    // STAP 2: markeer ALLE vrijgekomen plekken eerst als leeg
+    for(const si of vrijePlekken)base[si]=null;
+
+    // STAP 3: vul van hoog naar laag in met eerstvolgende beschikbare reserve
+    for(const si of vrijePlekken){
       for(let ri=0;ri<rv.length;ri++){
         if(ur.has(ri))continue;
         const rn2=rv[ri];
-        if(!rn2||base.includes(rn2))continue;
-        // Check of de reserve zelf ook uitgevallen is
+        if(!rn2)continue;
+        // Reserve mag niet al in het team zitten (als actieve renner)
+        if(base.some((n,i)=>n===rn2&&i!==si))continue;
+        // Reserve mag zelf niet uitgevallen zijn op dit moment
         const rw=S.wd[rn2];
-        if(rw&&(rw.type==='DNF'?rw.stage+1:rw.stage)<=stage)continue;
-        repl={num:rn2,ri};break;
+        if(rw&&(rw.type==='DNF'?rw.stage+1:rw.stage)<=moment)continue;
+        base[si]=rn2;ur.add(ri);break;
       }
-      if(repl){ur.add(repl.ri);base[si]=repl.num;}
     }
   }
   return base;
 }
-
-function gChain(ti){
-  const base=S.sel[1]?[...S.sel[1][ti]]:[...bBase(ti)];
-  const rv=[...S.rv[ti]];const ur=new Set();const p=[];
-  for(let i=0;i<15;i++){
-    const n=base[i];if(!n)continue;
-    const r=res(TMS[ti].riders[i]);
-    if(r.st==='nt'||r.st==='nf')p.push({slot:i,outNum:n,stage:0,type:'DNS',eff:1});
-    const w=S.wd[n];if(w){const eff=w.type==='DNF'?w.stage+1:w.stage;p.push({slot:i,outNum:n,stage:w.stage,type:w.type,eff});}
-  }
-  p.sort((a,b)=>a.eff-b.eff||a.slot-b.slot);
-  return p.map(x=>{
-    let repl=null;
-    for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const rw=S.wd[rn2];if(rw)continue;repl={num:rn2,ri};ur.add(ri);break;}
-    return{...x,repl};
-  });
-}
-
-function cPts(nums,result){
-  const lk={};result.forEach((n,i)=>{if(n)lk[n]=i;});let total=0;const bd=[];
-  nums.forEach((n,slot)=>{if(!n||!(n in lk))return;const pos=lk[n],pts=DP[pos]||0,bonus=pos===slot?5:0;bd.push({num:n,pos,pts,bonus});total+=pts+bonus;});
-  return{total,bd};
-}
-
-function cGC(ti,gcR){
-  const base=S.sel[1]?S.sel[1][ti]:bBase(ti);
-  const lk={};gcR.forEach((n,i)=>{if(n)lk[n]=i;});let total=0;const bd=[];
-  base.slice(0,8).forEach((n,slot)=>{if(!n||!(n in lk))return;const pos=lk[n],pts=GP[pos]||0,bonus=pos===slot?10:0;bd.push({num:n,pos,pts,bonus});total+=pts+bonus;});
-  return{total,bd};
-}
-
-function totPts(ti,upToStage){
-  let t=0;
-  const stages=upToStage?Object.keys(S.pts).map(Number).filter(s=>s<=upToStage):Object.keys(S.pts).map(Number);
-  stages.forEach(s=>{const p=S.pts[s];if(p&&p[ti])t+=p[ti].total;});
-  if(!upToStage&&S.gcP[ti])t+=S.gcP[ti].total;
-  return t;
-}
-
-function ranked(entries){
-  const sorted=[...entries].sort((a,b)=>b.pts-a.pts);let rank=1;
-  return sorted.map((e,i)=>{if(i>0&&e.pts===sorted[i-1].pts){}else rank=i+1;return{...e,rank};});
-}
-
-
 // Vernieuw 2026 inzendingen vanuit Google Sheets
 async function refreshSheets2026(){
   const sheetId='1yLXeFLI2mYWTPUmcu5bwC56hJMiMD80BQ7Yz9rwiiMg';

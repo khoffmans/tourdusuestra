@@ -2197,22 +2197,94 @@ function addW(type,num){
 function rmW(type,num){if(type==='dnf')pD.delete(num);else pN.delete(num);rWL();}
 function prevMuts(){
   const stage=parseInt(document.getElementById('dnf-stage').textContent)||1;
-  let h='<div class="sec" style="font-size:13px;margin-top:0">Mutaties in selecties</div>';let any=false;
+  const nxt=stage+1;
+  let h='<div class="sec" style="font-size:13px;margin-top:0">Effect op selecties</div>';
+  let any=false;
+
   for(let i=0;i<TMS.length;i++){
-    const base=S.sel[1][i];const aff=[...pD,...pN].filter(n=>base.includes(n));if(!aff.length)continue;any=true;
-    const rv=[...S.rv[i]];const ur=new Set();
-    Object.values(S.wd).forEach(w=>{const sl=base.indexOf(w.num);if(sl<0)return;for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const rw=S.wd[rn2];if(rw)continue;ur.add(ri);break;}});
-    h+=`<div class="card" style="margin-bottom:8px"><div class="cb"><strong>${TMS[i].team}</strong> <span style="color:var(--mu);font-size:11px">${TMS[i].name}</span><table class="tbl" style="margin-top:8px"><tr><th>Plek</th><th>Uitvaller</th><th>Type</th><th>Reserve invaller</th><th>v.a. etappe</th></tr>`;
-    aff.forEach(n=>{
-      const type=pD.has(n)?'DNF':'DNS';let repl=null;
-      for(let ri=0;ri<rv.length;ri++){if(ur.has(ri))continue;const rn2=rv[ri];if(!rn2||base.includes(rn2))continue;const tw={...S.wd};pD.forEach(x=>tw[x]={num:x,stage,type:'DNF'});pN.forEach(x=>tw[x]={num:x,stage:stage+1,type:'DNS'});if(tw[rn2])continue;repl={num:rn2,ri};ur.add(ri);break;}
-      const slot2=base.indexOf(n);
-      h+=`<tr><td style="font-weight:600;font-size:11px">${slot2>=0?slot2+1:'—'}</td><td><span class="p pr-" style="font-size:9px">${n}</span> ${rn(n)}</td><td><span class="p ${type==='DNF'?'pr-':'pw-'}" style="font-size:9px">${type}</span></td><td>${repl?`<span class="p pp-" style="font-size:9px">${repl.num}</span> <strong>${rn(repl.num)}</strong>`:'<em style="color:var(--red);font-size:11px">geen reserve</em>'}</td><td style="font-size:10px;color:var(--mu)">E${stage+1}</td></tr>`;
-    });
+    // Gebruik de huidige vastgestelde selectie (laatste bekende)
+    const curSel=S.sel[stage]&&S.sel[stage][i]?[...S.sel[stage][i]]:(S.sel[1]?[...S.sel[1][i]]:[...bBase(i)]);
+    
+    // Welke uitvallers van deze ronde zitten in dit team?
+    // DNF na `stage` (eff=stage+1=nxt) + DNS in etappe nxt (eff=nxt)
+    const aff=[...pD,...pN].filter(n=>curSel.includes(n));
+    if(!aff.length)continue;
+    any=true;
+
+    const rv=[...S.rv[i]];
+    const ur=new Set();
+
+    // Bepaal hoeveel reserves al verbruikt zijn door EERDERE rondes
+    // (kopieer logica van bStage voor alle wissels t/m vorige ronde)
+    const wsEerder=Object.values(S.wd)
+      .filter(w=>(w.type==='DNF'?w.stage+1:w.stage)<nxt)
+      .sort((a,b)=>{const ea=a.type==='DNF'?a.stage+1:a.stage,eb=b.type==='DNF'?b.stage+1:b.stage;return ea-eb;});
+
+    // Simuleer eerdere rondes om ur (gebruikte reserves) te bepalen
+    const baseSim=[...curSel];
+    const momEerder=[...new Set(wsEerder.map(w=>w.type==='DNF'?w.stage+1:w.stage))].sort((a,b)=>a-b);
+    for(const mom of momEerder){
+      const ronde=wsEerder.filter(w=>(w.type==='DNF'?w.stage+1:w.stage)===mom);
+      const vrij=[];
+      for(const w of ronde){const si=baseSim.indexOf(w.num);if(si>=0)vrij.push(si);}
+      vrij.sort((a,b)=>a-b);
+      for(const si of vrij)baseSim[si]=null;
+      for(const si of vrij){
+        for(let ri=0;ri<rv.length;ri++){
+          if(ur.has(ri))continue;
+          const rn2=rv[ri];if(!rn2)continue;
+          if(baseSim.some((n,ix)=>n===rn2&&ix!==si))continue;
+          const rw=S.wd[rn2];if(rw&&(rw.type==='DNF'?rw.stage+1:rw.stage)<=mom)continue;
+          baseSim[si]=rn2;ur.add(ri);break;
+        }
+      }
+    }
+
+    // Nu de HUIDIGE ronde: sorteer vrijgekomen plekken op index
+    const vrijPlekken=aff.map(n=>({n,si:curSel.indexOf(n)})).filter(x=>x.si>=0);
+    vrijPlekken.sort((a,b)=>a.si-b.si); // lage index = hogere plek = eerste reserve
+
+    // Wijs reserves toe
+    const toewijzing=[];
+    for(const {n,si} of vrijPlekken){
+      const type=pD.has(n)?'DNF':'DNS';
+      let repl=null;
+      for(let ri=0;ri<rv.length;ri++){
+        if(ur.has(ri))continue;
+        const rn2=rv[ri];if(!rn2)continue;
+        if(curSel.some((x,ix)=>x===rn2&&ix!==si))continue;
+        // Reserve mag zelf niet in deze ronde uitvallen
+        if(pD.has(rn2)||pN.has(rn2))continue;
+        const rw=S.wd[rn2];if(rw&&(rw.type==='DNF'?rw.stage+1:rw.stage)<=nxt)continue;
+        repl={num:rn2,ri};ur.add(ri);break;
+      }
+      toewijzing.push({n,si,type,repl});
+    }
+
+    // Render tabel
+    h+=`<div class="card" style="margin-bottom:8px"><div class="cb">`;
+    h+=`<strong>${TMS[i].team}</strong> <span style="color:var(--mu);font-size:11px">${TMS[i].name}</span>`;
+    h+=`<table class="tbl" style="margin-top:8px">`;
+    h+=`<tr><th>Plek</th><th>Uitvaller</th><th>Type</th><th>Reserve invaller</th><th>v.a. etappe</th></tr>`;
+    for(const {n,si,type,repl} of toewijzing){
+      const replHtml=repl
+        ?`<span class="p pp-" style="font-size:9px">${repl.num}</span> <strong>${rn(repl.num)}</strong>`
+        :'<em style="color:var(--red);font-size:11px">geen reserve beschikbaar</em>';
+      const effEtappe=type==='DNF'?nxt:nxt;
+      h+=`<tr>
+        <td style="font-weight:600;font-size:11px">${si+1}</td>
+        <td><span class="p pr-" style="font-size:9px">${n}</span> ${rn(n)}</td>
+        <td><span class="p ${type==='DNF'?'pr-':'pw-'}" style="font-size:9px">${type}</span></td>
+        <td>${replHtml}</td>
+        <td style="font-size:10px;color:var(--mu)">E${effEtappe}</td>
+      </tr>`;
+    }
     h+=`</table></div></div>`;
   }
-  if(!any)h+='<div class="notice ni">Geen van de renners zit in een actieve selectie.</div>';
-  document.getElementById('mut-prev').innerHTML=h;document.getElementById('conf-next').style.display='inline-flex';
+
+  if(!any)h+='<div class="notice ni">Geen van de ingevoerde renners zit in een actieve selectie.</div>';
+  document.getElementById('mut-prev').innerHTML=h;
+  document.getElementById('conf-next').style.display='inline-flex';
 }
 function confNext(){
   const stage=parseInt(document.getElementById('dnf-stage').textContent)||1;const nxt=stage+1;

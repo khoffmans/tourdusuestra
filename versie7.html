@@ -1262,7 +1262,7 @@ function getSel(stage,ti){
 function gChain(ti){
   // Bouw de keten van mutaties voor een team, met het nieuwe wisselbeleid:
   // per ronde (effectief moment) worden plekken gesorteerd op index
-  const base=S.sel[1]?[...S.sel[1][ti]]:[...bBase(ti)];
+  const _gcs=getSel(1,ti);const base=[...(_gcs||bBase(ti))];
   const rv=[...S.rv[ti]];const ur=new Set();const result=[];
   const simBase=[...base];
 
@@ -1528,8 +1528,8 @@ function logout(){
 // INIT
 // ══════════════════════════════════════════
 function init(){
-  var had=loadState();
-  if(!had&&typeof PRELOAD_DATA!=='undefined'){
+  // Stap 1: laad altijd PRELOAD_DATA als basis
+  if(typeof PRELOAD_DATA!=='undefined'){
     try{
       var p=JSON.parse(JSON.stringify(PRELOAD_DATA));
       p.hist=(p.hist||[]).map(function(h){return Object.assign({},h,{dnf:new Set(h.dnf||[]),dns:new Set(h.dns||[])});});
@@ -1537,6 +1537,21 @@ function init(){
       Object.assign(S,p);
     }catch(e){console.warn('Preload failed:',e);}
   }
+  // Stap 2: merge localStorage ALLEEN als die NIEUWER is (hogere cs)
+  try{
+    var raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      var ls=JSON.parse(raw);
+      if(ls&&ls.cs&&ls.cs>S.cs){
+        ls.hist=(ls.hist||[]).map(function(h){return Object.assign({},h,{dnf:new Set(h.dnf||[]),dns:new Set(h.dns||[])});});
+        ls.approved=new Set(Array.isArray(ls.approved)?ls.approved:Object.keys(ls.approved||{}));
+        Object.assign(S,ls);
+        console.log('localStorage is nieuwer (cs='+ls.cs+'), gebruikt');
+      } else {
+        console.log('PRELOAD_DATA is nieuwer of gelijk (cs='+S.cs+'), localStorage genegeerd');
+      }
+    }
+  }catch(e){console.warn('localStorage merge failed:',e);}
   for(let i=0;i<TMS.length;i++) bBase(i);
   showLogin();
 }
@@ -1628,7 +1643,7 @@ function rHist(){
     h+=`<div class="log-entry"><div class="log-head"><span class="log-stage">E${ev.stage}</span><span style="font-size:12px;font-weight:500">Na etappe ${ev.stage} — ${ev.ts}</span><span class="p pgr" style="margin-left:auto">${[...ev.dnf].length} DNF · ${[...ev.dns].length} DNS</span></div>`;
     if([...ev.dnf].length){h+=`<div style="font-size:11px;color:var(--mu);margin-bottom:4px">DNF E${ev.stage} → reserve v.a. E${ev.stage+1}:</div>`;h+=[...ev.dnf].map(n=>`<span class="p pr-" style="margin-right:3px">${n}</span><span style="font-size:12px;margin-right:8px">${rn(n)}</span>`).join('');}
     if([...ev.dns].length){h+=`<div style="font-size:11px;color:var(--mu);margin:${[...ev.dnf].length?5:0}px 0 4px">DNS E${ev.stage+1} → reserve actief E${ev.stage+1}:</div>`;h+=[...ev.dns].map(n=>`<span class="p pw-" style="margin-right:3px">${n}</span><span style="font-size:12px;margin-right:8px">${rn(n)}</span>`).join('');}
-    const aff=TMS.filter((_,ti)=>{const b=S.sel[1]?S.sel[1][ti]:[];return[...ev.dnf,...ev.dns].some(n=>b.includes(n));});
+    const aff=TMS.filter((_,ti)=>{const b=getSel(1,ti)||[];return[...ev.dnf,...ev.dns].some(n=>b.includes(n));});
     if(aff.length)h+=`<div style="font-size:11px;color:var(--mu);margin-top:7px">Getroffen: ${aff.map(a=>`<strong>${a.team}</strong>`).join(', ')}</div>`;
     h+=`</div>`;
   });
@@ -2417,7 +2432,7 @@ function cPts(nums,result){
 }
 
 function cGC(ti,gcR){
-  const base=S.sel[1]?S.sel[1][ti]:bBase(ti);
+  const base=getSel(1,ti)||bBase(ti);
   const lk={};gcR.forEach((n,i)=>{if(n)lk[n]=i;});let total=0;const bd=[];
   base.slice(0,8).forEach((n,slot)=>{if(!n||!(n in lk))return;const pos=lk[n],pts=GP[pos]||0,bonus=pos===slot?10:0;bd.push({num:n,pos,pts,bonus});total+=pts+bonus;});
   return{total,bd};
@@ -2734,7 +2749,7 @@ function renderRaw(){
     for(let i=1;i<=5;i++)h+=`<th>R${i}</th>`;
     h+=`</tr>`;
     for(let ti=0;ti<TMS.length;ti++){
-      const t=TMS[ti];const base=S.sel[1]?S.sel[1][ti]:bBase(ti);
+      const t=TMS[ti];const base=getSel(1,ti)||bBase(ti);
       h+=`<tr><td style="font-weight:500;white-space:nowrap">${t.team}</td><td style="color:var(--mu);white-space:nowrap">${t.name}</td>`;
       base.forEach(n=>h+=`<td title="${n?rn(n):''}" style="white-space:nowrap;font-size:10px">${n?`<span class="p pg-" style="font-size:9px">${n}</span> ${rs(n)}`:'<span style="color:var(--mu)">—</span>'}</td>`);
       S.rv[ti].forEach(n=>h+=`<td title="${n?rn(n):''}" style="white-space:nowrap;font-size:10px">${n?`<span class="p pb-" style="font-size:9px">${n}</span> ${rs(n)}`:'<span style="color:var(--mu)">—</span>'}</td>`);
@@ -3187,7 +3202,7 @@ window.addEventListener('resize',()=>{if(document.getElementById('pg-race').clas
 // ══════════════════════════════════════════
 function renderStat(){
   if(!S.ok){document.getElementById('stat-content').innerHTML='<div class="notice nw">Stel eerst E1 vast.</div>';return;}
-  const base={};for(let i=0;i<TMS.length;i++)base[i]=S.sel[1][i];
+  const base={};for(let i=0;i<TMS.length;i++)base[i]=getSel(1,i)||[];
 
   // 1. Meest gekozen renners (top-20)
   const picks={};
@@ -3408,11 +3423,11 @@ function renderRiders(){
     const num=parseInt(n);
     // How many teams had this rider
     let chosen=0;
-    if(S.sel[1])for(let i=0;i<TMS.length;i++){if(S.sel[1][i].includes(num))chosen++;}
+    for(let i=0;i<TMS.length;i++){const s1=getSel(1,i)||[];if(s1.includes(num))chosen++;}
     // How many times used as substitute
     let timesSubbed=0;
-    if(S.sel[1])for(let i=0;i<TMS.length;i++){
-      const base=S.sel[1][i];
+    for(let i=0;i<TMS.length;i++){
+      const base=getSel(1,i)||[];
       if(!base.includes(num)){
         // Check if in any later stage selection due to substitution
         const rv=S.rv[i]||[];

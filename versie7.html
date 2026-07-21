@@ -1601,8 +1601,8 @@ function initUI(){
   aapAutoMark();
   if(IS_ADMIN)document.getElementById('app-wrapper').style.display='block';
 
-  rChkSum();rChkList();popSels();rGCIn();rGeld();
-  if(S.ok){renderSel();renderUit();renderDag();renderTot();renderRace();renderRaw();}
+  rChkSum();rChkList();popSels();rGCIn();safeRender(rGeld,"rGeld","g-win");
+  if(S.ok){renderSel();renderUit();safeRender(renderDag,"renderDag","dag-content");safeRender(renderTot,"renderTot","tot-content");renderRace();renderRaw();}
   wfSync();
   document.getElementById('hist-cnt').textContent=S.hist.length;
   document.querySelectorAll('.ao').forEach(el=>el.style.display=IS_ADMIN?'':'none');
@@ -2106,13 +2106,13 @@ function saveUit(){
     if(!S.pts[stage])S.pts[stage]={};
     for(let i=0;i<TMS.length;i++){const nums=bStage(i,stage);S.pts[stage][i]=cPts(nums,S.rs[stage]);}
   }
-  popSels();renderUit();renderDag();renderTot();renderRace();renderRaw();popRidersStg();
+  popSels();renderUit();safeRender(renderDag,"renderDag","dag-content");safeRender(renderTot,"renderTot","tot-content");renderRace();renderRaw();popRidersStg();
   document.getElementById('s3').classList.remove('act');document.getElementById('s3').classList.add('done');
   document.getElementById('s4').classList.add('act');
   document.getElementById('nxe').textContent=stage+1;document.getElementById('nxe2').textContent=stage+1;
   if(stage>=S.cs)S.cs=stage+1;
   wfSync();aapAutoMark();
-  shDNF(stage);rGeld();saveState();
+  shDNF(stage);safeRender(rGeld,"rGeld","g-win");saveState();
 }
 
 
@@ -2131,18 +2131,18 @@ function onPctBlurLantaarn(e){
   var v=GVK.find(function(x){return x.pos==='lantaarn';});
   if(v){v.pct=pct;v.manual=true;}
   e.target.value=pct.toFixed(1);
-  rGeld();
+  safeRender(rGeld,"rGeld","g-win");
 }
 function onPctBlur(e,idx){
   const raw=e.target.value.replace(',','.').trim();
-  if(raw===''||raw==='.'){GVK[idx].pct=0;GVK[idx].manual=true;e.target.value='0.0';rGeld();return;}
+  if(raw===''||raw==='.'){GVK[idx].pct=0;GVK[idx].manual=true;e.target.value='0.0';safeRender(rGeld,"rGeld","g-win");return;}
   let pct=parseFloat(raw);
   if(isNaN(pct))pct=0;
   pct=Math.min(100,Math.max(0,parseFloat(pct.toFixed(1))));
   GVK[idx].pct=pct;
   GVK[idx].manual=true;
   e.target.value=pct.toFixed(1);
-  rGeld();
+  safeRender(rGeld,"rGeld","g-win");
 }
 function onUitTypeChange(){
   const type=document.getElementById('uit-type').value;
@@ -2234,7 +2234,7 @@ async function fetchAllStages(){
     }else{lastRow.innerHTML=`<span class="fetch-err">✗ E${stage} — geen data</span>`;}
     await new Promise(r=>setTimeout(r,1200)); // rate limit
   }
-  popSels();renderUit();renderDag();renderTot();renderRace();renderRaw();popRidersStg();rGeld();
+  popSels();renderUit();safeRender(renderDag,"renderDag","dag-content");safeRender(renderTot,"renderTot","tot-content");renderRace();renderRaw();popRidersStg();safeRender(rGeld,"rGeld","g-win");
   log.innerHTML+=`<div style="color:var(--green);font-weight:500;margin-top:4px">✓ Klaar — ${Object.keys(S.rs).length} etappes geladen</div>`;
 }
 
@@ -2408,6 +2408,46 @@ function confNext(){
 // ══════════════════════════════════════════
 // DAGSTAND
 // ══════════════════════════════════════════
+
+
+function cPts(nums,result){
+  const lk={};result.forEach((n,i)=>{if(n)lk[n]=i;});let total=0;const bd=[];
+  nums.forEach((n,slot)=>{if(!n||!(n in lk))return;const pos=lk[n],pts=DP[pos]||0,bonus=pos===slot?5:0;bd.push({num:n,pos,pts,bonus});total+=pts+bonus;});
+  return{total,bd};
+}
+
+function cGC(ti,gcR){
+  const base=S.sel[1]?S.sel[1][ti]:bBase(ti);
+  const lk={};gcR.forEach((n,i)=>{if(n)lk[n]=i;});let total=0;const bd=[];
+  base.slice(0,8).forEach((n,slot)=>{if(!n||!(n in lk))return;const pos=lk[n],pts=GP[pos]||0,bonus=pos===slot?10:0;bd.push({num:n,pos,pts,bonus});total+=pts+bonus;});
+  return{total,bd};
+}
+
+
+function safeRender(fn, name, elId) {
+  try {
+    fn();
+  } catch(e) {
+    console.error(name + ' error:', e.message, e.stack);
+    if(elId) {
+      const el = document.getElementById(elId);
+      if(el) el.innerHTML = '<div class="notice nw">Fout in ' + name + ': ' + e.message + '</div>';
+    }
+  }
+}
+function totPts(ti,upToStage){
+  let t=0;
+  const stages=upToStage?Object.keys(S.pts).map(Number).filter(s=>s<=upToStage):Object.keys(S.pts).map(Number);
+  stages.forEach(s=>{const p=S.pts[s];if(p&&p[ti])t+=p[ti].total;});
+  if(!upToStage&&S.gcP[ti])t+=S.gcP[ti].total;
+  return t;
+}
+
+function ranked(entries){
+  const sorted=[...entries].sort((a,b)=>b.pts-a.pts);let rank=1;
+  return sorted.map((e,i)=>{if(i>0&&e.pts===sorted[i-1].pts){}else rank=i+1;return{...e,rank};});
+}
+
 function renderDag(){
   const stage=parseInt((document.getElementById('dag-stg')||{}).value)||1;const p=S.pts[stage];
   if(!p){document.getElementById('dag-content').innerHTML='<div class="notice ni">Nog geen uitslag voor etappe '+stage+'.</div>';return;}
@@ -2479,7 +2519,7 @@ function renderTot(){
       </table>
     </div>
   </div>`;
-  document.getElementById('tot-content').innerHTML=h;rGeld();
+  document.getElementById('tot-content').innerHTML=h;safeRender(rGeld,"rGeld","g-win");
 }
 function printTot(){document.querySelectorAll('.no-print').forEach(el=>el.style.display='none');document.querySelectorAll('.print-tot').forEach(el=>el.style.display='block');window.print();document.querySelectorAll('.no-print').forEach(el=>el.style.display='');document.querySelectorAll('.print-tot').forEach(el=>el.style.display='none');}
 
@@ -2501,7 +2541,7 @@ function saveGC(){
   S.gcR=[...gc8];S.gcP={};for(let i=0;i<TMS.length;i++)S.gcP[i]=cGC(i,S.gcR);S.gcOk=true;
   aapAutoMark();document.getElementById('gc-lbl').textContent='✓ Berekend '+new Date().toLocaleTimeString('nl-NL');
   document.getElementById('gc-conf-notice').innerHTML='<div class="notice nok">GC-punten opgeslagen en verwerkt in de totaalstand.</div>';
-  rGCRes();renderTot();renderRace();rGeld();saveState();
+  rGCRes();safeRender(renderTot,"renderTot","tot-content");renderRace();safeRender(rGeld,"rGeld","g-win");saveState();
 }
 function rGCRes(){
   const entries=Object.entries(S.gcP).map(([i,p])=>({i:parseInt(i),team:TMS[i].team,name:TMS[i].name,pts:p.total,bd:p.bd}));
@@ -2991,9 +3031,9 @@ function goToTab(id){
     var pg=document.getElementById('pg-'+id);
     if(pg)pg.classList.add('on');
     if(id==='sel')renderSel();
-    if(id==='dag')renderDag();
-    if(id==='tot')renderTot();
-    if(id==='geld')rGeld();
+    if(id==='dag')safeRender(renderDag,"renderDag","dag-content");
+    if(id==='tot')safeRender(renderTot,"renderTot","tot-content");
+    if(id==='geld')safeRender(rGeld,"rGeld","g-win");
     if(id==='gc')rGCIn();
     if(id==='uit')renderUit();
   }
@@ -3004,14 +3044,14 @@ function showPg(id,btn){
   document.getElementById('pg-'+id).classList.add('on');
   btn.classList.add('on');
   if(id==='sel')renderSel();
-  if(id==='dag')renderDag();
-  if(id==='tot')renderTot();
-  if(id==='geld')rGeld();
+  if(id==='dag')safeRender(renderDag,"renderDag","dag-content");
+  if(id==='tot')safeRender(renderTot,"renderTot","tot-content");
+  if(id==='geld')safeRender(rGeld,"rGeld","g-win");
   if(id==='raw')renderRaw();
   if(id==='race')renderRace();
-  if(id==='stat')renderStat();
-  if(id==='riders'){popRidersStg();renderRiders();}
-  if(id==='neven'){renderStageTypeGrid();renderNevenAll();}
+  if(id==='stat')safeRender(renderStat,"renderStat","stat-content");
+  if(id==='riders'){popRidersStg();safeRender(renderRiders,"renderRiders","riders-content");}
+  if(id==='neven'){renderStageTypeGrid();safeRender(renderNevenAll,"renderNevenAll","joker-content");}
   if(id==='gc')rGCIn();
   if(id==='uit'){popSels();var us=document.getElementById('uit-stg');if(us&&!us.value)us.value=S.cs;renderUit();}
   if(id==='wf'){rChkSum();rChkList();wfSync();aapAutoMark();}
@@ -3441,7 +3481,7 @@ function renderStageTypeGrid(){
 
 function setStageType(stage,type){
   S.stageTypes[stage]=type;saveState();
-  renderNevenAll();
+  safeRender(renderNevenAll,"renderNevenAll","joker-content");
 }
 
 function nevenTab(t){
@@ -3452,7 +3492,7 @@ function nevenTab(t){
 
 function renderNevenAll(){
   renderStageTypeGrid();
-  renderJoker();renderBerg();renderSprint();
+  safeRender(renderJoker,"renderJoker","joker-content");safeRender(renderBerg,"renderBerg","berg-content");safeRender(renderSprint,"renderSprint","sprint-content");
 }
 
 function renderJoker(){
